@@ -14,16 +14,16 @@ Conventions for every task:
 
 ## Overview
 
-| Milestone | Tasks | Exit criteria | Paid? |
-| --------- | ----- | ------------- | ----- |
-| M0 Foundation | T-01..T-12 | Monorepo builds; local Supabase with schema and RLS; auth with age gate on web and mobile; Express API with OpenAPI client; BullMQ worker on Redis; `pnpm dev:all` runs web, iOS and Android together; flags; mock providers with contract tests; admin skeleton | No |
-| M1 Create and play | T-13..T-24 | A user creates, moderates, generates (mock), gets notified, and plays a song on web and mobile; ledger core charges and refunds | No |
-| M2 Credits and payments | T-25..T-29 | Caps and kill switches; Paddle sandbox purchases and refunds; top-up path chosen by S-4; mobile purchases in Test Store; wallet | No |
-| M3 More operations | T-30..T-34 | Extend, remix, stems, covers, synced lyrics, lyric video rendered in the worker, all on mocks | No |
-| M4 Gift and community | T-35..T-39 | Gift pages, sharing, Explore, profiles, reports, moderation console, appeals | No |
-| M5 Compliance and hardening | T-40..T-44 | Legal drafts, export and deletion, accessibility, security review, load tests, full local run on web, iOS and Android | No |
-| M6 Real providers | T-45..T-48 | Live adapters pass contract tests; S-1, S-2, S-3, S-5, S-6 results; NFR-12 and NFR-13 met on live models; prices set; still local | Yes |
-| M7 Launch | T-49..T-50 | Store accounts, device-only features verified, lawyer review, deployment plan executed (server, Supabase cloud, web, mobile), store submissions | Yes |
+| Milestone                   | Tasks      | Exit criteria                                                                                                                                                                                                                                                    | Paid? |
+| --------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| M0 Foundation               | T-01..T-12 | Monorepo builds; local Supabase with schema and RLS; auth with age gate on web and mobile; Express API with OpenAPI client; BullMQ worker on Redis; `pnpm dev:all` runs web, iOS and Android together; flags; mock providers with contract tests; admin skeleton | No    |
+| M1 Create and play          | T-13..T-24 | A user creates, moderates, generates (mock), gets notified, and plays a song on web and mobile; ledger core charges and refunds                                                                                                                                  | No    |
+| M2 Credits and payments     | T-25..T-29 | Caps and kill switches; Paddle sandbox purchases and refunds; top-up path chosen by S-4; mobile purchases in Test Store; wallet                                                                                                                                  | No    |
+| M3 More operations          | T-30..T-34 | Extend, remix, stems, covers, synced lyrics, lyric video rendered in the worker, all on mocks                                                                                                                                                                    | No    |
+| M4 Gift and community       | T-35..T-39 | Gift pages, sharing, Explore, profiles, reports, moderation console, appeals                                                                                                                                                                                     | No    |
+| M5 Compliance and hardening | T-40..T-44 | Legal drafts, export and deletion, accessibility, security review, load tests, full local run on web, iOS and Android                                                                                                                                            | No    |
+| M6 Real providers           | T-45..T-48 | Live adapters pass contract tests; S-1, S-2, S-3, S-5, S-6 results; NFR-12 and NFR-13 met on live models; prices set; still local                                                                                                                                | Yes   |
+| M7 Launch                   | T-49..T-50 | Store accounts, device-only features verified, lawyer review, deployment plan executed (server, Supabase cloud, web, mobile), store submissions                                                                                                                  | Yes   |
 
 ---
 
@@ -33,7 +33,7 @@ Conventions for every task:
 
 - Goal: an empty but complete pnpm + Turborepo monorepo with strict TypeScript and a green CI `static` job.
 - Files: root `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `.nvmrc`, `.gitignore`, `.env.example`, `LICENSE` (MIT), `README.md` (stub), `packages/config/*` (tsconfig base, eslint, prettier), `.github/workflows/ci.yml` (`static` only), `.github/dependabot.yml`.
-- Steps: create workspaces `frontend`, `backend`, `mobile`, `packages/*`, `eval`, `remotion` as empty packages with `lint`/`typecheck`/`test` scripts; resolve current stable versions and pin them (A-01); confirm every service in TRD §23 M0–M5 row is free for this use and record the result in README "Stack" (A-04, A-11).
+- Steps: create workspaces `frontend`, `backend`, `mobile`, `packages/*`, `eval`, `remotion` as empty packages with `lint`/`typecheck`/`test` scripts; resolve current stable versions and pin them (A-01); confirm every service in TRD §23 M0–M5 row is free for this use and record the result in `docs/runbooks/free-tier-check.md`, linked from README "Stack" (A-04).
 - Acceptance: `pnpm install --frozen-lockfile && pnpm lint && pnpm typecheck && pnpm test` exit 0; CI `static` green.
 - Depends on: none. Covers: INF-14 (partial), NFR-18.
 

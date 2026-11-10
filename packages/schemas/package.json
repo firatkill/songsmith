@@ -1,0 +1,11 @@
+{
+  "name": "@songsmith/schemas",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --config ../../vitest.config.mjs --project @songsmith/schemas --passWithNoTests"
+  }
+}

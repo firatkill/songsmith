@@ -1,0 +1,48 @@
+{
+  "name": "songsmith",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@10.18.3",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "turbo run lint lint:root",
+    "lint:root": "eslint eslint.config.mjs vitest.config.mjs scripts/*.mjs packages/config/*.mjs",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "turbo run format:write",
+    "format:write": "prettier --write .",
+    "format:check": "turbo run format:verify",
+    "format:verify": "prettier --check .",
+    "dev": "node scripts/not-implemented.mjs dev T-08",
+    "dev:all": "node scripts/not-implemented.mjs dev:all T-10",
+    "dev:check": "node scripts/not-implemented.mjs dev:check T-10",
+    "dev:mobile": "node scripts/not-implemented.mjs dev:mobile T-10",
+    "db:start": "node scripts/not-implemented.mjs db:start T-03",
+    "db:stop": "node scripts/not-implemented.mjs db:stop T-03",
+    "db:reset": "node scripts/not-implemented.mjs db:reset T-03",
+    "db:types": "node scripts/not-implemented.mjs db:types T-04",
+    "test:db": "node scripts/not-implemented.mjs test:db T-03",
+    "test:integration": "node scripts/not-implemented.mjs test:integration T-05",
+    "e2e": "node scripts/not-implemented.mjs e2e T-07",
+    "e2e:mobile": "node scripts/not-implemented.mjs e2e:mobile T-10",
+    "eval:moderation": "node scripts/not-implemented.mjs eval:moderation T-16",
+    "eval:lyricist": "node scripts/not-implemented.mjs eval:lyricist T-16",
+    "eval:language": "node scripts/not-implemented.mjs eval:language T-46",
+    "openapi": "node scripts/not-implemented.mjs openapi T-05",
+    "fixtures:audio": "node scripts/not-implemented.mjs fixtures:audio T-11"
+  },
+  "prettier": "./packages/config/prettier.config.mjs",
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.19.2",
+    "eslint": "10.14.0",
+    "prettier": "3.9.10",
+    "turbo": "2.11.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.2",
+    "vitest": "5.1.0"
+  }
+}

@@ -1,0 +1,13 @@
+packages:
+  - frontend
+  - backend
+  - mobile
+  - remotion
+  - eval
+  - packages/schemas
+  - packages/api-client
+  - packages/domain
+  - packages/moderation-rules
+  - packages/i18n
+  - packages/ui-tokens
+  - packages/config

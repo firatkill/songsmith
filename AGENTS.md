@@ -8,12 +8,12 @@ Songsmith (working name) is an AI song-writing and song-generation app for web, 
 
 ## Where the specs live
 
-| Document | Use it for |
-| -------- | ---------- |
-| `docs/PRD.md` | Requirements (FR, NFR, SEC, CMP, INF), content policy, decisions (D-xx), milestones |
-| `docs/TRD.md` | Architecture, schema, ledger functions, adapter interfaces, router, jobs, moderation, API, clients, tests, decisions (TD-xx), assumptions (A-xx) |
-| `docs/IMPLEMENTATION_PLAN.md` | Ordered tasks T-01..T-50 with acceptance checks |
-| `docs/PROGRESS.md` | What is done; update it in every task PR |
+| Document                      | Use it for                                                                                                                                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `docs/PRD.md`                 | Requirements (FR, NFR, SEC, CMP, INF), content policy, decisions (D-xx), milestones                                                              |
+| `docs/TRD.md`                 | Architecture, schema, ledger functions, adapter interfaces, router, jobs, moderation, API, clients, tests, decisions (TD-xx), assumptions (A-xx) |
+| `docs/IMPLEMENTATION_PLAN.md` | Ordered tasks T-01..T-50 with acceptance checks                                                                                                  |
+| `docs/PROGRESS.md`            | What is done; update it in every task PR                                                                                                         |
 
 Find the task ID in the plan and the TRD sections it references before writing code. Do not invent behaviour the docs do not specify. If something small is missing, choose the most conservative option and add a row to PRD §14. If it changes scope, cost, an external service or what a user sees, ask the owner.
 

@@ -1,0 +1,16 @@
+.codex-prompts/
+.claude/settings.local.json
+node_modules/
+.turbo/
+dist/
+.next/
+out/
+.expo/
+mobile/ios/
+mobile/android/
+coverage/
+playwright-report/
+playwright/.cache/
+test-results/
+pnpm-lock.yaml
+.env*
