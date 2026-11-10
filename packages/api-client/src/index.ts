@@ -1,2 +1,2 @@
-// Placeholder for the implementation tasks that follow T-01.
+// OpenAPI client generation is implemented in T-05.
 export {};

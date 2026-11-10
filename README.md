@@ -49,3 +49,40 @@ pnpm test
 `pnpm format` formats the repository through Turborepo. Root formatting and lint tasks cover tooling files as well as the 12 workspaces. Vitest's root projects configuration selects each workspace by name; empty packages explicitly allow no tests, while the domain package requires its smoke test to run. Commands belonging to future tasks print their task ID and exit 1 (for example, `pnpm dev` reports T-08).
 
 Requirements, technical design, task order and progress are in [docs/](docs/).
+
+## Shared packages (T-02)
+
+The six runtime packages (`schemas`, `domain`, `moderation-rules`, `i18n`,
+`ui-tokens`, `api-client`) expose compiled ESM `.js` and `.d.ts` through their
+package exports. Consumers declare a `workspace:*` dependency and import
+`@songsmith/<name>`. `pnpm build` emits `dist/`; Turbo builds dependencies before
+lint, typecheck and tests, including on a clean clone. No TypeScript runtime
+loader or Node-only runtime imports are required. Next.js and Metro consume the
+same ESM exports; app integration is verified in T-07/T-10. The i18n build inlines
+JSON catalogues in emitted JavaScript, avoiding runtime JSON import attributes.
+The generated API client remains a placeholder until T-05.
+
+Runtime dependencies: Zod **4.6.7** (the Zod 4 version recorded above) validates
+shared error responses; FormatJS `intl-messageformat` **12.1.5** formats ICU
+messages with locale-aware plurals and numbers. Both are pinned exactly.
+`formatMessage` accepts only catalogue keys. `resolveLocale` accepts a weighted
+Accept-Language header or a device-language list, ignores unsupported/excluded
+entries and falls back to English. Turkish search folding merges dotted and
+dotless i intentionally; display casing preserves their distinction.
+
+`tokensCss` provides CSS custom properties for light/dark themes;
+`nativeThemes` provides the same colours and numeric spacing, radii and type
+sizes for React Native. These neutral values are provisional (PRD D-16).
+
+```sh
+pnpm build
+pnpm check:exports
+pnpm check:boundaries
+```
+
+Boundary checks run independently of type-aware lint. Pure packages use an
+external-import allow-list (shared pure packages, Zod, FormatJS and Vitest);
+new libraries require an explicit review of their portability and I/O behavior.
+Deliberate violations in `fixtures/boundaries/` are excluded from normal checks
+and checked by the config package's Vitest tests. No live-provider import rule
+is included; UT-12 belongs to T-11.

@@ -1,0 +1,22 @@
+{
+  "errors.UNAUTHENTICATED": "Lütfen giriş yapın.",
+  "errors.FORBIDDEN": "Bu işlem için yetkiniz yok.",
+  "errors.NOT_ADULT": "En az 18 yaşında olmalısınız.",
+  "errors.VALIDATION": "Girdiğiniz bilgileri kontrol edin.",
+  "errors.MODERATION_BLOCKED": "Bu istek işlenemiyor.",
+  "errors.MODERATION_HARD_BLOCKED": "Bu isteğe izin verilmiyor.",
+  "errors.INSUFFICIENT_CREDITS": "Yeterli krediniz yok.",
+  "errors.MODEL_NOT_ELIGIBLE": "Bu model isteğinizi gerçekleştiremiyor.",
+  "errors.RATE_LIMITED": "Çok fazla istek gönderdiniz. Daha sonra tekrar deneyin.",
+  "errors.CONCURRENCY_LIMIT": "Devam eden işlemlerinizin bitmesini bekleyin.",
+  "errors.CAP_REACHED": "Kullanım sınırına ulaşıldı.",
+  "errors.KILL_SWITCH": "Bu özellik geçici olarak kullanılamıyor.",
+  "errors.PROVIDER_TIMEOUT": "Hizmet zamanında yanıt vermedi. Tekrar deneyin.",
+  "errors.NOT_FOUND": "Bu öğe bulunamadı.",
+  "errors.CONFLICT": "Bilgiler değişti. Sayfayı yenileyip tekrar deneyin.",
+  "errors.INTERNAL": "Bir sorun oluştu. Daha sonra tekrar deneyin.",
+  "common.cancel": "İptal",
+  "common.save": "Kaydet",
+  "common.items": "{count, plural, one {# öğe} other {# öğe}}",
+  "common.number": "{value, number}"
+}

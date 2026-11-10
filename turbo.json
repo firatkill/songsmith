@@ -7,22 +7,29 @@
   ],
   "tasks": {
     "lint": {
-      "outputs": []
+      "outputs": [],
+      "dependsOn": ["^build"]
     },
     "//#lint:root": {
       "outputs": []
     },
     "typecheck": {
-      "outputs": []
+      "outputs": [],
+      "dependsOn": ["^build"]
     },
     "test": {
-      "outputs": []
+      "outputs": [],
+      "dependsOn": ["^build"]
     },
     "//#format:write": {
       "cache": false
     },
     "//#format:verify": {
       "cache": false
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
     }
   }
 }

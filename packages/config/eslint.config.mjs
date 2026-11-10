@@ -1,10 +1,13 @@
 import js from '@eslint/js';
+import { boundaryConfig } from './boundaries.mjs';
 import tseslint from 'typescript-eslint';
 
 export default [
   {
     ignores: [
       '**/node_modules/**',
+      '**/*.tsbuildinfo',
+      '**/fixtures/boundaries/**',
       '**/.turbo/**',
       '**/dist/**',
       '**/.next/**',
@@ -43,4 +46,5 @@ export default [
       ],
     },
   },
+  ...boundaryConfig,
 ];

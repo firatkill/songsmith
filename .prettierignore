@@ -14,3 +14,4 @@ playwright/.cache/
 test-results/
 pnpm-lock.yaml
 .env*
+*.tsbuildinfo

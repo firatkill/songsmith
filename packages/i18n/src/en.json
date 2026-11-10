@@ -1,0 +1,22 @@
+{
+  "errors.UNAUTHENTICATED": "Please sign in.",
+  "errors.FORBIDDEN": "You do not have permission.",
+  "errors.NOT_ADULT": "You must be 18 or older.",
+  "errors.VALIDATION": "Check the information you entered.",
+  "errors.MODERATION_BLOCKED": "This request cannot be processed.",
+  "errors.MODERATION_HARD_BLOCKED": "This request is prohibited.",
+  "errors.INSUFFICIENT_CREDITS": "You do not have enough credits.",
+  "errors.MODEL_NOT_ELIGIBLE": "This model cannot handle your request.",
+  "errors.RATE_LIMITED": "Too many requests. Try again later.",
+  "errors.CONCURRENCY_LIMIT": "Wait for your current tasks to finish.",
+  "errors.CAP_REACHED": "The usage limit has been reached.",
+  "errors.KILL_SWITCH": "This feature is temporarily unavailable.",
+  "errors.PROVIDER_TIMEOUT": "The service took too long. Try again.",
+  "errors.NOT_FOUND": "This item could not be found.",
+  "errors.CONFLICT": "Something changed. Refresh and try again.",
+  "errors.INTERNAL": "Something went wrong. Try again later.",
+  "common.cancel": "Cancel",
+  "common.save": "Save",
+  "common.items": "{count, plural, one {# item} other {# items}}",
+  "common.number": "{value, number}"
+}

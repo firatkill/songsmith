@@ -1,0 +1,1 @@
+import '@revenuecat/purchases-js';

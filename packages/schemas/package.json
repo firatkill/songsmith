@@ -6,6 +6,25 @@
   "scripts": {
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --config ../../vitest.config.mjs --project @songsmith/schemas --passWithNoTests"
+    "test": "vitest run --config ../../vitest.config.mjs --project @songsmith/schemas --passWithNoTests",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "zod": "4.6.7"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@songsmith/i18n": "workspace:*"
   }
 }

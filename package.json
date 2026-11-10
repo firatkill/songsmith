@@ -32,7 +32,10 @@
     "eval:lyricist": "node scripts/not-implemented.mjs eval:lyricist T-16",
     "eval:language": "node scripts/not-implemented.mjs eval:language T-46",
     "openapi": "node scripts/not-implemented.mjs openapi T-05",
-    "fixtures:audio": "node scripts/not-implemented.mjs fixtures:audio T-11"
+    "fixtures:audio": "node scripts/not-implemented.mjs fixtures:audio T-11",
+    "build": "turbo run build",
+    "check:exports": "node scripts/check-exports.mjs",
+    "check:boundaries": "node scripts/check-boundaries.mjs"
   },
   "prettier": "./packages/config/prettier.config.mjs",
   "devDependencies": {
