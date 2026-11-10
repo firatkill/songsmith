@@ -1,0 +1,475 @@
+# Songsmith: Product Requirements Document
+
+| Field          | Value                                                                  |
+| -------------- | ---------------------------------------------------------------------- |
+| Product        | Songsmith (working name): write and generate your own songs with AI    |
+| Owner          | Fırat Kıl                                                              |
+| Repository     | github.com/firatkill/songsmith (monorepo)                               |
+| Platforms      | Web, iOS, Android                                                      |
+| Status         | Draft for review                                                       |
+| Date           | 2026-11-10                                                             |
+| Companion docs | `docs/TRD.md` (how), `docs/IMPLEMENTATION_PLAN.md` (ordered tasks), `docs/PROGRESS.md` (status), `AGENTS.md` (rules for coding agents) |
+
+This document defines what Songsmith does and why. Requirement IDs (US-xx, FR-xx, NFR-xx, SEC-xx, CMP-xx, INF-xx, R-xx, D-xx, Q-xx, S-xx) are stable. The TRD and the implementation plan reference them. Do not renumber; append new IDs at the end of each list.
+
+**Build order (D-12):** the whole product is built and tested first on mock providers, free tiers and payment sandboxes, at no cost. Paid model calls, paid evaluation runs and paid accounts (Apple Developer Program, Google Play Console) come last, in milestones M6 and M7.
+
+Several facts below depend on third-party terms and on spikes that have not run yet. They are marked **[verify]** or linked to a spike (section 12). Legal requirements in sections 9 and 10 are an engineering reading of public sources, not legal advice. They must be reviewed by a lawyer before the product takes real payments (D-03).
+
+---
+
+## 1. Problem
+
+Many people want a song of their own: for a friend's birthday, a wedding, a joke in a group chat, or to hear lyrics they wrote sung for the first time. Writing and producing a song needs skills and tools most people do not have.
+
+AI music models can now sing full songs from text. The consumer apps built on them have three gaps this product addresses:
+
+1. **Turkish.** The leading models list English and a few European and Asian languages. Turkish lyrics are often mispronounced or not supported at all. A product that verifies Turkish per model and routes to a model that sings it well serves a market others ignore.
+2. **One model, one vendor.** Apps tie themselves to a single model, so they cannot offer features the model lacks (extending a song, separating stems) or switch when a better or cheaper model appears.
+3. **Safety as an afterthought.** Song generation takes free text from users. Without a real moderation pipeline, an app can produce content that is illegal (sexual content involving minors), defamatory or infringing, and loses its app-store listing.
+
+The owner builds AI products at work. That code is private. Songsmith is a public, production-quality monorepo that shows the same engineering across web and mobile: a provider-agnostic model layer with capability routing, a layered moderation pipeline with an evaluation set in CI, a correct credit ledger, durable background jobs, and app-store compliance.
+
+## 2. Product summary
+
+1. A signed-in adult (18+) describes the song they want in free text, or pastes lyrics they wrote.
+2. The AI lyricist writes lyrics from the description, tagged by section (`[Verse]`, `[Chorus]`, `[Bridge]`). The user can edit any line, ask for a rewrite of one section, or keep their own lyrics unchanged.
+3. Before any generation, the lyrics and description go through the moderation pipeline (section 9). Hard-blocked content is never sent to a model.
+4. The user chooses genre, mood, tempo, vocal type and language, or turns on instrumental mode. The model picker defaults to **Auto**, which selects the best model that supports the requested operation and language (section 7.3).
+5. The user sees the credit price and presses **Generate**. The job runs in the background. The user can leave the screen and gets a push notification or e-mail when the song is ready.
+6. The song gets an AI-generated cover image. From the song page the user can extend it, remix it in another style, separate stems, render a vertical lyric video, download MP3 or WAV, add it to playlists, and share it.
+7. The **gift flow** turns names, an occasion and a few memories into lyrics and a song, and produces a gift page the recipient opens without an account.
+8. Public songs appear in **Explore** with likes and play counts. Every user has a public profile. Others can remix a public song if its owner allows it. Anyone can report a song or a user.
+9. Every paid action costs credits. Credits are bought as packs. On the web, users can turn on **auto top-up**. On iOS and Android, packs are bought through the store. One balance is shared across platforms.
+10. The product ships first as a **portfolio edition**: real architecture, payments in sandbox mode, a daily global generation cap and a kill switch. It can become a commercial product without a rewrite (D-03).
+
+## 3. Goals
+
+| ID  | Goal | Measured by |
+| --- | ---- | ----------- |
+| G-1 | Let a non-musician go from an idea to a finished, shareable song in under five minutes on any platform. | Median time from first input to first playable song (analytics funnel, INF-09). |
+| G-2 | Sing Turkish lyrics well. | Turkish evaluation set per model (S-1, FR-26); pronunciation score threshold in TRD. |
+| G-3 | Add a new music model without touching the client apps or the generation flow. | A new adapter plus a catalogue row enables it; no mobile release needed (FR-24). |
+| G-4 | Never generate sexual content involving minors, and keep the app compliant with App Store and Google Play rules. | Moderation evaluation set in CI with a zero-miss gate on the hard-block category (FR-57, NFR-12); store review passes. |
+| G-5 | Never lose or double-spend a credit. | Ledger invariants checked in tests and in a nightly job (FR-77, NFR-07). |
+| G-6 | Cap provider spend. | Per-user and global daily caps, per-provider kill switches (FR-90–FR-93). |
+| G-7 | Show the engineering in public. | README, `/how-it-works`, the code, CI with evaluations. |
+
+## 4. Non-goals
+
+- Subscriptions. Credits are bought in packs (D-05).
+- Users under 18. The Gemini API terms forbid use in services likely to be accessed by minors (D-07).
+- Uploading the user's own audio, voice cloning, or singing in the voice of a real artist.
+- Uploading photos or other images in v1. Covers are generated, never uploaded (D-09). This removes the need to scan uploads for known abuse imagery in v1.
+- A digital audio workstation: no multitrack editing, mixing or mastering.
+- Distribution to streaming services (Spotify, Apple Music) and royalty collection.
+- Direct messages or comments between users. Social features are likes, follows, remixes and reports only.
+- Languages other than Turkish and English in the interface. Song languages depend on what each model is verified to sing (FR-26).
+
+## 5. Audience
+
+| Audience | What they need | Where they find it |
+| -------- | -------------- | ------------------ |
+| Casual creator (Turkey and abroad) | A fast, fun way to make a song, mostly in Turkish, often as a gift. | Mobile app, web app. |
+| Gift giver | A personal song for a named person and an occasion, delivered as a nice page. | Gift flow (FR-40–FR-46). |
+| Listener | To play songs shared with them and browse Explore without friction. | Share pages and Explore; listening needs no account. |
+| Engineer reviewing the repo | Provider layer, moderation pipeline, credit ledger, jobs, mobile and web sharing code. | README, `/how-it-works`, `docs/`, `backend/`, `packages/`. |
+
+## 6. User stories
+
+| ID | As a | I want to | So that |
+| -- | ---- | --------- | ------- |
+| US-01 | creator | describe a song in my own words | I do not need to know music terms. |
+| US-02 | creator | paste lyrics I wrote | the song sings my words. |
+| US-03 | creator | have AI write lyrics from my description and edit them line by line | I get a good start and keep control. |
+| US-04 | creator | pick genre, mood, tempo, vocal type and language, or make it instrumental | the song sounds the way I imagine. |
+| US-05 | creator | see what a song will cost before I generate it | I am not surprised by spent credits. |
+| US-06 | creator | leave the app while the song generates and be told when it is ready | I do not wait on a spinner. |
+| US-07 | creator | extend a song, remix it in another style, or split it into stems | I can build on a song I like. |
+| US-08 | creator | get a cover image and a vertical lyric video | I can post the song on social media. |
+| US-09 | gift giver | enter names, an occasion and memories and get a song and a gift page | I can send a personal gift in minutes. |
+| US-10 | recipient | open a gift link and play the song without signing up | receiving the gift is effortless. |
+| US-11 | listener | organise songs into playlists and favourites, search them, and play them with the screen locked | it works like a music app. |
+| US-12 | listener | follow synced lyrics while the song plays | I can sing along. |
+| US-13 | listener | download songs for offline listening on my phone, and as MP3 or WAV | I can listen anywhere and use the files. |
+| US-14 | creator | publish songs to Explore, see likes and plays, and have a public profile | others can find my songs. |
+| US-15 | creator | remix someone else's public song, or stop others from remixing mine | remixing is fun and consensual. |
+| US-16 | anyone | report a song or a user | harmful content gets removed. |
+| US-17 | creator | buy credit packs on any platform, and turn on auto top-up on the web | I never run out in the middle of a song. |
+| US-18 | user | use the app in Turkish or English | I understand everything. |
+| US-19 | user | export my data and delete my account | I control my data. |
+| US-20 | moderator | review reports and flagged content, and act on users and songs | the platform stays safe. |
+| US-21 | owner | add a new model by writing one adapter | the product keeps up with the market. |
+| US-22 | owner | cap and stop provider spend instantly | abuse or a bug cannot cost me money. |
+
+## 7. Functional requirements
+
+Priority: **Must** (required for v1.0.0), **Should** (expected in v1.0.0; may slip to v1.1 with a decisions-log entry), **Could** (only if time remains).
+
+### 7.1 Creation flow
+
+| ID | Requirement | Priority | Stories |
+| -- | ----------- | -------- | ------- |
+| FR-01 | The create screen has two entry modes: **Describe** (free text, up to 1,000 characters) and **My lyrics** (paste lyrics, up to 3,000 characters). The user can switch between them without losing input. | Must | US-01, US-02 |
+| FR-02 | In Describe mode, the AI lyricist writes lyrics with section tags (`[Intro]`, `[Verse]`, `[Pre-Chorus]`, `[Chorus]`, `[Bridge]`, `[Outro]`) in the chosen song language. It returns a suggested title and suggested style settings with the lyrics. | Must | US-03 |
+| FR-03 | The lyrics editor allows editing any line, adding and removing sections, reordering sections, and **rewrite this section** with an optional instruction. Each lyricist call costs credits (FR-71). The editor keeps an undo history for the session. | Must | US-03 |
+| FR-04 | In My lyrics mode, the system checks the section tags and offers to add missing tags automatically. It never changes the user's words without consent. | Should | US-02 |
+| FR-05 | Style controls: genre (curated list plus free text), mood, tempo (slow, medium, fast, or BPM when the selected model supports it), vocal type (female, male, duet, choir; hidden in instrumental mode), song language, and target length within the model's limits. Controls a model does not support are hidden or disabled with the reason. | Must | US-04 |
+| FR-06 | **Instrumental mode** generates a song without vocals. In this mode the lyrics step is skipped and the description drives the music. | Must | US-04 |
+| FR-07 | Before Generate is enabled, the request passes moderation (FR-50). If it fails, the user sees which category was triggered in plain language and can edit. Hard-block results follow FR-55. | Must | US-04 |
+| FR-08 | The Generate button shows the credit price for the selected model and operation. If the balance is too low, it opens the buy-credits sheet instead. | Must | US-05 |
+| FR-09 | Generation is a background job (INF-02). The UI shows queued, generating, finishing and ready states with live updates. The user can leave the screen. When the song is ready, the user gets a push notification on mobile (if allowed) and an in-app notification on all platforms. An e-mail is sent if the user has opted in. | Must | US-06 |
+| FR-10 | If generation fails for a reason that is not the user's fault (provider error, timeout, output blocked by the provider's own filter after our moderation passed), the credits are refunded automatically and the user can retry. | Must | US-05 |
+| FR-11 | Every generated song stores its lyrics, style settings, model and model version, credit cost, and the moderation decision ID, so it can be reproduced and audited. | Must | US-21 |
+
+### 7.2 Song operations
+
+| ID | Requirement | Priority | Stories |
+| -- | ----------- | -------- | ------- |
+| FR-15 | **Extend:** add a new section to the end of an existing song, with new lyrics written or edited by the user. Only models with the `extend` capability are offered. Auto selects one. If the source song was made by a different model, the UI warns that the voice may sound different (Q-02). | Must | US-07 |
+| FR-16 | **Remix:** generate a new song from the same lyrics in a different style. It is a new generation, linked to the source song. | Must | US-07 |
+| FR-17 | **Stems:** split a song into separate tracks (at least vocals and accompaniment; more tracks when the model supports it). Delivered as a ZIP and as individual files. Only models with the `stems` capability are offered. | Must | US-07 |
+| FR-18 | **Cover image:** each new song gets an AI-generated square cover based on its title, lyrics and style. The user can regenerate it for credits, with an optional instruction. Cover prompts pass moderation. | Must | US-08 |
+| FR-19 | **Lyric video:** render a 9:16 MP4 (1080×1920, up to the song's length) with the cover as background, synced lyrics on screen, title and a small "Made with AI" mark. Rendered in the background (INF-04); the user is notified when it is ready. | Must | US-08 |
+| FR-20 | **Synced lyrics:** each song has word or line timestamps. They come from the model when it returns them, otherwise from a forced-alignment step (INF-05). | Must | US-12 |
+| FR-21 | **Rename, edit details, delete.** Deleting a song removes its files from storage within 24 hours and removes it from Explore, playlists and gift pages (gift pages then show "This song is no longer available"). | Must | US-19 |
+
+### 7.3 Model layer and routing
+
+| ID | Requirement | Priority | Stories |
+| -- | ----------- | -------- | ------- |
+| FR-24 | Each music, lyric, image and alignment model is an **adapter** behind one internal interface. An adapter declares its **capabilities**: operations (`generate`, `instrumental`, `custom_lyrics`, `extend`, `stems`, `image_input`), maximum duration, output formats, controls it supports (BPM, length, vocal type), and per-operation provider cost. Adding a model means adding an adapter and a catalogue row; client apps read the catalogue from the API and need no release. | Must | US-21 |
+| FR-25 | The **model catalogue** in the database stores, per model: enabled flag, display name, adapter version, credit price per operation, quality rank, and **verified languages**. An admin can change these without a deploy. | Must | US-21, US-22 |
+| FR-26 | A language counts as supported for a model only after it passes our language evaluation set (S-1): a fixed set of lyrics per language, generated and rated for pronunciation and intelligibility. Provider documentation alone is not enough. Turkish must be verified for at least one model before v1.0.0. | Must | US-04 |
+| FR-27 | **Auto routing:** for a requested operation and song language, the router filters enabled models by capability and verified language, removes models whose circuit breaker is open (INF-06), and picks the highest quality rank, with lower cost as the tie-breaker. The choice and the reason are stored with the job. | Must | US-04, US-07 |
+| FR-28 | **Manual choice:** an "Advanced" control lets the user pick a model. Models that cannot do the operation or language are shown disabled with the reason (for example, "Lyria cannot extend songs"). | Should | US-04 |
+| FR-29 | If the chosen model fails with a retryable error, the job retries with backoff. If it keeps failing and the user chose Auto, the router may fall back to the next eligible model, only when that model's price is the same or lower; otherwise the job fails and refunds. | Should | US-06 |
+| FR-30 | Launch catalogue (subject to spikes S-1 to S-3): **Google Lyria 3.5** for generate, instrumental, custom lyrics and image input; **ElevenLabs Music** for generate, extend and stems. Lyric writing, moderation and cover images use providers chosen in the TRD behind the same adapter pattern. | Must | US-21 |
+
+### 7.4 Gift flow
+
+| ID | Requirement | Priority | Stories |
+| -- | ----------- | -------- | ------- |
+| FR-40 | A guided gift flow: occasion (birthday, wedding, anniversary, new baby, graduation, friendship, apology, custom), recipient's first name, sender's name, relationship, three to five memories or details, tone (funny, emotional, romantic, epic), and song language. | Must | US-09 |
+| FR-41 | The lyricist writes lyrics from the gift details using an occasion-specific template. The user edits and generates as in the normal flow. | Must | US-09 |
+| FR-42 | The gift page shows the cover, the recipient's name, a personal message (up to 500 characters), the player with synced lyrics, and a "Make your own song" call to action. It needs no account to open. | Must | US-10 |
+| FR-43 | Gift links are unguessable (at least 128 bits of randomness) and are not listed in Explore or search engines (`noindex`). The sender can revoke a gift link or schedule it to open on a date. | Must | US-10 |
+| FR-44 | Recipient names and memories are personal data of a third party. They are used only to write the lyrics and render the gift page, and are covered by the privacy notice (CMP-05). | Must | US-09 |
+| FR-45 | Gift lyrics that mock, harass or sexualise the named person are blocked by moderation (category `harassment_real_person`). | Must | US-09 |
+| FR-46 | The sender can download the gift as a lyric video for messaging apps. | Should | US-09 |
+
+### 7.5 Library and player
+
+| ID | Requirement | Priority | Stories |
+| -- | ----------- | -------- | ------- |
+| FR-31 | Library with tabs: My songs, Favourites, Playlists, Downloads (mobile). Create, rename, reorder and delete playlists. Add any playable song (own or public) to a playlist. | Must | US-11 |
+| FR-32 | Search over the user's own songs and favourites by title, lyrics text, genre and mood. | Must | US-11 |
+| FR-33 | Player: play, pause, seek, next, previous, shuffle, repeat, queue. Mini player persists across screens. On mobile: background playback, lock-screen and notification controls, headphone and Bluetooth controls, audio focus handling (pause on calls). | Must | US-11 |
+| FR-34 | Synced lyrics view in the player, highlighting the current line, with tap-to-seek. | Must | US-12 |
+| FR-35 | Offline downloads on mobile: songs are stored in app storage, playable without network, and listed under Downloads. Downloads are removed when the song is deleted or made unavailable. | Must | US-13 |
+| FR-36 | File downloads: MP3 for all songs; WAV only when the model returned lossless audio (no WAV made by converting an MP3). Files carry ID3 or equivalent metadata with title, "AI-generated" and the generating model (CMP-09). | Must | US-13 |
+
+### 7.6 Sharing and community
+
+| ID | Requirement | Priority | Stories |
+| -- | ----------- | -------- | ------- |
+| FR-60 | Every song has a visibility setting: **Private** (default), **Unlisted** (anyone with the link) or **Public** (in Explore and on the profile). | Must | US-14 |
+| FR-61 | Share pages render on the web with Open Graph and Twitter card previews (cover, title, artist name) and open the mobile app via universal links and app links when it is installed. | Must | US-14 |
+| FR-62 | **Explore:** feeds for New, Trending (plays and likes, time-decayed) and By genre. Explicit songs carry a label and can be hidden by a user setting. | Must | US-14 |
+| FR-63 | Likes and play counts. A play counts after 30 seconds or half the song, at most once per listener per song per hour. Counts are approximate and protected against simple inflation (NFR-15). | Must | US-14 |
+| FR-64 | Public profile: display name, handle, avatar (generated or initials; no upload in v1), bio, public songs, follower and following counts. Users can follow and block other users. A blocked user's songs are hidden from the blocker. | Must | US-14 |
+| FR-65 | **Remix others:** a public song whose owner allows remixing can be remixed (FR-16). The new song credits and links the original. Owners can turn remixing off per song or for all songs. | Must | US-15 |
+| FR-66 | **Report:** report a song, profile or gift page for a reason from a list (sexual content involving minors, sexual content, hate, harassment, violence, self-harm, copyright, impersonation, spam, other) with an optional note. Reporters get an acknowledgement and a decision notice. | Must | US-16 |
+| FR-67 | **Moderation console** (web, staff only): queue of reports and flagged content, song preview with lyrics and moderation history, actions (dismiss, hide, remove, warn, suspend, ban), a reason for each action sent to the affected user, and an audit log of every action. | Must | US-20 |
+| FR-68 | Affected users can appeal a removal or suspension once, from the notice. A different moderator, or the owner, decides the appeal. | Should | US-16 |
+
+### 7.7 Moderation
+
+The policy itself is in section 9. These are the system requirements.
+
+| ID | Requirement | Priority | Stories |
+| -- | ----------- | -------- | ------- |
+| FR-50 | Every text that can reach a generative model passes the moderation pipeline first: descriptions, lyrics (user-written and AI-written), style free text, rewrite instructions, cover instructions, gift details, titles, profile names and bios. | Must | US-16 |
+| FR-51 | The pipeline has three layers in order: (1) deterministic checks (normalisation, blocklists for hard-block terms in Turkish and English, artist-name and known-lyrics checks); (2) an LLM classifier with a fixed, versioned policy prompt returning a category, a severity and short evidence; (3) the provider's own safety filters. A request proceeds only if layers 1 and 2 pass. | Must | US-16 |
+| FR-52 | Model outputs are checked too: lyrics returned by the lyricist and by music models that return lyrics, cover images (image safety classifier), and the transcript of generated vocals when the model can improvise words (Should). | Must | US-16 |
+| FR-53 | The classifier handles Turkish and English, leetspeak, spacing tricks, mixed scripts and prompt-injection attempts ("ignore the rules", role-play framing). | Must | US-16 |
+| FR-54 | Every decision is stored: input hash, policy version, layer results, category, severity, final action. The full text of blocked inputs is stored only for categories that need review (section 9), in a restricted table, for 90 days. | Must | US-20 |
+| FR-55 | A **hard-block** result (sexual content involving minors and the other categories in section 9.1) blocks the request, shows a neutral message, creates a high-priority case in the moderation console, and suspends generation for the account until a moderator reviews it. Legal reporting follows CMP-03. | Must | US-16, US-20 |
+| FR-56 | Repeated blocks raise friction: after three blocked requests in 24 hours the account gets a cooldown; after a configurable number, generation is suspended pending review. | Must | US-22 |
+| FR-57 | The moderation evaluation set (golden set) has labelled examples per category in Turkish and English, including evasion attempts. It runs in CI on every change to policy, prompts or classifier model, with thresholds in section 8 (NFR-12). | Must | US-22 |
+| FR-58 | Songs classified as containing profanity or mature themes that are allowed by policy are labelled **Explicit**. | Must | US-14 |
+
+### 7.8 Credits and payments
+
+| ID | Requirement | Priority | Stories |
+| -- | ----------- | -------- | ------- |
+| FR-70 | One credit balance per user, shared across web, iOS and Android. | Must | US-17 |
+| FR-71 | Every paid operation has a credit price per model: lyric writing, section rewrite, song generation, extend, remix, stems, cover regeneration, lyric video. Moderation, playback, sharing and downloads are free. Prices live in the catalogue (FR-25) and are shown before the action. | Must | US-05 |
+| FR-72 | New accounts get a sign-up grant after e-mail verification. A small daily free grant is Could, behind a flag. Free grants are limited per verified e-mail and per device (NFR-14). | Must | US-17 |
+| FR-73 | **Web purchases** use Paddle as merchant of record: credit packs as one-time purchases, Paddle Checkout overlay, receipts and VAT handled by Paddle. | Must | US-17 |
+| FR-74 | **Auto top-up (web only):** the user sets a threshold and a pack. When the balance falls below the threshold after an operation, the system buys the pack with the saved payment method. Limits: at most 3 top-ups per day (configurable) and a monthly spending cap the user sets. Every top-up sends an e-mail receipt. Auto top-up can be turned off at any time. Implementation depends on S-4: if Paddle cannot charge a saved method off-session for a one-time item, auto top-up becomes **one-tap top-up** (a prompt with the saved card pre-filled) and this is logged as a decision. | Must | US-17 |
+| FR-75 | **Mobile purchases** use App Store and Google Play consumable in-app purchases. Purchases are verified on the server from store notifications or receipts before credits are granted. Mobile apps do not show auto top-up and do not link to web purchases, except where store rules allow it (CMP-12). | Must | US-17 |
+| FR-76 | Credits bought on any platform can be spent on any platform. | Must | US-17 |
+| FR-77 | Credits are an append-only **ledger** (grant, purchase, spend, refund, reversal, expiry, adjustment). The balance is derived from the ledger. Spending reserves credits when a job starts and settles or releases them when it ends. A balance can never go negative. | Must | US-17 |
+| FR-78 | Refunds and chargebacks from Paddle, Apple or Google reverse the granted credits. If credits are already spent, the balance may go negative only through a reversal, and the account cannot spend until it is positive again. | Must | US-17 |
+| FR-79 | A wallet screen shows the balance, the ledger history with each operation, and purchase receipts. | Must | US-17 |
+| FR-80 | Purchased credits do not expire for at least 12 months. Promotional credits may expire; the expiry date is shown. **[verify against consumer law, CMP-13]** | Should | US-17 |
+
+### 7.9 Account, settings and data
+
+| ID | Requirement | Priority | Stories |
+| -- | ----------- | -------- | ------- |
+| FR-85 | Sign-in with e-mail (magic link or one-time code), Sign in with Apple and Google. Sign in with Apple is offered on iOS whenever another third-party sign-in is offered. | Must | US-18 |
+| FR-86 | Age gate at sign-up: date of birth; users under 18 cannot create an account. The date of birth is stored only as an "is adult" flag and the verification date. | Must | US-19 |
+| FR-87 | Interface in Turkish and English, chosen from device or browser language, changeable in settings. All user-facing text, e-mails, push notifications and legal pages exist in both. | Must | US-18 |
+| FR-88 | Notification settings: push (per type), e-mail (transactional always on; marketing opt-in only), in-app. | Must | US-06 |
+| FR-89 | **Data export:** the user downloads a ZIP with profile, songs (audio, lyrics, metadata), playlists, ledger and consent history within 48 hours of the request. | Must | US-19 |
+| FR-95 | **Account deletion** from within the app on every platform, in at most three steps. Deletion removes personal data and songs within 30 days, keeps only what the law requires (payment records, moderation records for hard-block cases), and is confirmed by e-mail. | Must | US-19 |
+
+### 7.10 Cost control and operations
+
+| ID | Requirement | Priority | Stories |
+| -- | ----------- | -------- | ------- |
+| FR-90 | Every provider call records its estimated and, when available, actual cost against the user, the job and the provider. | Must | US-22 |
+| FR-91 | Per-user daily spend cap (in provider cost, not credits) and per-user concurrency limit (for example, two music jobs at a time). | Must | US-22 |
+| FR-92 | Global daily cap per provider and in total. When reached, new paid jobs are refused with a clear message. In the portfolio edition the cap is low and also limits free users. | Must | US-22 |
+| FR-93 | Kill switches per provider, per operation and for all generation, changeable from the admin console without a deploy, effective within one minute. | Must | US-22 |
+| FR-94 | Admin console (web, staff only): users, balances and ledger adjustments (with reason, audited), jobs and their states, model catalogue, kill switches, cost dashboard, moderation console (FR-67). | Must | US-20, US-22 |
+
+## 8. Non-functional requirements
+
+| ID | Requirement |
+| -- | ----------- |
+| NFR-01 | Web: Core Web Vitals "good" on the landing, share and gift pages at the 75th percentile (LCP < 2.5 s, INP < 200 ms, CLS < 0.1). |
+| NFR-02 | Mobile: cold start to interactive home screen under 2.5 s on a mid-range Android device. |
+| NFR-03 | Audio starts playing within 1.5 s of pressing play on a 4G connection (progressive download from CDN). |
+| NFR-04 | API p95 latency under 400 ms for non-generation endpoints. |
+| NFR-05 | Generation jobs: 99% reach a final state (ready, failed or refunded) within 10 minutes. No job is lost on a deploy or a function timeout. |
+| NFR-06 | Availability target 99.5% monthly for the API and playback in the commercial edition; best effort in the portfolio edition. |
+| NFR-07 | Credit ledger correctness: no lost or duplicated credits under concurrent requests, retries and duplicate webhooks. Verified by concurrency tests and a nightly reconciliation job that compares derived balances, reservations and provider purchases. |
+| NFR-08 | Accessibility: WCAG 2.2 AA on web; VoiceOver and TalkBack support on mobile; all controls reachable by keyboard on web; captions (synced lyrics) for every song. |
+| NFR-09 | Internationalisation: no hard-coded user-facing strings; Turkish-specific casing (İ/ı) handled in search and display. |
+| NFR-10 | Security requirements in section 9.3 are met before any public launch. |
+| NFR-11 | Privacy: no third-party advertising trackers; analytics limited to product events (INF-09), with consent where required. |
+| NFR-12 | Moderation quality, measured on the golden set (FR-57): recall of 100% on the hard-block category, at least 95% recall on other block categories, and at most 5% false blocks on the allowed set (including profanity and mature themes, which are allowed). |
+| NFR-13 | Lyricist quality, measured on a golden set: correct section tags in 100% of outputs, correct language in 100%, requested names present in gift lyrics in at least 95%. |
+| NFR-14 | Abuse resistance: free grants cannot be farmed with disposable e-mails, reinstalls or emulators at scale (NFR detail in TRD). |
+| NFR-15 | Play and like counts resist simple inflation: rate limits per listener, de-duplication, bot filtering. |
+| NFR-16 | Observability: every request and job has a correlation ID across web, mobile, API, jobs and provider calls. Errors reach the error tracker with that ID. |
+| NFR-17 | Cost: the portfolio edition costs at most a fixed monthly budget set in the TRD, enforced by FR-92. |
+| NFR-18 | Code sharing: types, API client, validation schemas, i18n strings and domain logic are shared between web and mobile from `packages/`. |
+
+## 9. Content, safety and security
+
+### 9.1 Content policy
+
+The content policy is versioned. The moderation pipeline (FR-50–FR-58) enforces it and the golden set (FR-57) tests it. The public version is published at `/content-policy` in Turkish and English.
+
+| Tier | Categories | Action |
+| ---- | ---------- | ------ |
+| **Hard block** | Sexual content involving minors in any form, including fictional, "aged-up" or implied minors, and any sexualisation of children; content promoting child abuse or grooming; credible threats of violence against a real person; recruitment for or praise of terrorist acts; publishing someone's private personal data (address, phone, ID numbers). | Block; neutral message; high-priority review case; generation suspended pending review; evidence retained; reporting per CMP-03. |
+| **Block** | Pornographic sexual content (store rules forbid overtly sexual material); hate speech that attacks people for a protected characteristic; harassment, sexualisation or humiliation of a real, named private person; encouragement of self-harm or suicide; instructions for serious crimes; impersonation of real artists, requests to sing "in the voice of" a real person, and use of existing copyrighted lyrics; spam. | Block with a category message; user can edit; repeated blocks raise friction (FR-56). |
+| **Allow, label Explicit** | Profanity and swearing, mature themes, non-graphic sexual references between adults, violence and drugs in an artistic context, dark humour that does not target a protected group or a real private person. | Allowed; labelled Explicit (FR-58). |
+| **Allow** | Everything else. | Allowed. |
+
+Notes:
+
+- Profanity is allowed (owner's decision, D-08). The App Store age rating is 18+ (D-07).
+- Satire of public figures is allowed when it does not fall into the block tier. Sexual content about any real person, public or private, is blocked.
+- The policy must also catch content that is illegal in Turkey and is likely to be generated by mistake: TCK 226 covers obscene writings and words involving children, not only images, so the hard-block category applies to lyrics as text. Other content that is unlawful in Turkey but not covered above is handled through reports and takedown (CMP-07).
+
+### 9.2 Moderation flow
+
+1. Normalise input (Unicode NFKC, case folding with Turkish rules, removal of zero-width characters, leetspeak mapping).
+2. Deterministic layer: hard-block term lists (Turkish and English), artist-name list for "in the style of / voice of" patterns, known-lyrics fingerprint check (Should).
+3. LLM classifier: versioned policy prompt; input treated as data; structured output (category, severity, evidence quote, confidence). Low-confidence results on hard-block categories are treated as blocks and queued for review.
+4. Decision stored (FR-54). Allowed requests proceed to the provider, whose filters are the third layer.
+5. Output checks (FR-52) before the song is shown to the user.
+6. Published songs can be reported (FR-66) and are re-scanned when the policy version changes (Should).
+
+### 9.3 Security requirements
+
+| ID | Requirement |
+| -- | ----------- |
+| SEC-01 | Row-level security on every user-data table in Supabase. The service role key is used only in the backend and job workers, never in clients. |
+| SEC-02 | Storage buckets are private. Audio, covers and videos are served through short-lived signed URLs or through a CDN path that checks visibility. Public and unlisted songs use a separate public rendition path; private files are never public. |
+| SEC-03 | All provider API keys and secrets live in the deployment's secret store, are never shipped to clients, and are rotated at least every 6 months and immediately after any suspected leak. |
+| SEC-04 | Webhooks (Paddle, App Store Server Notifications, Google Play Real-time Developer Notifications, music providers) are verified by signature or by calling the provider's API, processed idempotently by event ID, and replay-safe. |
+| SEC-05 | Credit spending and granting happen only in database functions inside transactions with row locks; clients can never write to the ledger. |
+| SEC-06 | Rate limits per user, per IP and per device on sign-up, sign-in, lyric writing, generation, reports and likes. |
+| SEC-07 | Bot protection on web sign-up and purchase (a CAPTCHA-free challenge such as Cloudflare Turnstile); App Attest on iOS and Play Integrity on Android for free-grant eligibility (Should). |
+| SEC-08 | Prompt-injection defences in the lyricist and classifier: user text is wrapped as data, system prompts are versioned and never shown, outputs are validated against a schema. |
+| SEC-09 | Security headers and a strict Content Security Policy on the web app; no inline scripts except hashed ones. |
+| SEC-10 | Admin and moderation consoles require a staff role, multi-factor authentication and are audited. |
+| SEC-11 | Logs contain no lyrics, descriptions, gift details, e-mail addresses or tokens. They contain IDs, hashes and categories. |
+| SEC-12 | Dependency and secret scanning in CI; mobile builds use pinned dependencies; Expo updates are signed. |
+| SEC-13 | Database backups with point-in-time recovery in the commercial edition; restore tested once before launch. |
+| SEC-14 | Share and gift tokens are random, at least 128 bits, revocable, and not derived from database IDs. |
+
+## 10. Compliance requirements
+
+Each item needs legal review before real payments (D-03). Sources are listed at the end.
+
+| ID | Requirement | Why |
+| -- | ----------- | --- |
+| CMP-01 | **18+ only.** Age gate (FR-86), 18+ rating in both stores, terms state the minimum age, no marketing aimed at minors. | Gemini API terms require users of API clients to be 18+ and forbid services likely to be accessed by under-18s. Apple and Google age ratings must match. |
+| CMP-02 | **Store rules for user-generated content.** Content filter before publishing, report mechanism, block users, timely response to reports, published contact information. | App Store Review Guideline 1.2; Google Play User Generated Content policy. |
+| CMP-03 | **Child-safety response.** Written internal procedure for hard-block cases: preserve evidence, suspend the account, report to the competent authorities where required (in Turkey through the official reporting channels; to NCMEC's CyberTipline if the service becomes a US provider or if visual material is ever involved), and cooperate with lawful requests. Publish child-safety standards and a contact point. | Turkish Penal Code art. 226; 18 U.S.C. § 2258A and the REPORT Act for US providers; Google Play requires published child-safety standards for social apps. **[verify scope with counsel]** |
+| CMP-04 | **Generative AI app rules.** No generation of content that exploits children or is otherwise prohibited; in-app flagging of offensive output; disclosure in the app and on the store listing that content is AI-generated. | Google Play AI-Generated Content policy; App Store Review Guidelines. |
+| CMP-05 | **KVKK (Turkey).** Privacy notice (aydınlatma metni) in Turkish; legal bases recorded per processing purpose; explicit consent only where needed (marketing, non-essential analytics); data processing inventory; VERBIS registration if thresholds apply **[verify]**; data subject request handling within 30 days. | Law No. 6698. |
+| CMP-06 | **Cross-border transfers (KVKK).** Data is processed by providers outside Turkey (Vercel, the server host if outside Turkey, Supabase, Google, ElevenLabs, Paddle, Apple, Google Play, e-mail, analytics). Each transfer has a legal basis; where a standard contract is used, it is signed and notified to the KVKK Board within 5 business days **[verify]**. Supabase project in an EU region. | KVKK art. 9 as amended in 2024; Board decision 2024/959 on standard contracts. |
+| CMP-07 | **Hosting provider duties (Turkey).** As a hosting provider for user content: remove unlawful content upon notification, keep traffic data for the period the law requires **[verify: 1–2 years under Law No. 5651]**, publish contact information. | Law No. 5651. |
+| CMP-08 | **GDPR (EU users).** Privacy notice, data subject rights (FR-89, FR-95), processor agreements with every vendor, records of processing, EU representative if required once the product targets the EU commercially **[verify]**. | GDPR. |
+| CMP-09 | **AI transparency.** Visible "AI-generated" label on songs, covers, videos, share and gift pages; machine-readable marking preserved and added: keep provider watermarks (SynthID, C2PA Content Credentials) intact, add metadata in downloaded files, do not strip them in transcoding or video rendering. | EU AI Act art. 50 (applies from 2 August 2026; new systems must mark from launch); provider terms. |
+| CMP-10 | **Notice and action (EU DSA).** A reporting mechanism for illegal content, statements of reasons for removals, an internal complaint path (FR-66–FR-68). | Digital Services Act arts. 16, 17, 20 for hosting services and online platforms; small-enterprise exemptions apply to some duties **[verify]**. |
+| CMP-11 | **Copyright and likeness.** Terms: users confirm they have rights to lyrics they paste; no real-artist voice or style impersonation; notice-and-takedown process for rights holders with a designated contact; repeat-infringer policy. Ownership and commercial-use rights of outputs follow each provider's terms and are stated per model in the terms of service **[verify per provider]**. | Provider terms (Google blocks artist voices and copyrighted lyrics); copyright law. |
+| CMP-12 | **In-app purchases.** Digital credits used in the mobile apps are sold through Apple and Google in-app purchase. Credits bought on the web may be used in the apps. The apps do not link to or mention web pricing except where a storefront allows it **[verify current rules per storefront]**. | App Store Review Guideline 3.1.1 and 3.1.3(b); Google Play Payments policy. |
+| CMP-13 | **Consumer law.** Pre-contract information, terms and refund policy shown before purchase; the right of withdrawal for digital content is waived only with the consumer's explicit consent at checkout, where the law allows **[verify]**. Paddle is the merchant of record on the web; Apple and Google are the sellers in the apps. | Turkish Law No. 6502 and the Distance Contracts Regulation; EU consumer law. |
+| CMP-14 | **Commercial electronic messages.** Marketing e-mails and pushes only with opt-in consent; in Turkey, register with İYS before sending commercial messages. Transactional messages are separate. | Turkish Law No. 6563. |
+| CMP-15 | **Account deletion in the app.** | App Store Review Guideline 5.1.1(v); Google Play account deletion requirement. |
+| CMP-16 | **Disclosure of data sent to third-party AI.** The privacy notice and an in-app notice before first use say which data (descriptions, lyrics, gift details) is sent to which AI providers, and the user agrees before the first generation. | App Store Review Guideline 5.1.2 (third-party AI disclosure) **[verify current wording]**; KVKK and GDPR transparency. |
+| CMP-17 | **Accessibility.** WCAG 2.2 AA (NFR-08). | European Accessibility Act for e-commerce services in the EU **[verify applicability]**. |
+| CMP-18 | **Legal pages** in Turkish and English: Terms of Service, Privacy Notice (KVKK aydınlatma metni and GDPR notice), Cookie Notice, Content Policy, Child Safety Standards, Copyright and Takedown, Refund Policy, Imprint/contact. | All of the above. |
+
+## 11. Infrastructure requirements
+
+Vendor choices marked "decided" are fixed by the owner. Others are proposals for the TRD.
+
+| ID | Need | Requirement | Choice |
+| -- | ---- | ----------- | ------ |
+| INF-01 | Hosting | Local development of the whole product until M7. Then: backend API, worker and Redis on a rented server; web app on Vercel (or the same server); one production environment, deployed from a single deployment plan (D-14). | Rented server + Vercel (decided) |
+| INF-02 | Background jobs | Durable, retryable multi-step jobs that survive restarts and deploys: moderate → generate → poll or receive callback → store files → align lyrics → generate cover → notify. Step-level retries, timeouts, idempotency keys, concurrency limits per user and per provider. | BullMQ on Redis (decided, D-14) |
+| INF-03 | Database, auth, storage, realtime | Postgres with RLS, Auth (e-mail, Apple, Google), Storage for audio, images and video, Realtime for job status, scheduled jobs. EU region. | Supabase (decided) |
+| INF-04 | Video rendering | Server-side rendering of 9:16 lyric videos with synced text, in the background worker. | Remotion in the worker (check licence) |
+| INF-05 | Forced alignment | Word-level timestamps for lyrics when the music model does not return them, verified for Turkish. | Proposal: an alignment API with Turkish support |
+| INF-06 | Provider resilience | Per-provider timeouts, retries with backoff and jitter, circuit breakers, health checks, and a status record the router reads (FR-27). | In-house |
+| INF-07 | Media delivery | CDN for public renditions; progressive MP3 streaming; long cache headers for immutable files; signed URLs for private files. | Supabase Storage CDN |
+| INF-08 | Notifications | Push for iOS and Android (Expo push service over APNs and FCM); transactional e-mail with Turkish and English templates; in-app notification centre. | Expo push (proposal); e-mail provider in TRD |
+| INF-09 | Product analytics | Funnel events: visit → sign-up → first description → first song → share → first purchase; retention; per-model success rates. Server-side events for money and generation; consent where required; EU hosting. | Proposal in TRD |
+| INF-10 | Error tracking and logs | Error tracker for web, mobile and backend with source maps; structured JSON logs with correlation IDs; log retention set per CMP-07. | Proposal in TRD |
+| INF-11 | Mobile build and release | Expo (React Native) with EAS Build and Submit; over-the-air updates for JavaScript-only changes; separate staging and production channels; crash reporting. | Expo (decided: React Native) |
+| INF-12 | Payments | Paddle (web), App Store and Google Play in-app purchases (mobile); a service that unifies store purchases and webhooks (for example RevenueCat) or a direct integration. | Paddle (decided); mobile layer in TRD |
+| INF-13 | Feature flags and kill switches | Runtime flags read by API and jobs, changeable without deploy (FR-93). | Database table with caching (proposal) |
+| INF-14 | CI/CD | GitHub Actions: lint, typecheck, unit, integration (Postgres), RLS tests, E2E (web with Playwright; mobile with a mobile E2E tool), evaluation sets (moderation, lyricist, language), database migrations with review. No deploys before M7. | GitHub Actions |
+| INF-15 | Evaluations | Golden sets for moderation (FR-57), lyricist (NFR-13) and language support (FR-26), versioned, with budgets for paid runs. | In-house harness |
+| INF-16 | Search | Postgres full-text search with Turkish configuration for library search (FR-32). | Postgres |
+| INF-17 | Deep links and previews | Universal links (iOS), app links (Android), Open Graph images generated per song. | Next.js OG image generation |
+| INF-18 | Environments | Local (Supabase CLI, Redis in Docker, mocked providers; web, iOS Simulator and Android Emulator running together) until M7, then production. Mock adapters for every provider so the whole app runs without API keys or cost. | In-house |
+| INF-19 | Backups and recovery | Point-in-time recovery for the database; storage lifecycle rules (delete orphans, expire temporary files such as stems ZIPs after 7 days). | Supabase |
+
+**Repository layout (D-10):** one monorepo with pnpm workspaces.
+
+```
+docs/        PRD, TRD, implementation plan, progress, runbooks, legal drafts
+frontend/    Next.js web app (pages, share and gift pages, admin console)
+backend/     API and job worker (Express, BullMQ), run on a rented server
+mobile/      Expo React Native app; generated ios/ and android/ native projects live here
+packages/    shared code: api-client, schemas, domain (credits, routing), i18n, ui tokens
+supabase/    migrations, RLS policies, database functions, seed, tests
+eval/        golden sets and evaluation harness
+```
+
+`ios/` and `android/` are not separate apps. React Native builds both from `mobile/`, so they live inside it.
+
+## 12. Spikes and launch gates
+
+Spikes that need paid API keys (S-1, S-2, S-3, S-5, S-6) run in M6, after the product works end to end on mock providers (D-12). The TRD keeps every design they affect behind an interface, and lists the fallback for each, so a failed spike changes an adapter or a catalogue row, not the product. S-4 uses Paddle's free sandbox and runs in M2. Results go into `docs/spikes/`.
+
+| ID | Spike | Pass criterion | If it fails |
+| -- | ----- | -------------- | ----------- |
+| S-1 | **Turkish singing.** Generate the same 8 Turkish lyric sets (pop, rap, slow ballad, folk, rock, arabesque, with names and Turkish-specific sounds ğ, ı, ş, ç, ö, ü) on Lyria 3.5 and ElevenLabs Music. Two Turkish native speakers rate pronunciation and intelligibility 1–5. | Mean ≥ 4 and no lyric set below 3 for at least one model. | Look at other providers with Turkish support; if none pass, Turkish is labelled beta and G-2 is deferred with a decision. |
+| S-2 | **Cross-model extend.** Extend a Lyria song with ElevenLabs. | The API accepts an external song and the result is musically continuous. | Extend is offered only for songs made by an extend-capable model (Q-02). |
+| S-3 | **Stems on external audio.** Separate stems for a Lyria song with ElevenLabs. | Works on uploaded audio and quality is acceptable. | Add a separate stem-separation model adapter. |
+| S-4 | **Paddle auto top-up.** Charge a saved payment method off-session for a one-time credit pack, without a subscription. | Supported by Paddle's API and terms. | Use one-tap top-up (FR-74) or model auto top-up as a zero-price subscription with one-time charges, if Paddle allows it. |
+| S-5 | **Timestamps.** Do Lyria and ElevenLabs return lyric timestamps? Does the alignment service handle Turkish? | Line-level timestamps within ±300 ms. | Line-level only, or manual alignment fallback. |
+| S-6 | **Provider latency and limits.** Measure generation time, rate limits and error rates. | Fits NFR-05. | Adjust job design and caps. |
+
+Launch gates for v1.0.0: S-1 passed for at least one model; moderation golden set meets NFR-12; legal pages published; store review passed; ledger reconciliation clean for 7 days of local live testing (M6) and after the first production week.
+
+## 13. Risks
+
+| ID | Risk | Mitigation |
+| -- | ---- | ---------- |
+| R-01 | No provider sings Turkish well. | S-1 runs in M6 (D-12); the provider layer makes adding a model cheap; if no model passes, Turkish is labelled beta. |
+| R-02 | Provider terms change (pricing, age rules, commercial rights) or a model is deprecated. | Adapter layer; catalogue flags; terms reviewed per release; at least two music providers. |
+| R-03 | Moderation misses illegal content. | Layered pipeline; zero-miss gate on hard-block; low-confidence-as-block; human review; reporting. |
+| R-04 | Over-blocking frustrates users (profanity is allowed). | Allowed-set false-block threshold (NFR-12); category messages; appeal. |
+| R-05 | Free-credit abuse and bot sign-ups drain the budget. | Verified e-mail, device checks, rate limits, global caps, kill switches. |
+| R-06 | App Store or Play rejection (UGC, IAP, AI rules, age rating). | CMP-01, CMP-02, CMP-04, CMP-12, CMP-15, CMP-16 checked before submission. |
+| R-07 | Costs exceed revenue because providers bill per minute or per song and users regenerate often. | Per-operation credit prices with margin; spend caps; cost dashboard. |
+| R-08 | Vocal timbre changes on cross-model extend. | S-2; warning in UI; same-model extend preferred by the router. |
+| R-09 | Legal exposure as an individual operating a hosting service in Turkey. | Portfolio edition first; lawyer review before real payments (D-03). |
+| R-10 | Scope is large for one developer: web, two mobile platforms, payments, community, moderation. | Milestones in section 15; shared packages; the plan can cut Should and Could items with a decision. |
+| R-11 | Real providers behave differently from the mocks (latency, output shape, limits, errors), found only in M6. | Mocks copy the documented capability shape of each real model (TRD §8.4); adapter contract tests run against mocks now and against live providers in M6; the job pipeline already handles slow, failed and partial results. |
+| R-12 | Real moderation quality is unknown until the paid classifier runs on the golden set in M6. | The golden set and harness are built in M1 and run on the mock classifier for plumbing; the hard-block deterministic layer runs for real from M1; launch gate requires NFR-12 on the real classifier. |
+
+## 14. Decisions log
+
+| ID | Decision | Date |
+| -- | -------- | ---- |
+| D-01 | Music providers at launch: Google Lyria 3.5 and ElevenLabs Music, behind a provider-agnostic adapter layer with capability routing. Suno is not used because it has no official public API. | 2026-11-10 |
+| D-02 | Stack: Next.js (web and backend), React Native with Expo (iOS and Android), Supabase (database, auth, storage), Vercel (hosting). Backend framework and hosting refined by D-13 and D-14. | 2026-11-10 |
+| D-03 | Ship as a portfolio edition first (sandbox payments, global caps), with an architecture ready for a commercial launch. Legal review before real payments. | 2026-11-10 |
+| D-04 | Web payments through Paddle as merchant of record (Stripe does not onboard companies based in Turkey). | 2026-11-10 |
+| D-05 | Credits only, no subscriptions. Each operation is priced separately. Auto top-up on the web only; mobile buys packs through store in-app purchase. | 2026-11-10 |
+| D-06 | Removed from scope: quick mode (one-line generation without the lyrics step) and two variations per generation. | 2026-11-10 |
+| D-07 | The service is 18+ on all platforms. | 2026-11-10 |
+| D-08 | Profanity and mature themes are allowed and labelled Explicit; sexual content involving minors is a hard block. | 2026-11-10 |
+| D-09 | No user image or audio uploads in v1. | 2026-11-10 |
+| D-10 | Monorepo layout as in section 11; `ios/` and `android/` live inside `mobile/`. | 2026-11-10 |
+| D-11 | Extend and stems are back in scope, served by ElevenLabs Music through capability routing (they were removed when Lyria was the only provider). | 2026-11-10 |
+| D-12 | Build order: infrastructure and every feature first, on mock providers, free tiers and sandboxes. Paid model calls, paid evaluations, paid spikes and paid developer accounts come last (M6, M7). | 2026-11-10 |
+| D-13 | Backend framework: Express 5 in `backend/`. Next.js is used for the web app only (refines D-02; TRD TD-01). | 2026-11-10 |
+| D-14 | Local first: the whole product (web, iOS, Android) runs and is tested on the owner's machine until it is complete. Background jobs use BullMQ on Redis. At M7 the backend API, worker and Redis go to a rented server and the web to Vercel, deployed once from a single deployment plan. No staging environment before M7. | 2026-11-10 |
+
+## 15. Milestones
+
+| Milestone | Scope |
+| --------- | ----- |
+Milestones M0 to M5 cost nothing: they use mock providers, free tiers and sandboxes (D-12). Paid work starts in M6.
+
+| Milestone | Scope | Paid? |
+| --------- | ----- | ----- |
+| M0 Foundation | Monorepo, tooling, CI, Supabase schema and RLS, auth with age gate, i18n, design tokens, config and flags, logging, the mock provider set, BullMQ job runner with Redis, one-command local stack (web, iOS, Android together), admin skeleton. | No |
+| M1 Create and play | Credit ledger core (grants, reservations, refunds), model layer and router, moderation pipeline (deterministic layer real, classifier mocked) with golden set and harness, lyricist (mocked), creation flow, generation jobs, notifications, library, player (web and mobile), downloads. | No |
+| M2 Credits and payments | Cost caps and kill switches, Paddle sandbox and S-4, auto or one-tap top-up, mobile in-app purchase in test mode, wallet. | No |
+| M3 More operations | Extend, remix, stems, cover images, synced lyrics with mock alignment, lyric video rendered locally. | No |
+| M4 Gift and community | Gift flow and pages, sharing, Explore, profiles, follows, blocks, remix of others' songs, reports, moderation console, appeals. | No |
+| M5 Compliance and hardening | Legal page drafts, consent records, data export and deletion, accessibility pass, security review, load and concurrency tests, full local run of web, iOS and Android together. | No |
+| M6 Real providers | Live adapters (Lyria, ElevenLabs, lyricist and classifier LLM, image, alignment), spikes S-1, S-2, S-3, S-5, S-6, paid evaluation runs (moderation, lyricist, language), credit prices from measured cost (Q-04). Still local. | Yes |
+| M7 Launch | Deployment plan executed in order (Supabase cloud, rented server, web, webhooks, mobile builds); Apple and Google developer accounts, iOS push, store sandbox purchases, store submissions, lawyer review, README and demo. | Yes |
+
+## 16. Open questions
+
+| ID | Question | Needed by |
+| -- | -------- | --------- |
+| Q-01 | Final product name and domain. | M7 |
+| Q-02 | Cross-model extend: allow with a warning, or same-model only? Decided from S-2. Until then the router prefers same-model extend and the warning is built. | M6 |
+| Q-03 | Which LLM writes lyrics and runs the classifier? One vendor (Gemini) keeps terms and billing simple; another may be better at Turkish lyrics. Decide with a small lyricist evaluation. Mocked until then. | M6 |
+| Q-04 | Credit pack sizes and prices, and credit price per operation, from measured provider costs (S-6). Placeholder prices in the seed until then. | M6 |
+| Q-05 | Does the portfolio edition allow sign-ups from the public, or only invited testers? Both are built behind a flag. | M7 |
+| Q-06 | Commercial-use rights for outputs per provider and per plan (ElevenLabs terms differ by plan). | M7 |
+| Q-07 | Is a daily free grant worth its abuse risk (FR-72)? Built behind a flag, off by default. | M2 |
+
+## 17. Future work
+
+- Uploading photos for gift songs and image-to-music, with known-abuse-image scanning.
+- Suno, when it offers an official API.
+- Comments, collaborations and duets between users.
+- Distribution to streaming services.
+- More interface languages.
+
+## Sources
+
+Checked on 2026-11-10. Terms change; re-check at each release.
+
+- Google AI Studio: [Music generation guide](https://aistudio.google.com/docs/music-generation), [Lyria 3.5 model page](https://aistudio.google.com/docs/models/lyria-3.5), [Gemini API pricing](https://ai.google.dev/gemini-api/docs/pricing), [Gemini API Additional Terms](https://ai.google.dev/gemini-api/terms)
+- Google Cloud: [Lyria 3 model page](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/lyria/lyria-3)
+- ElevenLabs: [Eleven Music inpainting, stems and Explore](https://elevenlabs.io/blog/eleven-music-new-tools-for-exploring-editing-and-producing-music-with-ai), [Models](https://elevenlabs.io/docs/overview/models), [Music API terms](https://elevenlabs.io/music-api-terms)
+- Suno API status: [Music Business Worldwide](https://www.musicbusinessworldwide.com/suno-explores-developer-api-seeking-apps-that-unlock-experiences-generative-music-makes-possible-for-the-first-time/)
+- Paddle: [Saved payment methods](https://developer.paddle.com/changelog/2024/saved-payment-methods/), [One-time charges](https://developer.paddle.com/build/subscriptions/bill-add-one-time-charge/), [Usage-based billing](https://developer.paddle.com/build/usage-based-billing/)
+- Google Play: [AI-Generated Content policy](https://support.google.com/googleplay/android-developer/answer/14094294)
+- EU AI Act article 50 after the Digital Omnibus: [Gibson Dunn](https://www.gibsondunn.com/eu-ai-act-omnibus-agreement-postponed-high-risk-deadlines-and-other-key-changes/), [CSA research note](https://labs.cloudsecurityalliance.org/research/csa-research-note-eu-ai-act-article50-watermarking-deadline/)
+- KVKK cross-border transfers: [KVKK announcement on standard contracts](https://www.kvkk.gov.tr/Icerik/7938/Standart-Sozlesmeler-ve-Baglayici-Sirket-Kurallarina-Iliskin-Dokumanlar-Hakkinda-Kamuoyu-Duyurusu), [Erdem & Erdem guide](https://www.erdem-erdem.av.tr/bilgi-bankasi/yurt-disina-kisisel-veri-aktarimi-rehberi-neleri-duzenliyor)
+- US reporting duties: [Wilson Sonsini on the REPORT Act](https://www.wsgrdataadvisor.com/2024/05/new-minor-safety-obligations-for-online-services-report-act-expands-child-sexual-exploitation-reporting-requirements/), [Traverse Legal](https://www.traverselegal.com/blog/does-my-ai-company-have-to-report-illegal-content/)
+- Not yet checked against primary text (marked **[verify]** above): App Store Review Guidelines 1.2, 3.1.1, 3.1.3(b), 5.1.1(v), 5.1.2; Google Play UGC, Payments and Child Safety Standards policies; Law No. 5651 traffic-data retention; VERBIS thresholds; DSA small-enterprise exemptions; Turkish distance-contract withdrawal exceptions.
