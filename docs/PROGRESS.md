@@ -7,7 +7,8 @@ Updated: 2026-11-10.
 - Specs committed: `docs/PRD.md`, `docs/TRD.md`, `docs/IMPLEMENTATION_PLAN.md`, `AGENTS.md`. Committed in the public `firatkill/songsmith` repository.
 - Build order is mock-first (PRD D-12): M0–M5 cost nothing; paid work starts at T-45.
 - Local first (PRD D-14): everything runs on the owner's machine (web, iOS Simulator, Android Emulator) until T-50; jobs use BullMQ on Redis; deployment to a rented server happens once in T-50.
-- T-01 done (PR #1): pnpm/Turborepo monorepo, shared strict TypeScript/ESLint/Prettier config, Vitest, CI `static` green. Current: T-02 — implementation and clean-state local acceptance complete; reviewer commit/PR and CI pending (doing).
+- T-01 done (PR #1): pnpm/Turborepo monorepo, shared strict TypeScript/ESLint/Prettier config, Vitest, CI `static` green.
+- T-02 done (PR #5): shared packages build to ESM for Node, Next.js and React Native; error catalogue; TR/EN i18n with Turkish casing; provisional ui-tokens; module boundaries enforced by `pnpm check:boundaries`. Next: T-03.
 
 ## Tasks
 
@@ -16,7 +17,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | Task | Goal                                             | Status | Finishing commit |
 | ---- | ------------------------------------------------ | ------ | ---------------- |
 | T-01 | Monorepo, tooling and CI skeleton                | done   | 2ad951d          |
-| T-02 | Shared packages and module boundaries            | doing  |                  |
+| T-02 | Shared packages and module boundaries            | done   | 98fb951          |
 | T-03 | Supabase local and foundation migration          | todo   |                  |
 | T-04 | Core schema, RLS and seed                        | todo   |                  |
 | T-05 | Backend skeleton                                 | todo   |                  |
