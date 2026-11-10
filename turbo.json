@@ -1,0 +1,28 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "globalDependencies": [
+    "packages/config/**",
+    "eslint.config.mjs",
+    "vitest.config.mjs"
+  ],
+  "tasks": {
+    "lint": {
+      "outputs": []
+    },
+    "//#lint:root": {
+      "outputs": []
+    },
+    "typecheck": {
+      "outputs": []
+    },
+    "test": {
+      "outputs": []
+    },
+    "//#format:write": {
+      "cache": false
+    },
+    "//#format:verify": {
+      "cache": false
+    }
+  }
+}
