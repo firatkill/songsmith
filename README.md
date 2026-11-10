@@ -19,6 +19,7 @@ Resolved from npm's stable `latest` tags on 2026-11-10. T-01 installs developmen
 | typescript-eslint | 8.72.2         | `strictTypeChecked`.                                                                  |
 | Prettier          | 3.9.10         | Shared formatting config.                                                             |
 | @eslint/js        | 10.0.1         | JavaScript config/script linting.                                                     |
+| Supabase CLI      | 3.1.0          | Exact root dev dependency; local and CI use `pnpm exec supabase`.                     |
 | @types/node       | 24.19.2        | Types for the selected Node major.                                                    |
 
 | Later-task target | Stable major | Version observed (not installed) |
@@ -28,9 +29,8 @@ Resolved from npm's stable `latest` tags on 2026-11-10. T-01 installs developmen
 | BullMQ            | 6            | 6.7.3                            |
 | Expo SDK          | 58           | 58.0.23                          |
 | Zod               | 4            | 4.6.7                            |
-| Supabase CLI      | 3            | 3.1.0                            |
 
-A-01: typescript-eslint 8.72.2 declares TypeScript `>=4.8.4 <6.1.0`, so TypeScript 7.0.2 is unsupported. We pin the previous stable major, 6.0.3 (PRD D-15), following the [supported versions](https://typescript-eslint.io/users/dependency-versions/). Node 24.10.0 meets the installed tools' engine requirements; some Node 22 releases allowed by the root's broad range do not (ESLint requires at least 22.13 on that line). Registry peer/engine checks found no direct conflict among the six later-task targets, but their runtime integration is not tested in T-01. Expo's React Native/React versions must be chosen together in T-10; see the [Expo monorepo guide](https://docs.expo.dev/guides/monorepos/).
+A-01: typescript-eslint 8.72.2 declares TypeScript `>=4.8.4 <6.1.0`, so TypeScript 7.0.2 is unsupported. We pin the previous stable major, 6.0.3 (PRD D-15), following the [supported versions](https://typescript-eslint.io/users/dependency-versions/). Node 24.10.0 meets the installed tools' engine requirements; some Node 22 releases allowed by the root's broad range do not (ESLint requires at least 22.13 on that line). Registry peer/engine checks found no direct conflict among the later-task targets, but their runtime integration is not tested in T-01. Expo's React Native/React versions must be chosen together in T-10; see the [Expo monorepo guide](https://docs.expo.dev/guides/monorepos/).
 
 A-04: all M0–M5 services have a free path for the planned individual, local/mock use, subject to the documented quotas and licence eligibility. See the dated [free-tier check](docs/runbooks/free-tier-check.md). Vercel eligibility (A-11) stays in T-50.
 
@@ -86,3 +86,25 @@ new libraries require an explicit review of their portability and I/O behavior.
 Deliberate violations in `fixtures/boundaries/` are excluded from normal checks
 and checked by the config package's Vitest tests. No live-provider import rule
 is included; UT-12 belongs to T-11.
+
+## Local database (T-03)
+
+With Docker running, use `pnpm db:start`, `pnpm db:reset`, `pnpm test:db`
+and `pnpm db:stop`. The repository pins Supabase CLI 3.1.0 (verified against
+npm stable on 2026-11-11); no global CLI is needed. Postgres 17 uses port 54322,
+the API 54321, Studio 54323 and Mailpit 54324. Reset applies the foundation
+migration and the intentionally empty seed. `db:types` remains a T-04 placeholder.
+
+Email confirmation and sign-in templates expose the six-digit OTP. Google and
+Apple remain disabled; their environment variable names are in `.env.example`.
+Mobile redirect configuration belongs to T-10. Storage and Realtime stay enabled;
+Edge Runtime and Supabase analytics are disabled because Express/BullMQ and
+PostHog cover those responsibilities. See the [CLI configuration reference](https://supabase.com/docs/guides/local-development/cli/config).
+
+Client table, sequence and function privileges default to deny for migration
+owner `postgres`. Later migrations explicitly
+grant RLS-protected reads. Application objects must be created as `postgres`;
+`supabase_admin` is a bootstrap superuser whose defaults the migration role cannot
+alter, and auth/storage/realtime service owners stay in their own schemas. `app.audit_log` permits only service-role reads/inserts;
+its nullable actor UUID deliberately has no auth FK, preserving audit history.
+The pgTAP files roll back all probes and data.
