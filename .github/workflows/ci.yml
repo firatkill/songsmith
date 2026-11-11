@@ -43,7 +43,7 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec supabase start -x studio,imgproxy,edge-runtime,logflare,vector
+      - run: bash scripts/ci-supabase-start.sh
       - run: pnpm db:reset
       - run: pnpm db:types
       - run: git diff --exit-code
@@ -64,7 +64,7 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec supabase start -x studio,imgproxy,edge-runtime,logflare,vector
+      - run: bash scripts/ci-supabase-start.sh
       - run: pnpm db:reset
       - name: Run backend integration tests with local credentials
         shell: bash
@@ -91,7 +91,7 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec supabase start -x studio,imgproxy,edge-runtime,logflare,vector
+      - run: bash scripts/ci-supabase-start.sh
       - run: pnpm db:reset
       - run: pnpm --filter @songsmith/frontend exec playwright install --with-deps chromium
       - run: pnpm e2e
