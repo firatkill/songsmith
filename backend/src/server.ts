@@ -3,7 +3,8 @@ import { loadEnv } from './lib/env.js';
 import { createLogger } from './lib/log.js';
 const env = loadEnv(process.env);
 const logger = createLogger(env.LOG_LEVEL);
-const server = createApp({ env, logger }).listen(env.API_PORT, () => {
+const app = createApp({ env, logger });
+const server = app.listen(env.API_PORT, () => {
   logger.info(
     { port: env.API_PORT, env: env.APP_ENV, providerMode: env.PROVIDER_MODE },
     'API listening',
@@ -20,6 +21,7 @@ function shutdown() {
   }, 10000);
   timeout.unref();
   server.close((error) => {
+    void (app.locals['closeQueues'] as () => Promise<void>)();
     clearTimeout(timeout);
     if (error) {
       logger.error({ errorCode: 'INTERNAL' }, 'Shutdown failed');

@@ -13,11 +13,11 @@ import { requestContext } from './correlation.js';
 import type { lazyServiceClient } from '../db/client.js';
 
 export type Service = ReturnType<typeof lazyServiceClient>;
-export function createJwtVerifier(
+export function createJwtClaimsVerifier(
   issuer: string,
   jwks = createRemoteJWKSet(new URL(`${issuer}/.well-known/jwks.json`)),
 ) {
-  return async (token: string): Promise<string> => {
+  return async (token: string) => {
     try {
       const { payload } = await jwtVerify(token, jwks, {
         issuer,
@@ -25,10 +25,39 @@ export function createJwtVerifier(
         algorithms: ['ES256', 'RS256'],
         requiredClaims: ['exp', 'sub', 'role'],
       });
-      return jwtClaimsSchema.parse(payload).sub;
+      return { sub: jwtClaimsSchema.parse(payload).sub, aal: payload['aal'] };
     } catch {
       throw new AppError('UNAUTHENTICATED');
     }
+  };
+}
+export function createJwtVerifier(
+  issuer: string,
+  jwks?: Parameters<typeof createJwtClaimsVerifier>[1],
+) {
+  const verify = createJwtClaimsVerifier(issuer, jwks);
+  return async (token: string) => (await verify(token)).sub;
+}
+export function requireStaff(service: Service, issuer: string): RequestHandler {
+  const verify = createJwtClaimsVerifier(issuer);
+  return async (req, _res, next) => {
+    const token = /^Bearer ([^\s]+)$/i.exec(
+      req.get('authorization') ?? '',
+    )?.[1];
+    if (!token) throw new AppError('UNAUTHENTICATED');
+    const claims = await verify(token);
+    if (claims.aal !== 'aal2') throw new AppError('FORBIDDEN');
+    const result = await service()
+      .schema('app')
+      .from('staff_roles')
+      .select('id')
+      .eq('user_id', claims.sub)
+      .limit(1);
+    if (result.error) throw new AppError('INTERNAL');
+    if (!result.data.length) throw new AppError('FORBIDDEN');
+    const store = requestContext.getStore();
+    if (store) store.userId = claims.sub;
+    next();
   };
 }
 export function authStage(

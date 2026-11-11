@@ -41,12 +41,17 @@ describe('UT-03 environment', () => {
       loadEnv({
         ...testSource,
         APP_ENV: 'production',
+        REDIS_URL: 'redis://localhost:6379',
         ALLOW_MOCK_IN_PRODUCTION: 'true',
       }).PROVIDER_MODE,
     ).toBe('mock');
     expect(
-      loadEnv({ ...testSource, APP_ENV: 'production', PROVIDER_MODE: 'live' })
-        .PROVIDER_MODE,
+      loadEnv({
+        ...testSource,
+        APP_ENV: 'production',
+        REDIS_URL: 'redis://localhost:6379',
+        PROVIDER_MODE: 'live',
+      }).PROVIDER_MODE,
     ).toBe('live');
   });
   it('lists invalid keys without values', () => {

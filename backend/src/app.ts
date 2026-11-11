@@ -8,6 +8,8 @@ import { AppError, errorMiddleware } from './lib/errors.js';
 import { createRegistry, type RouteContext } from './lib/route.js';
 import { authStage, createJwtVerifier, profileStage } from './lib/auth.js';
 import { lazyServiceClient } from './db/client.js';
+import { requireStaff } from './lib/auth.js';
+import { lazyBoard } from './jobs/board.js';
 import { registerMe } from './routes/me.js';
 import { registerHealth } from './routes/health.js';
 export interface AppDeps {
@@ -108,6 +110,13 @@ export function createApp(deps: AppDeps) {
   registerHealth(context, deps.env, deps.version ?? '0.0.0');
   registerMe(context, service);
   deps.registerRoutes?.(context);
+  const board = lazyBoard(service, deps.env, logger);
+  app.locals['closeQueues'] = () => board.close();
+  app.use(
+    '/v1/admin/queues',
+    requireStaff(service, deps.env.SUPABASE_JWT_ISSUER),
+    board.handler,
+  );
   app.use('/v1', router);
   app.use((_req, _res, next) => {
     next(new AppError('NOT_FOUND'));
