@@ -2,11 +2,12 @@ import { Queue, type JobsOptions } from 'bullmq';
 import { Redis } from 'ioredis';
 import {
   queueCatalogueSchema,
-  queueFlagsSchema,
-  queueConcurrencySchema,
+  isFlagKey,
   queueLimiterSchema,
   type JobData,
 } from '@songsmith/schemas';
+import { createFlags, type FlagService } from '../lib/flags.js';
+import { createLogger } from '../lib/log.js';
 import type { Service } from '../lib/auth.js';
 import type { Logger } from '../lib/log.js';
 export const defaultJobOptions: JobsOptions = {
@@ -27,34 +28,24 @@ export function physicalQueueName(name: string) {
 }
 export async function queueDefinitions(
   service: Service,
+  flags: FlagService = createFlags(service, createLogger()),
 ): Promise<QueueDefinition[]> {
-  const [models, flags] = await Promise.all([
+  const [models, values] = await Promise.all([
     service().from('models').select('id,adapter').eq('kind', 'music'),
-    service()
-      .schema('app')
-      .from('flags')
-      .select('key,value')
-      .like('key', 'music_queue_%'),
+    flags.getFlags(),
   ]);
-  if (models.error || flags.error)
-    throw new Error('Queue configuration unavailable');
-  const values = new Map(
-    queueFlagsSchema.parse(flags.data).map((row) => [row.key, row.value]),
-  );
-  const concurrency = queueConcurrencySchema.parse(
-    values.get('music_queue_concurrency') ?? 4,
-  );
+  if (models.error) throw new Error('Queue configuration unavailable');
+  const concurrency = values.music_queue_concurrency;
   return [
     ...[
       ...new Set(queueCatalogueSchema.parse(models.data).map((m) => m.adapter)),
     ].map((provider) => {
-      const value = values.get(`music_queue_limiter:${provider}`);
+      const key = `music_queue_limiter:${provider}`;
+      const value = isFlagKey(key) ? values[key] : null;
       return {
         name: `music:${provider}`,
         concurrency,
-        ...(value === undefined
-          ? {}
-          : { limiter: queueLimiterSchema.parse(value) }),
+        ...(value === null ? {} : { limiter: queueLimiterSchema.parse(value) }),
       };
     }),
     { name: 'media', concurrency: 4 },

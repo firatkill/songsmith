@@ -54,6 +54,7 @@ export function registerMe(context: RouteContext, service: Service) {
   defineRoute(context, {
     method: 'patch',
     path: '/me',
+    rateLimit: { key: 'me_patch', by: 'user' },
     auth: 'required',
     request: { ...request, body: patchMeSchema },
     response: { 200: profileSchema },
@@ -83,6 +84,7 @@ export function registerMe(context: RouteContext, service: Service) {
   defineRoute(context, {
     method: 'post',
     path: '/me/age',
+    rateLimit: { key: 'me_age', by: 'user' },
     auth: 'required',
     request: { ...request, body: ageRequestSchema },
     response: { 200: profileSchema },
@@ -126,6 +128,7 @@ export function registerMe(context: RouteContext, service: Service) {
   defineRoute(context, {
     method: 'post',
     path: '/me/consents',
+    rateLimit: { key: 'me_consents', by: 'user' },
     auth: 'required',
     request: { ...request, body: consentRequestSchema },
     response: { 200: consentsResponseSchema },

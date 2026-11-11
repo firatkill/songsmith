@@ -3,6 +3,9 @@ import { Router } from 'express';
 import { OpenApiGeneratorV31 } from '@asteasolutions/zod-to-openapi';
 import { createRegistry } from '../src/lib/route.js';
 import { registerHealth } from '../src/routes/health.js';
+import { registerFlags } from '../src/routes/flags.js';
+import { createFlagCache } from '../src/lib/flags.js';
+import { createLogger } from '../src/lib/log.js';
 import { registerMe } from '../src/routes/me.js';
 const registry = createRegistry();
 registerMe({ router: Router(), registry, production: false }, () => {
@@ -12,6 +15,10 @@ registerHealth(
   { router: Router(), registry, production: false },
   { APP_ENV: 'local', PROVIDER_MODE: 'mock' },
   '0.0.0',
+);
+registerFlags(
+  { router: Router(), registry, production: false },
+  createFlagCache(() => Promise.resolve([]), createLogger('silent')),
 );
 const document = new OpenApiGeneratorV31(registry.definitions).generateDocument(
   { openapi: '3.1.0', info: { title: 'Songsmith API', version: '0.0.0' } },
