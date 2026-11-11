@@ -589,6 +589,15 @@ export type Database = {
         };
         Returns: undefined;
       };
+      record_job_recovery: { Args: { job_id: string }; Returns: number };
+      save_job_step: {
+        Args: { job_id: string; step: string; value: Json };
+        Returns: undefined;
+      };
+      touch_job: {
+        Args: { job_id: string; stage_detail: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       [_ in never]: never;
@@ -814,6 +823,7 @@ export type Database = {
           idempotency_key: string;
           model_id: string | null;
           operation: string;
+          recoveries: number;
           reservation_id: string | null;
           route_reason: NonNullable<Json>;
           song_id: string | null;
@@ -834,6 +844,7 @@ export type Database = {
           idempotency_key: string;
           model_id?: string | null;
           operation: string;
+          recoveries?: number;
           reservation_id?: string | null;
           route_reason?: NonNullable<Json>;
           song_id?: string | null;
@@ -853,6 +864,7 @@ export type Database = {
           idempotency_key?: string;
           model_id?: string | null;
           operation?: string;
+          recoveries?: number;
           reservation_id?: string | null;
           route_reason?: NonNullable<Json>;
           song_id?: string | null;

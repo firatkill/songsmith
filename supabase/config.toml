@@ -69,3 +69,7 @@ enabled = false
 [auth.hook.before_user_created]
 enabled = true
 uri = "pg-functions://postgres/app/before_user_created"
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true

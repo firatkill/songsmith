@@ -13,6 +13,10 @@ const schema = z
     SUPABASE_ANON_KEY: z.string().min(1),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
     SUPABASE_JWT_ISSUER: z.url().optional(),
+    REDIS_URL: z
+      .url()
+      .refine((v) => ['redis:', 'rediss:'].includes(new URL(v).protocol))
+      .optional(),
     API_PORT: z.coerce.number().int().min(1).max(65535).default(4000),
     WEB_ORIGINS: z
       .string()
@@ -25,6 +29,12 @@ const schema = z
       .default('info'),
   })
   .superRefine((v, ctx) => {
+    if (v.APP_ENV === 'production' && !v.REDIS_URL)
+      ctx.addIssue({
+        code: 'custom',
+        path: ['REDIS_URL'],
+        message: 'required in production',
+      });
     if (
       v.APP_ENV === 'production' &&
       v.PROVIDER_MODE === 'mock' &&
@@ -48,6 +58,7 @@ const schema = z
   })
   .transform((v) => ({
     ...v,
+    REDIS_URL: v.REDIS_URL ?? 'redis://localhost:6379',
     SUPABASE_JWT_ISSUER:
       v.SUPABASE_JWT_ISSUER ?? `${v.SUPABASE_URL.replace(/\/$/, '')}/auth/v1`,
   }));
