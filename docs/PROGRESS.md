@@ -17,7 +17,7 @@ Updated: 2026-11-11.
 
 - T-07 done (PR #10): Next.js 16 web skeleton with TR/EN routes, OTP sign-in, age gate (day/month/year), consent, app shell; nonce CSP and security headers; Pop studio visual direction (owner decision D-42) in `ui-tokens` with AA contrast tests; Playwright E2E-01..03 and CI `e2e-web`; CI retries Supabase start after registry rate limits. T-08 is doing; review fixes and local acceptance complete, reviewer/CI pending.
 
-- T-08 doing: Redis 7.4.8 AOF/noeviction, BullMQ 6.7.4 with ioredis 6.0.0 queues and worker, SQL-persisted steps/recovery, staff+AAL2 Bull Board, Realtime isolation and dev orchestration. Local checks pass: 180 unit tests, 215 pgTAP assertions, 25 integration tests; A-03 verified. IT-07/IT-08/IT-42 and scheduler restart reverified on v6. Native watching is the default; SONGSMITH_DEV_POLLING=1 Web/API/worker startup and Ctrl-C shutdown verified. Decisions D-43–D-48. CI and git/GitHub delivery remain with the reviewer.
+- T-08 done (PR #11): BullMQ 6 on Redis 7 with the TRD §9.1 queues, worker process, resumable step runner with SQL-persisted steps, sweeper and nightly schedulers, Redis-loss recovery, Bull Board behind staff + MFA, `pnpm dev` for Redis, API, worker and web; A-03 verified. Next: T-09.
 
 ## Tasks
 
@@ -32,7 +32,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-05 | Backend skeleton                                 | done   | fc914a4          |
 | T-06 | Auth, profile and age gate                       | done   | ef898af          |
 | T-07 | Web skeleton                                     | done   | 76483d1          |
-| T-08 | Jobs runtime (BullMQ + Redis)                    | doing  |                  |
+| T-08 | Jobs runtime (BullMQ + Redis)                    | done   | d1e2dc0          |
 | T-09 | Flags, kill switches, rate limits, cost counters | todo   |                  |
 | T-10 | Mobile skeleton and the one-command local stack  | todo   |                  |
 | T-11 | Mock providers, registry and contract tests      | todo   |                  |
