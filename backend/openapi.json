@@ -62,6 +62,122 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/v1/flags/public": {
+      "get": {
+        "description": "Public kill-switch states only. Cached for 30 seconds.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "kill_switch:all": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:operation:align": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:operation:cover": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:operation:custom_lyrics": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:operation:extend": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:operation:generate": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:operation:image_input": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:operation:instrumental": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:operation:lyrics": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:operation:remix": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:operation:rewrite": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:operation:stems": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:operation:video": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:provider:mock-align": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:provider:mock-image": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:provider:mock-image-safety": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:provider:mock-music-a": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:provider:mock-music-b": {
+                      "type": "boolean"
+                    },
+                    "kill_switch:provider:mock-text": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "kill_switch:all",
+                    "kill_switch:provider:mock-music-a",
+                    "kill_switch:provider:mock-music-b",
+                    "kill_switch:provider:mock-text",
+                    "kill_switch:provider:mock-image",
+                    "kill_switch:provider:mock-image-safety",
+                    "kill_switch:provider:mock-align",
+                    "kill_switch:operation:generate",
+                    "kill_switch:operation:instrumental",
+                    "kill_switch:operation:custom_lyrics",
+                    "kill_switch:operation:image_input",
+                    "kill_switch:operation:lyrics",
+                    "kill_switch:operation:rewrite",
+                    "kill_switch:operation:extend",
+                    "kill_switch:operation:remix",
+                    "kill_switch:operation:stems",
+                    "kill_switch:operation:cover",
+                    "kill_switch:operation:align",
+                    "kill_switch:operation:video"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "enum": ["public, max-age=30"],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "public"
+      }
+    },
     "/v1/health": {
       "get": {
         "responses": {
@@ -425,6 +541,25 @@
             },
             "description": "HTTP 200"
           },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Rate limit exceeded",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the fixed window resets",
+                "schema": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              }
+            }
+          },
           "default": {
             "content": {
               "application/json": {
@@ -534,6 +669,25 @@
               }
             },
             "description": "HTTP 200"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Rate limit exceeded",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the fixed window resets",
+                "schema": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              }
+            }
           },
           "default": {
             "content": {
@@ -653,6 +807,25 @@
               }
             },
             "description": "HTTP 200"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Rate limit exceeded",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the fixed window resets",
+                "schema": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              }
+            }
           },
           "default": {
             "content": {

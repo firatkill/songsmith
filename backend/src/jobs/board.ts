@@ -2,15 +2,21 @@ import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import type { RequestHandler } from 'express';
+import type { FlagService } from '../lib/flags.js';
 import type { Service } from '../lib/auth.js';
 import type { Env } from '../lib/env.js';
 import type { Logger } from '../lib/log.js';
 import { createQueues, queueDefinitions } from './queues.js';
-export function lazyBoard(service: Service, env: Env, logger: Logger) {
+export function lazyBoard(
+  service: Service,
+  env: Env,
+  logger: Logger,
+  flags: FlagService,
+) {
   let resources: ReturnType<typeof createQueues> | undefined;
   let initializing: Promise<ExpressAdapter> | undefined;
   const initialize = async () => {
-    const definitions = await queueDefinitions(service);
+    const definitions = await queueDefinitions(service, flags);
     resources = createQueues(definitions, env.REDIS_URL, logger);
     const adapter = new ExpressAdapter();
     adapter.setBasePath('/v1/admin/queues');

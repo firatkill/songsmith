@@ -578,7 +578,39 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      add_cost: {
+        Args: { at_time?: string; micro_usd: number; scope: string };
+        Returns: undefined;
+      };
       before_user_created: { Args: { event: Json }; Returns: Json };
+      cap_status: {
+        Args: {
+          est_micro_usd: number;
+          global_cap: number;
+          provider: string;
+          provider_cap: number;
+          user_cap: number;
+          user_id: string;
+        };
+        Returns: {
+          exceeded: string[];
+          global_total: string;
+          provider_total: string;
+          user_total: string;
+        }[];
+      };
+      cleanup_rate_limits: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
+      rate_limit_hit: {
+        Args: { key: string; max: number; window_seconds: number };
+        Returns: {
+          allowed: boolean;
+          remaining: number;
+          reset_at: string;
+        }[];
+      };
       record_consent: {
         Args: {
           p_granted: boolean;

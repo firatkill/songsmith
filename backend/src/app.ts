@@ -10,12 +10,16 @@ import { authStage, createJwtVerifier, profileStage } from './lib/auth.js';
 import { lazyServiceClient } from './db/client.js';
 import { requireStaff } from './lib/auth.js';
 import { lazyBoard } from './jobs/board.js';
+import { createFlags, type FlagService } from './lib/flags.js';
+import { rateLimitStage } from './lib/rate-limit.js';
+import { registerFlags } from './routes/flags.js';
 import { registerMe } from './routes/me.js';
 import { registerHealth } from './routes/health.js';
 export interface AppDeps {
   env: Env;
   logger?: Logger;
   version?: string;
+  flags?: FlagService;
   registerRoutes?: (context: RouteContext) => void;
   registerWebhooks?: (router: Router) => void;
 }
@@ -24,6 +28,7 @@ export function createApp(deps: AppDeps) {
   const authRoutes = Router();
   const service = lazyServiceClient(deps.env);
   const logger = deps.logger ?? createLogger(deps.env.LOG_LEVEL);
+  const flags = deps.flags ?? createFlags(service, logger);
   app.disable('x-powered-by');
   app.set('trust proxy', deps.env.TRUST_PROXY_HOPS);
   // Parser errors are deferred so correlation/security/CORS still run in order.
@@ -85,15 +90,13 @@ export function createApp(deps: AppDeps) {
           true,
         );
       },
-      exposedHeaders: ['x-correlation-id'],
+      exposedHeaders: ['x-correlation-id', 'Retry-After'],
     }),
   );
   app.use('/v1', authRoutes);
   app.use(authStage(createJwtVerifier(deps.env.SUPABASE_JWT_ISSUER)));
   app.use(profileStage(service));
-  app.use((_req, _res, next) => {
-    next();
-  }); // T-09/T-25/T-43: rate limits and caps.
+  app.use(rateLimitStage(service, flags, deps.env.SUPABASE_SERVICE_ROLE_KEY));
   app.use((req, _res, next) => {
     next(parserErrors.get(req));
   });
@@ -109,8 +112,9 @@ export function createApp(deps: AppDeps) {
   };
   registerHealth(context, deps.env, deps.version ?? '0.0.0');
   registerMe(context, service);
+  registerFlags(context, flags);
   deps.registerRoutes?.(context);
-  const board = lazyBoard(service, deps.env, logger);
+  const board = lazyBoard(service, deps.env, logger, flags);
   app.locals['closeQueues'] = () => board.close();
   app.use(
     '/v1/admin/queues',

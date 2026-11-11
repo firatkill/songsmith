@@ -6,6 +6,7 @@ import {
 import type { Router } from 'express';
 import { errorResponseSchema } from '@songsmith/schemas';
 import { requestContext } from './correlation.js';
+import type { RateLimitOption } from './rate-limit.js';
 import { AppError } from './errors.js';
 extendZodWithOpenApi(z);
 export function createRegistry(): OpenAPIRegistry {
@@ -67,6 +68,8 @@ export function defineRoute<
     path: string;
     auth: 'public' | 'optional' | 'required';
     description?: string;
+    rateLimit?: RateLimitOption;
+    responseHeaders?: Record<string, string>;
     request: { params: P; query: Q; body?: B };
     response: R;
     handler: (input: {
@@ -81,6 +84,18 @@ export function defineRoute<
       status,
       {
         description: `HTTP ${status}`,
+        ...(definition.responseHeaders
+          ? {
+              headers: Object.fromEntries(
+                Object.entries(definition.responseHeaders).map(
+                  ([name, value]) => [
+                    name,
+                    { schema: { type: 'string' as const, enum: [value] } },
+                  ],
+                ),
+              ),
+            }
+          : {}),
         content: { 'application/json': { schema } },
       },
     ]),
@@ -105,6 +120,24 @@ export function defineRoute<
     },
     responses: {
       ...responses,
+      ...(definition.rateLimit
+        ? {
+            429: {
+              description: 'Rate limit exceeded',
+              headers: {
+                'Retry-After': {
+                  schema: { type: 'integer' as const, minimum: 1 },
+                  description: 'Seconds until the fixed window resets',
+                },
+              },
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/ErrorResponse' },
+                },
+              },
+            },
+          }
+        : {}),
       default: {
         description: 'API error',
         content: {
@@ -121,6 +154,7 @@ export function defineRoute<
       const store = requestContext.getStore();
       if (store) {
         store.authMode = definition.auth;
+        if (definition.rateLimit) store.rateLimit = definition.rateLimit;
         store.ageGateAllowed =
           (definition.method === 'get' && definition.path === '/me') ||
           (definition.method === 'post' && definition.path === '/me/age');
@@ -141,6 +175,7 @@ export function defineRoute<
       (!schema || !schema.safeParse(result.body).success)
     )
       throw new AppError('INTERNAL');
+    if (definition.responseHeaders) res.set(definition.responseHeaders);
     res.status(Number(result.status)).json(result.body);
   });
 }

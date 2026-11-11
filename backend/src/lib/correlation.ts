@@ -10,6 +10,7 @@ export const requestContext = new AsyncLocalStorage<{
   >;
   authMode?: 'public' | 'optional' | 'required';
   ageGateAllowed?: boolean;
+  rateLimit?: import('./rate-limit.js').RateLimitOption;
 }>();
 export const correlation: RequestHandler = (req, res, next) => {
   const incoming = req.get('x-correlation-id');

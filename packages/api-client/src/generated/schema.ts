@@ -4,6 +4,72 @@
  */
 
 export interface paths {
+  '/v1/flags/public': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Public kill-switch states only. Cached for 30 seconds. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            'Cache-Control'?: 'public, max-age=30';
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              'kill_switch:all': boolean;
+              'kill_switch:operation:align': boolean;
+              'kill_switch:operation:cover': boolean;
+              'kill_switch:operation:custom_lyrics': boolean;
+              'kill_switch:operation:extend': boolean;
+              'kill_switch:operation:generate': boolean;
+              'kill_switch:operation:image_input': boolean;
+              'kill_switch:operation:instrumental': boolean;
+              'kill_switch:operation:lyrics': boolean;
+              'kill_switch:operation:remix': boolean;
+              'kill_switch:operation:rewrite': boolean;
+              'kill_switch:operation:stems': boolean;
+              'kill_switch:operation:video': boolean;
+              'kill_switch:provider:mock-align': boolean;
+              'kill_switch:provider:mock-image': boolean;
+              'kill_switch:provider:mock-image-safety': boolean;
+              'kill_switch:provider:mock-music-a': boolean;
+              'kill_switch:provider:mock-music-b': boolean;
+              'kill_switch:provider:mock-text': boolean;
+            };
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/v1/health': {
     parameters: {
       query?: never;
@@ -205,6 +271,17 @@ export interface paths {
             };
           };
         };
+        /** @description Rate limit exceeded */
+        429: {
+          headers: {
+            /** @description Seconds until the fixed window resets */
+            'Retry-After'?: number;
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
         /** @description API error */
         default: {
           headers: {
@@ -269,6 +346,17 @@ export interface paths {
                 'active' | 'cooldown' | 'suspended' | 'banned' | 'deleted';
               updated_at: string;
             };
+          };
+        };
+        /** @description Rate limit exceeded */
+        429: {
+          headers: {
+            /** @description Seconds until the fixed window resets */
+            'Retry-After'?: number;
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
           };
         };
         /** @description API error */
@@ -346,6 +434,17 @@ export interface paths {
                 version: string;
               }[];
             };
+          };
+        };
+        /** @description Rate limit exceeded */
+        429: {
+          headers: {
+            /** @description Seconds until the fixed window resets */
+            'Retry-After'?: number;
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
           };
         };
         /** @description API error */

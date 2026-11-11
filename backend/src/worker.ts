@@ -1,3 +1,5 @@
+import { createFlags } from './lib/flags.js';
+import { cleanupRateLimits } from './lib/rate-limit.js';
 import { loadEnv } from './lib/env.js';
 import { createLogger } from './lib/log.js';
 import { lazyServiceClient } from './db/client.js';
@@ -7,13 +9,14 @@ import { sweepJobs } from './jobs/sweeper.js';
 const env = loadEnv(process.env);
 const logger = createLogger(env.LOG_LEVEL);
 const service = lazyServiceClient(env);
-const definitions = await queueDefinitions(service);
+const flags = createFlags(service, logger);
+const definitions = await queueDefinitions(service, flags);
 const queues = createQueues(definitions, env.REDIS_URL, logger);
 const registry = new ProcessorRegistry()
   .register('maintenance', 'sweeper', () => sweepJobs(service, queues.queues))
   .register('maintenance', 'nightly', () => {
-    logger.info('Nightly placeholder');
-    return Promise.resolve();
+    logger.info('Nightly rate-limit cleanup');
+    return cleanupRateLimits(service);
   });
 const runtime = await startWorkers(
   definitions,

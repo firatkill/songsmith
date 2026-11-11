@@ -17,7 +17,8 @@ Updated: 2026-11-11.
 
 - T-07 done (PR #10): Next.js 16 web skeleton with TR/EN routes, OTP sign-in, age gate (day/month/year), consent, app shell; nonce CSP and security headers; Pop studio visual direction (owner decision D-42) in `ui-tokens` with AA contrast tests; Playwright E2E-01..03 and CI `e2e-web`; CI retries Supabase start after registry rate limits. T-08 is doing; review fixes and local acceptance complete, reviewer/CI pending.
 
-- T-08 done (PR #11): BullMQ 6 on Redis 7 with the TRD §9.1 queues, worker process, resumable step runner with SQL-persisted steps, sweeper and nightly schedulers, Redis-loss recovery, Bull Board behind staff + MFA, `pnpm dev` for Redis, API, worker and web; A-03 verified. Next: T-09.
+- T-08 done (PR #11): BullMQ 6 on Redis 7 with the TRD §9.1 queues, worker process, resumable step runner with SQL-persisted steps, sweeper and nightly schedulers, Redis-loss recovery, Bull Board behind staff + MFA, `pnpm dev` for Redis, API, worker and web; A-03 verified.
+- T-09 done (PR #12): flag registry with a shared 30 s cache and kill switches; Postgres fixed-window rate limits on the `/v1/me` writes; daily cost counters (Europe/Istanbul) and cap checks; `GET /v1/flags/public`; placeholder caps and limits until M6; `next-env.d.ts` generated instead of tracked. Next: T-10.
 
 ## Tasks
 
@@ -33,7 +34,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-06 | Auth, profile and age gate                       | done   | ef898af          |
 | T-07 | Web skeleton                                     | done   | 76483d1          |
 | T-08 | Jobs runtime (BullMQ + Redis)                    | done   | d1e2dc0          |
-| T-09 | Flags, kill switches, rate limits, cost counters | todo   |                  |
+| T-09 | Flags, kill switches, rate limits, cost counters | done   | 2a5cb30          |
 | T-10 | Mobile skeleton and the one-command local stack  | todo   |                  |
 | T-11 | Mock providers, registry and contract tests      | todo   |                  |
 | T-12 | Admin skeleton                                   | todo   |                  |
