@@ -1,6 +1,6 @@
 # Progress
 
-Updated: 2026-11-10.
+Updated: 2026-11-11.
 
 ## Status
 
@@ -8,7 +8,8 @@ Updated: 2026-11-10.
 - Build order is mock-first (PRD D-12): M0–M5 cost nothing; paid work starts at T-45.
 - Local first (PRD D-14): everything runs on the owner's machine (web, iOS Simulator, Android Emulator) until T-50; jobs use BullMQ on Redis; deployment to a rented server happens once in T-50.
 - T-01 done (PR #1): pnpm/Turborepo monorepo, shared strict TypeScript/ESLint/Prettier config, Vitest, CI `static` green.
-- T-02 done (PR #5): shared packages build to ESM for Node, Next.js and React Native; error catalogue; TR/EN i18n with Turkish casing; provisional ui-tokens; module boundaries enforced by `pnpm check:boundaries`. Next: T-03.
+- T-02 done (PR #5): shared packages build to ESM for Node, Next.js and React Native; error catalogue; TR/EN i18n with Turkish casing; provisional ui-tokens; module boundaries enforced by `pnpm check:boundaries`.
+- T-03 done (PR #6): Supabase CLI 3.1.0 pinned; local Postgres 17 with e-mail OTP and Mailpit; default-deny foundation migration (`app`, `restricted`, `audit_log`); pgTAP DB-01/DB-02 (20 assertions); CI `db` job green. Next: T-04.
 
 ## Tasks
 
@@ -18,7 +19,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | ---- | ------------------------------------------------ | ------ | ---------------- |
 | T-01 | Monorepo, tooling and CI skeleton                | done   | 2ad951d          |
 | T-02 | Shared packages and module boundaries            | done   | 98fb951          |
-| T-03 | Supabase local and foundation migration          | todo   |                  |
+| T-03 | Supabase local and foundation migration          | done   | 5ffce0b          |
 | T-04 | Core schema, RLS and seed                        | todo   |                  |
 | T-05 | Backend skeleton                                 | todo   |                  |
 | T-06 | Auth, profile and age gate                       | todo   |                  |
