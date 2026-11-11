@@ -1,7 +1,7 @@
 begin;
 select no_plan();
 insert into auth.users (id) values ('10000000-0000-4000-8000-000000000001'), ('10000000-0000-4000-8000-000000000002');
-insert into public.profiles (id, handle) values ('10000000-0000-4000-8000-000000000001', 'test-owner'), ('10000000-0000-4000-8000-000000000002', 'test-reader');
+insert into public.profiles (id, handle) values ('10000000-0000-4000-8000-000000000001', 'test-owner'), ('10000000-0000-4000-8000-000000000002', 'test-reader') on conflict (id) do update set handle = excluded.handle;
 insert into public.songs (owner_id, title, visibility, status)
 select '10000000-0000-4000-8000-000000000001', visibility || '-' || status, visibility, status
 from unnest(array['private','unlisted','public']) visibility

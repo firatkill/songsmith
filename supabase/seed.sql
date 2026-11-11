@@ -48,7 +48,7 @@ values ('00000000-0000-4000-8000-000000000004', '00000000-0000-0000-0000-0000000
 on conflict (id) do nothing;
 insert into public.profiles (id, handle, display_name, is_adult, adult_verified_at, status)
 values ('00000000-0000-4000-8000-000000000004', 'local-staff', 'Local staff', true, '2026-11-11T00:00:00Z', 'active')
-on conflict (id) do update set is_adult = true, adult_verified_at = excluded.adult_verified_at, status = 'active';
+on conflict (id) do update set handle = excluded.handle, display_name = excluded.display_name, is_adult = true, adult_verified_at = excluded.adult_verified_at, status = 'active';
 insert into app.staff_roles (user_id, role)
 values ('00000000-0000-4000-8000-000000000004', 'admin')
 on conflict (user_id, role) do nothing;

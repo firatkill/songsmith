@@ -19,5 +19,7 @@
   "common.save": "Save",
   "common.items": "{count, plural, one {# item} other {# items}}",
   "common.number": "{value, number}",
-  "errors.PAYLOAD_TOO_LARGE": "The request is too large."
+  "errors.PAYLOAD_TOO_LARGE": "The request is too large.",
+  "auth.signupUnavailable": "Unable to create account.",
+  "errors.CONSENT_REQUIRED": "Your consent is required before continuing."
 }

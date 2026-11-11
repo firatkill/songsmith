@@ -14,6 +14,7 @@ describe('UT-03 environment', () => {
       TRUST_PROXY_HOPS: 0,
       LOG_LEVEL: 'info',
       WEB_ORIGINS: ['http://localhost:3000'],
+      SUPABASE_JWT_ISSUER: 'http://127.0.0.1:54321/auth/v1',
     });
   });
   it.each(['local', 'ci'])(
@@ -150,6 +151,8 @@ describe('UT-05 logging', () => {
   it('covers all sensitive fragments and exact generic keys without overmatching', () => {
     const { log, last } = capture();
     const keys = [
+      'dateOfBirth',
+      'dob',
       'songLyric',
       'userDescription',
       'systemPrompt',

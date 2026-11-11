@@ -532,6 +532,22 @@ export type Database = {
         };
         Relationships: [];
       };
+      signup_blocks: {
+        Row: {
+          blocked_until: string;
+          email_hash: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          blocked_until: string;
+          email_hash: string;
+        };
+        Update: {
+          blocked_until?: string;
+          email_hash?: string;
+        };
+        Relationships: [];
+      };
       staff_roles: {
         Row: {
           created_at: string;
@@ -562,7 +578,17 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      before_user_created: { Args: { event: Json }; Returns: Json };
+      record_consent: {
+        Args: {
+          p_granted: boolean;
+          p_kind: string;
+          p_source: string;
+          p_user_id: string;
+          p_version: string;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       [_ in never]: never;

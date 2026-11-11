@@ -1,6 +1,8 @@
 import pino, { type DestinationStream } from 'pino';
 import { requestContext } from './correlation.js';
 const sensitiveFragments = [
+  'birth',
+  'dob',
   'lyric',
   'description',
   'prompt',
@@ -59,7 +61,7 @@ export function createLogger(level = 'info', destination?: DestinationStream) {
     base: null,
     mixin: () => ({
       correlationId: requestContext.getStore()?.correlationId ?? null,
-      userId: null,
+      userId: requestContext.getStore()?.userId ?? null,
       jobId: null,
       route: null,
       latencyMs: null,

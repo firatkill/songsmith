@@ -19,5 +19,7 @@
   "common.save": "Kaydet",
   "common.items": "{count, plural, one {# öğe} other {# öğe}}",
   "common.number": "{value, number}",
-  "errors.PAYLOAD_TOO_LARGE": "İstek çok büyük."
+  "errors.PAYLOAD_TOO_LARGE": "İstek çok büyük.",
+  "auth.signupUnavailable": "Hesap oluşturulamıyor.",
+  "errors.CONSENT_REQUIRED": "Devam etmek için onayınız gerekiyor."
 }

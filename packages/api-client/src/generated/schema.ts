@@ -56,6 +56,315 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/v1/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              consents: {
+                at: string;
+                created_at: string;
+                granted: boolean;
+                /** Format: uuid */
+                id: string;
+                isCurrent: boolean;
+                /** @enum {string} */
+                kind:
+                  | 'terms'
+                  | 'privacy'
+                  | 'ai_disclosure'
+                  | 'marketing'
+                  | 'analytics';
+                /** @enum {string} */
+                source: 'web' | 'ios' | 'android';
+                /** Format: uuid */
+                user_id: string;
+                version: string;
+              }[];
+              missingConsents: (
+                | 'terms'
+                | 'privacy'
+                | 'ai_disclosure'
+                | 'marketing'
+                | 'analytics'
+              )[];
+              needsAgeGate: boolean;
+              profile: {
+                adult_verified_at: string | null;
+                avatar_seed: string;
+                bio: string;
+                created_at: string;
+                display_name: string;
+                explicit_hidden: boolean;
+                handle: string;
+                /** Format: uuid */
+                id: string;
+                is_adult: boolean;
+                /** @enum {string} */
+                locale: 'tr' | 'en';
+                remix_default: boolean;
+                /** @enum {string} */
+                status:
+                  'active' | 'cooldown' | 'suspended' | 'banned' | 'deleted';
+                updated_at: string;
+              };
+              settings: {
+                analytics_consent: boolean;
+                created_at: string;
+                /** Format: uuid */
+                id: string;
+                marketing_email_opt_in: boolean;
+                notification_prefs: {
+                  [key: string]: unknown;
+                };
+                updated_at: string;
+                /** Format: uuid */
+                user_id: string;
+              };
+            };
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** @description Updates handle, locale, remix_default and explicit_hidden only. display_name and bio edits wait for the profile moderation pipeline (T-15). */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            explicit_hidden?: boolean;
+            handle?: string;
+            /** @enum {string} */
+            locale?: 'tr' | 'en';
+            remix_default?: boolean;
+          };
+        };
+      };
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              adult_verified_at: string | null;
+              avatar_seed: string;
+              bio: string;
+              created_at: string;
+              display_name: string;
+              explicit_hidden: boolean;
+              handle: string;
+              /** Format: uuid */
+              id: string;
+              is_adult: boolean;
+              /** @enum {string} */
+              locale: 'tr' | 'en';
+              remix_default: boolean;
+              /** @enum {string} */
+              status:
+                'active' | 'cooldown' | 'suspended' | 'banned' | 'deleted';
+              updated_at: string;
+            };
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  '/v1/me/age': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Compares the 18th birthday against today in UTC; never stores the date of birth. February 29 birthdays reach adulthood on March 1 in non-leap years. */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            /** Format: date */
+            dateOfBirth: string;
+          };
+        };
+      };
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              adult_verified_at: string | null;
+              avatar_seed: string;
+              bio: string;
+              created_at: string;
+              display_name: string;
+              explicit_hidden: boolean;
+              handle: string;
+              /** Format: uuid */
+              id: string;
+              is_adult: boolean;
+              /** @enum {string} */
+              locale: 'tr' | 'en';
+              remix_default: boolean;
+              /** @enum {string} */
+              status:
+                'active' | 'cooldown' | 'suspended' | 'banned' | 'deleted';
+              updated_at: string;
+            };
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/me/consents': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            granted: boolean;
+            /** @enum {string} */
+            kind:
+              'terms' | 'privacy' | 'ai_disclosure' | 'marketing' | 'analytics';
+            /** @enum {string} */
+            source: 'web' | 'ios' | 'android';
+            version: string;
+          };
+        };
+      };
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              consents: {
+                at: string;
+                created_at: string;
+                granted: boolean;
+                /** Format: uuid */
+                id: string;
+                isCurrent: boolean;
+                /** @enum {string} */
+                kind:
+                  | 'terms'
+                  | 'privacy'
+                  | 'ai_disclosure'
+                  | 'marketing'
+                  | 'analytics';
+                /** @enum {string} */
+                source: 'web' | 'ios' | 'android';
+                /** Format: uuid */
+                user_id: string;
+                version: string;
+              }[];
+            };
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -66,6 +375,7 @@ export interface components {
         code:
           | 'UNAUTHENTICATED'
           | 'FORBIDDEN'
+          | 'CONSENT_REQUIRED'
           | 'NOT_ADULT'
           | 'VALIDATION'
           | 'PAYLOAD_TOO_LARGE'

@@ -3,7 +3,11 @@ import { Router } from 'express';
 import { OpenApiGeneratorV31 } from '@asteasolutions/zod-to-openapi';
 import { createRegistry } from '../src/lib/route.js';
 import { registerHealth } from '../src/routes/health.js';
+import { registerMe } from '../src/routes/me.js';
 const registry = createRegistry();
+registerMe({ router: Router(), registry, production: false }, () => {
+  throw new Error('OpenAPI does not access the database');
+});
 registerHealth(
   { router: Router(), registry, production: false },
   { APP_ENV: 'local', PROVIDER_MODE: 'mock' },

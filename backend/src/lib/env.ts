@@ -45,7 +45,12 @@ const schema = z
         path: ['PROVIDER_MODE'],
         message: 'local/ci live requires ALLOW_LIVE_PROVIDERS=true',
       });
-  });
+  })
+  .transform((v) => ({
+    ...v,
+    SUPABASE_JWT_ISSUER:
+      v.SUPABASE_JWT_ISSUER ?? `${v.SUPABASE_URL.replace(/\/$/, '')}/auth/v1`,
+  }));
 export type Env = z.infer<typeof schema>;
 export function loadEnv(source: Record<string, string | undefined>): Env {
   const result = schema.safeParse(source);

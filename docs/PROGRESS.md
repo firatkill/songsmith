@@ -12,7 +12,8 @@ Updated: 2026-11-11.
 - T-03 done (PR #6): Supabase CLI 3.1.0 pinned; local Postgres 17 with e-mail OTP and Mailpit; default-deny foundation migration (`app`, `restricted`, `audit_log`); pgTAP DB-01/DB-02 (20 assertions); CI `db` job green.
 
 - T-04 done (PR #7): core schema (migrations 0002–0007) with read-only RLS and hidden share/gift tokens; mock catalogue, language statuses, placeholder prices, six flags and a local staff admin seeded; `pnpm db:types` with CI drift check; 164 pgTAP assertions. Decisions D-20–D-26.
-- T-05 done (PR #8): Express 5 API with the §13.1 middleware order, env validation, redacting JSON logger, TR/EN error mapping, `defineRoute`, `/v1/health`, OpenAPI 3.1 and generated `api-client`; `app` schema exposed to the backend service client only (D-27); CI `integration` job. Next: T-06.
+- T-05 done (PR #8): Express 5 API with the §13.1 middleware order, env validation, redacting JSON logger, TR/EN error mapping, `defineRoute`, `/v1/health`, OpenAPI 3.1 and generated `api-client`; `app` schema exposed to the backend service client only (D-27); CI `integration` job.
+- T-06 done (PR #9): JWKS JWT auth with enforced route modes; profile status and age gate; `/v1/me`, `/v1/me/age`, `/v1/me/consents`; profile provisioning trigger; under-18 deletion with a 30-day sign-up block via the Auth hook; versioned append-only consents. Decisions D-32–D-39. Next: T-07.
 
 ## Tasks
 
@@ -25,7 +26,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-03 | Supabase local and foundation migration          | done   | 5ffce0b          |
 | T-04 | Core schema, RLS and seed                        | done   | f51fd4f          |
 | T-05 | Backend skeleton                                 | done   | fc914a4          |
-| T-06 | Auth, profile and age gate                       | todo   |                  |
+| T-06 | Auth, profile and age gate                       | done   | ef898af          |
 | T-07 | Web skeleton                                     | todo   |                  |
 | T-08 | Jobs runtime (BullMQ + Redis)                    | todo   |                  |
 | T-09 | Flags, kill switches, rate limits, cost counters | todo   |                  |
