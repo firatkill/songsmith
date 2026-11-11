@@ -30,6 +30,7 @@ jobs:
       - run: pnpm check:exports
       - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm openapi && git diff --exit-code
 
   db:
     needs: static
@@ -47,5 +48,32 @@ jobs:
       - run: pnpm db:types
       - run: git diff --exit-code
       - run: pnpm test:db
+      - if: always()
+        run: pnpm db:stop
+
+  integration:
+    needs: db
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: ci
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec supabase start -x studio,imgproxy,edge-runtime,logflare,vector
+      - run: pnpm db:reset
+      - name: Run backend integration tests with local credentials
+        shell: bash
+        run: |
+          set -a
+          source <(pnpm exec supabase status -o env)
+          export SUPABASE_URL="$API_URL"
+          export SUPABASE_ANON_KEY="$ANON_KEY"
+          export SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY"
+          pnpm test:integration
       - if: always()
         run: pnpm db:stop
