@@ -176,3 +176,14 @@ generated API client. The owner-selected Pop studio theme uses Bricolage Grotesq
 See the [web local-run guide](docs/runbooks/web-skeleton.md) for routes,
 environment setup, sessions, redirects and security headers. `pnpm e2e` starts a production web build and backend
 against the running local Supabase. Never run it against a shared/production database.
+
+### Jobs runtime
+
+Installed runtime: BullMQ **6.7.4** with **ioredis 6.0.0**.
+
+After `pnpm db:start`, run `pnpm dev` to start Redis, API, worker and web
+with native watchers. Restricted environments can opt into Webpack and polling
+with `SONGSMITH_DEV_POLLING=1 pnpm dev`.
+Ctrl-C stops the Node processes; `pnpm redis:down` stops Redis while preserving
+its AOF volume. See [jobs runtime](docs/runbooks/jobs-runtime.md) for queue
+configuration, recovery limits, test isolation and the staff/MFA Bull Board guard.
