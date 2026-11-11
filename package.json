@@ -23,7 +23,7 @@
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
-    "db:types": "node scripts/not-implemented.mjs db:types T-04",
+    "db:types": "node scripts/db-types.mjs",
     "test:db": "supabase test db",
     "test:integration": "node scripts/not-implemented.mjs test:integration T-05",
     "e2e": "node scripts/not-implemented.mjs e2e T-07",

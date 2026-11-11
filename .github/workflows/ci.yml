@@ -44,6 +44,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec supabase start -x studio,imgproxy,edge-runtime,logflare,vector
       - run: pnpm db:reset
+      - run: pnpm db:types
+      - run: git diff --exit-code
       - run: pnpm test:db
       - if: always()
         run: pnpm db:stop
