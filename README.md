@@ -125,3 +125,43 @@ stops gracefully on Ctrl-C. Built output runs with
 to `app`. The database test skips locally only if Supabase is stopped; CI requires
 it. Stop local services with `pnpm db:stop`. JWT auth and `/v1/me` are T-06;
 Redis, workers and the root `pnpm dev` command remain T-08.
+
+### T-06 authentication
+
+Local Supabase CLI 3.1.0 issues ES256 user JWTs and exposes public signing keys
+at `http://127.0.0.1:54321/auth/v1/.well-known/jwks.json`. The backend verifies
+issuer, audience, expiry, role and subject using `jose` 6.2.17. No shared-secret
+JWT verification is supported. Set `SUPABASE_JWT_ISSUER` only when overriding
+the default `${SUPABASE_URL}/auth/v1`.
+
+The configured Postgres `before_user_created` hook rejects active 30-day email
+hash blocks before sign-up completes. Migration 0008 grants hook execution to
+`supabase_auth_admin`, with no client access to the block table. An underage
+age-gate submission stores only a SHA-256 email hash and expiry, deletes the auth
+user, and never stores the submitted date. Age is computed using today's UTC
+date; a February 29 birthday reaches adulthood on March 1 in a non-leap year.
+
+Google and Apple remain `enabled = false` in `supabase/config.toml`. When keys
+already exist, configure them privately in `.env.local` and export the variables
+into the shell running Supabase (do not commit values):
+
+- Google: `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID` and
+  `SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET`; register the local Supabase callback
+  `http://127.0.0.1:54321/auth/v1/callback` with the OAuth client, then set
+  `[auth.external.google] enabled = true`.
+- Apple: `SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID` (Services ID) and
+  `SUPABASE_AUTH_EXTERNAL_APPLE_SECRET` (the generated client-secret JWT), then
+  set `[auth.external.apple] enabled = true`. Apple requires a registered HTTPS
+  return URL, so local testing needs an HTTPS callback tunnel and matching
+  Supabase external URL/issuer configuration. Use an existing account; do not
+  purchase a developer membership before M7. Rotate Apple's expiring secret.
+
+Restart Supabase after config changes. OAuth UI belongs to T-07/T-10; the backend
+accepts the resulting Supabase JWTs through the same verifier as OTP sign-in.
+See [Google setup](https://supabase.com/docs/guides/auth/social-login/auth-google)
+and [Apple setup](https://supabase.com/docs/guides/auth/social-login/auth-apple).
+
+Consent versions in `packages/schemas/src/me.ts` are provisional until T-40.
+`requireConsent(kind)` is ready for later lyric/song routes. Profile display
+name and bio writes wait for T-15 moderation; T-06 only edits handle, locale,
+remix default and explicit visibility preferences.

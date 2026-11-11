@@ -12,7 +12,8 @@ Updated: 2026-11-11.
 - T-03 done (PR #6): Supabase CLI 3.1.0 pinned; local Postgres 17 with e-mail OTP and Mailpit; default-deny foundation migration (`app`, `restricted`, `audit_log`); pgTAP DB-01/DB-02 (20 assertions); CI `db` job green.
 
 - T-04 done (PR #7): core schema (migrations 0002–0007) with read-only RLS and hidden share/gift tokens; mock catalogue, language statuses, placeholder prices, six flags and a local staff admin seeded; `pnpm db:types` with CI drift check; 164 pgTAP assertions. Decisions D-20–D-26.
-- T-05 done (PR #8): Express 5 API with the §13.1 middleware order, env validation, redacting JSON logger, TR/EN error mapping, `defineRoute`, `/v1/health`, OpenAPI 3.1 and generated `api-client`; `app` schema exposed to the backend service client only (D-27); CI `integration` job. Next: T-06.
+- T-05 done (PR #8): Express 5 API with the §13.1 middleware order, env validation, redacting JSON logger, TR/EN error mapping, `defineRoute`, `/v1/health`, OpenAPI 3.1 and generated `api-client`; `app` schema exposed to the backend service client only (D-27); CI `integration` job.
+- T-06 doing (implementation and review fixes locally verified; reviewer/CI pending): ES256 JWKS auth, profile status/age gate, four Me endpoints, append-only versioned consents, profile/settings trigger and before-user-created email-hash block hook. Supabase CLI 3.1.0 supports both JWKS and the hook; no fallback. Latest local checks: format/lint/typecheck, 129 unit tests and 17 integration tests including IT-04/05/06 and OTP via Mailpit, with credentials exported from Supabase status. Deleted identities with unexpired JWTs return 401 without an error log; existing identities missing profiles return logged 500 errors; normal profiles skip the Auth lookup. Reviewer verified 190 pgTAP assertions (DB-01/DB-02 included), database types and stable OpenAPI after the collision/consent fixes. Decisions D-32–D-39. T-07 not started.
 
 ## Tasks
 
@@ -25,7 +26,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-03 | Supabase local and foundation migration          | done   | 5ffce0b          |
 | T-04 | Core schema, RLS and seed                        | done   | f51fd4f          |
 | T-05 | Backend skeleton                                 | done   | fc914a4          |
-| T-06 | Auth, profile and age gate                       | todo   |                  |
+| T-06 | Auth, profile and age gate                       | doing  |                  |
 | T-07 | Web skeleton                                     | todo   |                  |
 | T-08 | Jobs runtime (BullMQ + Redis)                    | todo   |                  |
 | T-09 | Flags, kill switches, rate limits, cost counters | todo   |                  |
