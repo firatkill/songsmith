@@ -4,6 +4,12 @@ import { newCorrelationId } from './ids.js';
 export const requestContext = new AsyncLocalStorage<{
   correlationId: string;
   requestId: string;
+  userId?: string;
+  profile?: import('zod').infer<
+    typeof import('@songsmith/schemas').profileSchema
+  >;
+  authMode?: 'public' | 'optional' | 'required';
+  ageGateAllowed?: boolean;
 }>();
 export const correlation: RequestHandler = (req, res, next) => {
   const incoming = req.get('x-correlation-id');

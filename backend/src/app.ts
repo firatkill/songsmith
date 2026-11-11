@@ -6,6 +6,9 @@ import { createLogger, type Logger } from './lib/log.js';
 import { correlation, requestContext } from './lib/correlation.js';
 import { AppError, errorMiddleware } from './lib/errors.js';
 import { createRegistry, type RouteContext } from './lib/route.js';
+import { authStage, createJwtVerifier, profileStage } from './lib/auth.js';
+import { lazyServiceClient } from './db/client.js';
+import { registerMe } from './routes/me.js';
 import { registerHealth } from './routes/health.js';
 export interface AppDeps {
   env: Env;
@@ -16,6 +19,8 @@ export interface AppDeps {
 }
 export function createApp(deps: AppDeps) {
   const app = express();
+  const authRoutes = Router();
+  const service = lazyServiceClient(deps.env);
   const logger = deps.logger ?? createLogger(deps.env.LOG_LEVEL);
   app.disable('x-powered-by');
   app.set('trust proxy', deps.env.TRUST_PROXY_HOPS);
@@ -81,12 +86,9 @@ export function createApp(deps: AppDeps) {
       exposedHeaders: ['x-correlation-id'],
     }),
   );
-  app.use((_req, _res, next) => {
-    next();
-  }); // T-06: JWT authentication.
-  app.use((_req, _res, next) => {
-    next();
-  }); // T-06: profile status and age gate.
+  app.use('/v1', authRoutes);
+  app.use(authStage(createJwtVerifier(deps.env.SUPABASE_JWT_ISSUER)));
+  app.use(profileStage(service));
   app.use((_req, _res, next) => {
     next();
   }); // T-09/T-25/T-43: rate limits and caps.
@@ -99,10 +101,12 @@ export function createApp(deps: AppDeps) {
   const router = Router();
   const context = {
     router,
+    authRoutes,
     registry: createRegistry(),
     production: deps.env.APP_ENV === 'production',
   };
   registerHealth(context, deps.env, deps.version ?? '0.0.0');
+  registerMe(context, service);
   deps.registerRoutes?.(context);
   app.use('/v1', router);
   app.use((_req, _res, next) => {

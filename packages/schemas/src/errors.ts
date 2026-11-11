@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const errorCatalogue = {
   UNAUTHENTICATED: { status: 401, messageKey: 'errors.UNAUTHENTICATED' },
   FORBIDDEN: { status: 403, messageKey: 'errors.FORBIDDEN' },
+  CONSENT_REQUIRED: { status: 403, messageKey: 'errors.CONSENT_REQUIRED' },
   NOT_ADULT: { status: 403, messageKey: 'errors.NOT_ADULT' },
   PAYLOAD_TOO_LARGE: { status: 413, messageKey: 'errors.PAYLOAD_TOO_LARGE' },
   VALIDATION: { status: 400, messageKey: 'errors.VALIDATION' },
@@ -30,6 +31,7 @@ export type ErrorCode = keyof typeof errorCatalogue;
 export const errorCodeSchema = z.enum([
   'UNAUTHENTICATED',
   'FORBIDDEN',
+  'CONSENT_REQUIRED',
   'NOT_ADULT',
   'VALIDATION',
   'PAYLOAD_TOO_LARGE',

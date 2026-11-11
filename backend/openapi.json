@@ -13,6 +13,7 @@
                 "enum": [
                   "UNAUTHENTICATED",
                   "FORBIDDEN",
+                  "CONSENT_REQUIRED",
                   "NOT_ADULT",
                   "VALIDATION",
                   "PAYLOAD_TOO_LARGE",
@@ -105,6 +106,566 @@
           }
         },
         "x-auth-mode": "public"
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "consents": {
+                      "items": {
+                        "properties": {
+                          "at": {
+                            "type": "string"
+                          },
+                          "created_at": {
+                            "type": "string"
+                          },
+                          "granted": {
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "format": "uuid",
+                            "type": "string"
+                          },
+                          "isCurrent": {
+                            "type": "boolean"
+                          },
+                          "kind": {
+                            "enum": [
+                              "terms",
+                              "privacy",
+                              "ai_disclosure",
+                              "marketing",
+                              "analytics"
+                            ],
+                            "type": "string"
+                          },
+                          "source": {
+                            "enum": ["web", "ios", "android"],
+                            "type": "string"
+                          },
+                          "user_id": {
+                            "format": "uuid",
+                            "type": "string"
+                          },
+                          "version": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "user_id",
+                          "kind",
+                          "version",
+                          "granted",
+                          "source",
+                          "at",
+                          "created_at",
+                          "isCurrent"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "missingConsents": {
+                      "items": {
+                        "enum": [
+                          "terms",
+                          "privacy",
+                          "ai_disclosure",
+                          "marketing",
+                          "analytics"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "needsAgeGate": {
+                      "type": "boolean"
+                    },
+                    "profile": {
+                      "properties": {
+                        "adult_verified_at": {
+                          "type": ["string", "null"]
+                        },
+                        "avatar_seed": {
+                          "type": "string"
+                        },
+                        "bio": {
+                          "type": "string"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "display_name": {
+                          "type": "string"
+                        },
+                        "explicit_hidden": {
+                          "type": "boolean"
+                        },
+                        "handle": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "format": "uuid",
+                          "type": "string"
+                        },
+                        "is_adult": {
+                          "type": "boolean"
+                        },
+                        "locale": {
+                          "enum": ["tr", "en"],
+                          "type": "string"
+                        },
+                        "remix_default": {
+                          "type": "boolean"
+                        },
+                        "status": {
+                          "enum": [
+                            "active",
+                            "cooldown",
+                            "suspended",
+                            "banned",
+                            "deleted"
+                          ],
+                          "type": "string"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "handle",
+                        "display_name",
+                        "bio",
+                        "avatar_seed",
+                        "locale",
+                        "is_adult",
+                        "adult_verified_at",
+                        "remix_default",
+                        "explicit_hidden",
+                        "status",
+                        "created_at",
+                        "updated_at"
+                      ],
+                      "type": "object"
+                    },
+                    "settings": {
+                      "properties": {
+                        "analytics_consent": {
+                          "type": "boolean"
+                        },
+                        "created_at": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "format": "uuid",
+                          "type": "string"
+                        },
+                        "marketing_email_opt_in": {
+                          "type": "boolean"
+                        },
+                        "notification_prefs": {
+                          "additionalProperties": {},
+                          "type": "object"
+                        },
+                        "updated_at": {
+                          "type": "string"
+                        },
+                        "user_id": {
+                          "format": "uuid",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "user_id",
+                        "notification_prefs",
+                        "marketing_email_opt_in",
+                        "analytics_consent",
+                        "created_at",
+                        "updated_at"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "consents",
+                    "profile",
+                    "settings",
+                    "needsAgeGate",
+                    "missingConsents"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      },
+      "patch": {
+        "description": "Updates handle, locale, remix_default and explicit_hidden only. display_name and bio edits wait for the profile moderation pipeline (T-15).",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "explicit_hidden": {
+                    "type": "boolean"
+                  },
+                  "handle": {
+                    "pattern": "^[a-z0-9_]{3,30}$",
+                    "type": "string"
+                  },
+                  "locale": {
+                    "enum": ["tr", "en"],
+                    "type": "string"
+                  },
+                  "remix_default": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "adult_verified_at": {
+                      "type": ["string", "null"]
+                    },
+                    "avatar_seed": {
+                      "type": "string"
+                    },
+                    "bio": {
+                      "type": "string"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "display_name": {
+                      "type": "string"
+                    },
+                    "explicit_hidden": {
+                      "type": "boolean"
+                    },
+                    "handle": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "is_adult": {
+                      "type": "boolean"
+                    },
+                    "locale": {
+                      "enum": ["tr", "en"],
+                      "type": "string"
+                    },
+                    "remix_default": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "enum": [
+                        "active",
+                        "cooldown",
+                        "suspended",
+                        "banned",
+                        "deleted"
+                      ],
+                      "type": "string"
+                    },
+                    "updated_at": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "handle",
+                    "display_name",
+                    "bio",
+                    "avatar_seed",
+                    "locale",
+                    "is_adult",
+                    "adult_verified_at",
+                    "remix_default",
+                    "explicit_hidden",
+                    "status",
+                    "created_at",
+                    "updated_at"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/me/age": {
+      "post": {
+        "description": "Compares the 18th birthday against today in UTC; never stores the date of birth. February 29 birthdays reach adulthood on March 1 in non-leap years.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "dateOfBirth": {
+                    "format": "date",
+                    "type": "string"
+                  }
+                },
+                "required": ["dateOfBirth"],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "adult_verified_at": {
+                      "type": ["string", "null"]
+                    },
+                    "avatar_seed": {
+                      "type": "string"
+                    },
+                    "bio": {
+                      "type": "string"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "display_name": {
+                      "type": "string"
+                    },
+                    "explicit_hidden": {
+                      "type": "boolean"
+                    },
+                    "handle": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "is_adult": {
+                      "type": "boolean"
+                    },
+                    "locale": {
+                      "enum": ["tr", "en"],
+                      "type": "string"
+                    },
+                    "remix_default": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "enum": [
+                        "active",
+                        "cooldown",
+                        "suspended",
+                        "banned",
+                        "deleted"
+                      ],
+                      "type": "string"
+                    },
+                    "updated_at": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "handle",
+                    "display_name",
+                    "bio",
+                    "avatar_seed",
+                    "locale",
+                    "is_adult",
+                    "adult_verified_at",
+                    "remix_default",
+                    "explicit_hidden",
+                    "status",
+                    "created_at",
+                    "updated_at"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/me/consents": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "granted": {
+                    "type": "boolean"
+                  },
+                  "kind": {
+                    "enum": [
+                      "terms",
+                      "privacy",
+                      "ai_disclosure",
+                      "marketing",
+                      "analytics"
+                    ],
+                    "type": "string"
+                  },
+                  "source": {
+                    "enum": ["web", "ios", "android"],
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  }
+                },
+                "required": ["kind", "version", "granted", "source"],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "consents": {
+                      "items": {
+                        "properties": {
+                          "at": {
+                            "type": "string"
+                          },
+                          "created_at": {
+                            "type": "string"
+                          },
+                          "granted": {
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "format": "uuid",
+                            "type": "string"
+                          },
+                          "isCurrent": {
+                            "type": "boolean"
+                          },
+                          "kind": {
+                            "enum": [
+                              "terms",
+                              "privacy",
+                              "ai_disclosure",
+                              "marketing",
+                              "analytics"
+                            ],
+                            "type": "string"
+                          },
+                          "source": {
+                            "enum": ["web", "ios", "android"],
+                            "type": "string"
+                          },
+                          "user_id": {
+                            "format": "uuid",
+                            "type": "string"
+                          },
+                          "version": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "user_id",
+                          "kind",
+                          "version",
+                          "granted",
+                          "source",
+                          "at",
+                          "created_at",
+                          "isCurrent"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": ["consents"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
       }
     }
   },

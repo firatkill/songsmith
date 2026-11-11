@@ -5,6 +5,7 @@ import {
 } from '@asteasolutions/zod-to-openapi';
 import type { Router } from 'express';
 import { errorResponseSchema } from '@songsmith/schemas';
+import { requestContext } from './correlation.js';
 import { AppError } from './errors.js';
 extendZodWithOpenApi(z);
 export function createRegistry(): OpenAPIRegistry {
@@ -52,6 +53,7 @@ export interface RouteContext {
   router: Router;
   registry: OpenAPIRegistry;
   production: boolean;
+  authRoutes?: Router;
 }
 export function defineRoute<
   P extends z.ZodObject,
@@ -64,6 +66,7 @@ export function defineRoute<
     method: 'get' | 'post' | 'put' | 'patch' | 'delete';
     path: string;
     auth: 'public' | 'optional' | 'required';
+    description?: string;
     request: { params: P; query: Q; body?: B };
     response: R;
     handler: (input: {
@@ -86,6 +89,7 @@ export function defineRoute<
     method: definition.method,
     path: `/v1${definition.path.replace(/:([A-Za-z0-9_]+)/g, '{$1}')}`,
     'x-auth-mode': definition.auth,
+    ...(definition.description ? { description: definition.description } : {}),
     request: {
       params: definition.request.params,
       query: definition.request.query,
@@ -111,9 +115,20 @@ export function defineRoute<
       },
     },
   });
+  context.authRoutes?.[definition.method](
+    definition.path,
+    (_req, _res, next) => {
+      const store = requestContext.getStore();
+      if (store) {
+        store.authMode = definition.auth;
+        store.ageGateAllowed =
+          (definition.method === 'get' && definition.path === '/me') ||
+          (definition.method === 'post' && definition.path === '/me/age');
+      }
+      next('router');
+    },
+  );
   context.router[definition.method](definition.path, async (req, res) => {
-    // T-06 enforces the recorded auth mode and profile status.
-    res.locals['authMode'] = definition.auth;
     const input = {
       params: definition.request.params.parse(req.params),
       query: definition.request.query.parse(req.query),
