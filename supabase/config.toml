@@ -65,3 +65,7 @@ enabled = false
 
 [analytics]
 enabled = false
+
+[auth.hook.before_user_created]
+enabled = true
+uri = "pg-functions://postgres/app/before_user_created"

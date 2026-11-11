@@ -1,7 +1,7 @@
 begin;
 select no_plan();
 insert into auth.users (id) values ('20000000-0000-4000-8000-000000000001');
-insert into public.profiles (id, handle) values ('20000000-0000-4000-8000-000000000001', 'CaseCheck');
+insert into public.profiles (id, handle) values ('20000000-0000-4000-8000-000000000001', 'CaseCheck') on conflict (id) do update set handle = excluded.handle;
 select throws_ok($$insert into public.profiles (id, handle) values ('00000000-0000-4000-8000-000000000004', 'casecheck')$$,
   '23505', null, 'handles are case-insensitively unique');
 insert into public.songs (owner_id, title, lyrics)
