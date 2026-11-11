@@ -46,5 +46,11 @@ export default [
       ],
     },
   },
+  // Supabase emits generic helpers with `never` unions when a schema has no views.
+  // Keep all other strict checks on the generated database types.
+  {
+    files: ['**/schemas/src/db.types.ts'],
+    rules: { '@typescript-eslint/no-redundant-type-constituents': 'off' },
+  },
   ...boundaryConfig,
 ];
