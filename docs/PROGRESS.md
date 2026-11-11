@@ -12,7 +12,7 @@ Updated: 2026-11-11.
 - T-03 done (PR #6): Supabase CLI 3.1.0 pinned; local Postgres 17 with e-mail OTP and Mailpit; default-deny foundation migration (`app`, `restricted`, `audit_log`); pgTAP DB-01/DB-02 (20 assertions); CI `db` job green.
 
 - T-04 done (PR #7): core schema (migrations 0002–0007) with read-only RLS and hidden share/gift tokens; mock catalogue, language statuses, placeholder prices, six flags and a local staff admin seeded; `pnpm db:types` with CI drift check; 164 pgTAP assertions. Decisions D-20–D-26.
-- T-05 doing: backend skeleton implementation and local acceptance complete; 68 unit tests, 164 pgTAP assertions and 9 integration tests passed (no integration skips); OpenAPI/client generation stable across two runs; dev API returned 200; local services stopped. Decisions D-27–D-31. Review fixes: compound-key (including gift recipients/occasions) and JWT/email value redaction, preserved public profile and observability fields, and completion-log error codes. The two full-process ESLint boundary tests have per-test 30 s timeouts; global timeouts are unchanged. Reviewer/CI pending.
+- T-05 done (PR #8): Express 5 API with the §13.1 middleware order, env validation, redacting JSON logger, TR/EN error mapping, `defineRoute`, `/v1/health`, OpenAPI 3.1 and generated `api-client`; `app` schema exposed to the backend service client only (D-27); CI `integration` job. Next: T-06.
 
 ## Tasks
 
@@ -24,7 +24,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-02 | Shared packages and module boundaries            | done   | 98fb951          |
 | T-03 | Supabase local and foundation migration          | done   | 5ffce0b          |
 | T-04 | Core schema, RLS and seed                        | done   | f51fd4f          |
-| T-05 | Backend skeleton                                 | doing  |                  |
+| T-05 | Backend skeleton                                 | done   | fc914a4          |
 | T-06 | Auth, profile and age gate                       | todo   |                  |
 | T-07 | Web skeleton                                     | todo   |                  |
 | T-08 | Jobs runtime (BullMQ + Redis)                    | todo   |                  |
