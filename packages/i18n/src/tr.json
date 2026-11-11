@@ -18,5 +18,6 @@
   "common.cancel": "İptal",
   "common.save": "Kaydet",
   "common.items": "{count, plural, one {# öğe} other {# öğe}}",
-  "common.number": "{value, number}"
+  "common.number": "{value, number}",
+  "errors.PAYLOAD_TOO_LARGE": "İstek çok büyük."
 }

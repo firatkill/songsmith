@@ -4,6 +4,7 @@ export const errorCatalogue = {
   UNAUTHENTICATED: { status: 401, messageKey: 'errors.UNAUTHENTICATED' },
   FORBIDDEN: { status: 403, messageKey: 'errors.FORBIDDEN' },
   NOT_ADULT: { status: 403, messageKey: 'errors.NOT_ADULT' },
+  PAYLOAD_TOO_LARGE: { status: 413, messageKey: 'errors.PAYLOAD_TOO_LARGE' },
   VALIDATION: { status: 400, messageKey: 'errors.VALIDATION' },
   MODERATION_BLOCKED: { status: 422, messageKey: 'errors.MODERATION_BLOCKED' },
   MODERATION_HARD_BLOCKED: {
@@ -31,6 +32,7 @@ export const errorCodeSchema = z.enum([
   'FORBIDDEN',
   'NOT_ADULT',
   'VALIDATION',
+  'PAYLOAD_TOO_LARGE',
   'MODERATION_BLOCKED',
   'MODERATION_HARD_BLOCKED',
   'INSUFFICIENT_CREDITS',

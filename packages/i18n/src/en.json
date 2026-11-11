@@ -18,5 +18,6 @@
   "common.cancel": "Cancel",
   "common.save": "Save",
   "common.items": "{count, plural, one {# item} other {# items}}",
-  "common.number": "{value, number}"
+  "common.number": "{value, number}",
+  "errors.PAYLOAD_TOO_LARGE": "The request is too large."
 }
