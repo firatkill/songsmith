@@ -69,3 +69,12 @@ test('device locale lists and missing preference', () => {
   expect(resolveLocale(['fr-FR', 'tr-TR', 'en-US'])).toBe('tr');
   expect(resolveLocale(undefined)).toBe('en');
 });
+
+test('user-facing messages never expose internal tasks or editorial placeholders', () => {
+  for (const locale of ['en', 'tr'] as const) {
+    for (const [key, message] of Object.entries(messages[locale])) {
+      expect(message, `${locale}:${key}`).not.toMatch(/\bT-\d{2}\b/);
+      expect(message, `${locale}:${key}`).not.toMatch(/\b(TODO|TBD|FIXME)\b/);
+    }
+  }
+});
