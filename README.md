@@ -60,7 +60,7 @@ lint, typecheck and tests, including on a clean clone. No TypeScript runtime
 loader or Node-only runtime imports are required. Next.js and Metro consume the
 same ESM exports; app integration is verified in T-07/T-10. The i18n build inlines
 JSON catalogues in emitted JavaScript, avoiding runtime JSON import attributes.
-The generated API client remains a placeholder until T-05.
+The API client is generated from backend route schemas with `pnpm openapi`.
 
 Runtime dependencies: Zod **4.6.7** (the Zod 4 version recorded above) validates
 shared error responses; FormatJS `intl-messageformat` **12.1.5** formats ICU
@@ -108,3 +108,20 @@ grant RLS-protected reads. Application objects must be created as `postgres`;
 alter, and auth/storage/realtime service owners stay in their own schemas. `app.audit_log` permits only service-role reads/inserts;
 its nullable actor UUID deliberately has no auth FK, preserving audit history.
 The pgTAP files roll back all probes and data.
+
+## Local API (T-05)
+
+Start Docker and `pnpm db:start`. Put `SUPABASE_URL`, `SUPABASE_ANON_KEY`
+and `SUPABASE_SERVICE_ROLE_KEY` from local `pnpm exec supabase status` in the
+ignored root `.env.local`; never commit keys. Other variables can be omitted
+for local defaults (see `.env.example`; empty values are not defaults).
+Run `pnpm build`, then `pnpm --filter @songsmith/backend dev` and
+`curl -i localhost:4000/v1/health`. The process reads root `.env.local` and
+stops gracefully on Ctrl-C. Built output runs with
+`pnpm --filter @songsmith/backend start`.
+
+`pnpm openapi` regenerates the OpenAPI 3.1 document and portable typed client.
+`pnpm test:integration` tests HTTP behavior and PostgREST denial for anon access
+to `app`. The database test skips locally only if Supabase is stopped; CI requires
+it. Stop local services with `pnpm db:stop`. JWT auth and `/v1/me` are T-06;
+Redis, workers and the root `pnpm dev` command remain T-08.
