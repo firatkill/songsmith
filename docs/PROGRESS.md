@@ -13,7 +13,9 @@ Updated: 2026-11-11.
 
 - T-04 done (PR #7): core schema (migrations 0002–0007) with read-only RLS and hidden share/gift tokens; mock catalogue, language statuses, placeholder prices, six flags and a local staff admin seeded; `pnpm db:types` with CI drift check; 164 pgTAP assertions. Decisions D-20–D-26.
 - T-05 done (PR #8): Express 5 API with the §13.1 middleware order, env validation, redacting JSON logger, TR/EN error mapping, `defineRoute`, `/v1/health`, OpenAPI 3.1 and generated `api-client`; `app` schema exposed to the backend service client only (D-27); CI `integration` job.
-- T-06 done (PR #9): JWKS JWT auth with enforced route modes; profile status and age gate; `/v1/me`, `/v1/me/age`, `/v1/me/consents`; profile provisioning trigger; under-18 deletion with a 30-day sign-up block via the Auth hook; versioned append-only consents. Decisions D-32–D-39. Next: T-07.
+- T-06 done (PR #9): JWKS JWT auth with enforced route modes; profile status and age gate; `/v1/me`, `/v1/me/age`, `/v1/me/consents`; profile provisioning trigger; under-18 deletion with a 30-day sign-up block via the Auth hook; versioned append-only consents. Decisions D-32–D-39.
+
+- T-07 done (PR #10): Next.js 16 web skeleton with TR/EN routes, OTP sign-in, age gate (day/month/year), consent, app shell; nonce CSP and security headers; Pop studio visual direction (owner decision D-42) in `ui-tokens` with AA contrast tests; Playwright E2E-01..03 and CI `e2e-web`; CI retries Supabase start after registry rate limits. Next: T-08.
 
 ## Tasks
 
@@ -27,7 +29,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-04 | Core schema, RLS and seed                        | done   | f51fd4f          |
 | T-05 | Backend skeleton                                 | done   | fc914a4          |
 | T-06 | Auth, profile and age gate                       | done   | ef898af          |
-| T-07 | Web skeleton                                     | todo   |                  |
+| T-07 | Web skeleton                                     | done   | 76483d1          |
 | T-08 | Jobs runtime (BullMQ + Redis)                    | todo   |                  |
 | T-09 | Flags, kill switches, rate limits, cost counters | todo   |                  |
 | T-10 | Mobile skeleton and the one-command local stack  | todo   |                  |

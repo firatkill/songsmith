@@ -26,7 +26,7 @@
     "db:types": "node scripts/db-types.mjs",
     "test:db": "supabase test db",
     "test:integration": "pnpm --filter @songsmith/backend... build && pnpm --filter @songsmith/backend test:integration",
-    "e2e": "node scripts/not-implemented.mjs e2e T-07",
+    "e2e": "node scripts/e2e-web.mjs",
     "e2e:mobile": "node scripts/not-implemented.mjs e2e:mobile T-10",
     "eval:moderation": "node scripts/not-implemented.mjs eval:moderation T-16",
     "eval:lyricist": "node scripts/not-implemented.mjs eval:lyricist T-16",

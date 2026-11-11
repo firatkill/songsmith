@@ -6,7 +6,7 @@ Status: in development
 
 ## Stack
 
-Resolved from npm's stable `latest` tags on 2026-11-10. T-01 installs development tooling only; application packages are empty TypeScript modules.
+Resolved from npm's stable `latest` tags on 2026-11-10. T-01 established development tooling; subsequent tasks install the application packages described below.
 
 | Tool              | Pinned version | Notes                                                                                 |
 | ----------------- | -------------- | ------------------------------------------------------------------------------------- |
@@ -24,11 +24,11 @@ Resolved from npm's stable `latest` tags on 2026-11-10. T-01 installs developmen
 
 | Later-task target | Stable major | Version observed (not installed) |
 | ----------------- | ------------ | -------------------------------- |
-| Next.js           | 16           | 16.4.6                           |
-| Express           | 5            | 5.3.0                            |
-| BullMQ            | 6            | 6.7.3                            |
-| Expo SDK          | 58           | 58.0.23                          |
-| Zod               | 4            | 4.6.7                            |
+
+| Express | 5 | 5.3.0 |
+| BullMQ | 6 | 6.7.3 |
+| Expo SDK | 58 | 58.0.23 |
+| Zod | 4 | 4.6.7 |
 
 A-01: typescript-eslint 8.72.2 declares TypeScript `>=4.8.4 <6.1.0`, so TypeScript 7.0.2 is unsupported. We pin the previous stable major, 6.0.3 (PRD D-15), following the [supported versions](https://typescript-eslint.io/users/dependency-versions/). Node 24.10.0 meets the installed tools' engine requirements; some Node 22 releases allowed by the root's broad range do not (ESLint requires at least 22.13 on that line). Registry peer/engine checks found no direct conflict among the later-task targets, but their runtime integration is not tested in T-01. Expo's React Native/React versions must be chosen together in T-10; see the [Expo monorepo guide](https://docs.expo.dev/guides/monorepos/).
 
@@ -72,7 +72,7 @@ dotless i intentionally; display casing preserves their distinction.
 
 `tokensCss` provides CSS custom properties for light/dark themes;
 `nativeThemes` provides the same colours and numeric spacing, radii and type
-sizes for React Native. These neutral values are provisional (PRD D-16).
+sizes for React Native. The owner selected the Pop studio palette and typography (PRD D-42); paired contrast tests cover both themes.
 
 ```sh
 pnpm build
@@ -165,3 +165,14 @@ Consent versions in `packages/schemas/src/me.ts` are provisional until T-40.
 `requireConsent(kind)` is ready for later lyric/song routes. Profile display
 name and bio writes wait for T-15 moderation; T-06 only edits handle, locale,
 remix default and explicit visibility preferences.
+
+## Web skeleton (T-07)
+
+Next.js **16.4.6**, React/React DOM **19.3.1**, Supabase SSR **0.12.7** and
+Supabase JS **2.119.0** implement the localized web shell and OTP onboarding.
+Supabase is used only for authentication; all application data goes through the
+generated API client. The owner-selected Pop studio theme uses Bricolage Grotesque and Inter, self-hosted at build time with Turkish glyph support. No creation, playback, wallet or admin behavior is implemented.
+
+See the [web local-run guide](docs/runbooks/web-skeleton.md) for routes,
+environment setup, sessions, redirects and security headers. `pnpm e2e` starts a production web build and backend
+against the running local Supabase. Never run it against a shared/production database.

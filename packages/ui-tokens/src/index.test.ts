@@ -1,24 +1,39 @@
 import { expect, test } from 'vitest';
-import { nativeThemes, tokens, tokensCss } from './index.js';
+import {
+  contrastPairs,
+  nativeThemes,
+  tokens,
+  tokensCss,
+  systemTokensCss,
+} from './index.js';
 
-test('CSS and native themes contain every source token with numeric native dimensions', () => {
+test('CSS and native themes keep fonts, dimensions and unitless values portable', () => {
   for (const mode of ['light', 'dark'] as const) {
     const theme = nativeThemes[mode];
-    expect(theme).toEqual({
-      colors: tokens.colors[mode],
-      spacing: tokens.spacing,
-      radii: tokens.radii,
-      typeScale: tokens.typeScale,
-    });
     expect(Object.keys(theme.colors)).toEqual(Object.keys(tokens.colors.light));
-    for (const [group, values] of Object.entries(theme))
+    expect(theme.fontFamily).toEqual({
+      display: 'Bricolage Grotesque',
+      body: 'Inter',
+    });
+    for (const [group, values] of Object.entries(theme)) {
       for (const [key, value] of Object.entries<string | number>(values)) {
-        if (group !== 'colors') expect(typeof value).toBe('number');
-        expect(tokensCss).toContain(
-          `--${group}-${key}: ${typeof value === 'number' ? `${String(value)}px` : value};`,
-        );
+        if (group !== 'colors' && group !== 'fontFamily')
+          expect(typeof value).toBe('number');
+        const cssValue =
+          group === 'fontFamily'
+            ? `"${String(value)}"`
+            : typeof value === 'number' &&
+                group !== 'fontWeight' &&
+                group !== 'lineHeight'
+              ? `${String(value)}px`
+              : String(value);
+        expect(tokensCss).toContain(`--${group}-${key}: ${cssValue};`);
       }
+    }
   }
+  expect(systemTokensCss).toContain(':root:not([data-theme])');
+  expect(nativeThemes.light.shadow.blur).toBe(0);
+  expect(nativeThemes.dark.borderWidth.default).toBe(2);
 });
 function luminance(hex: string): number {
   const components = [1, 3, 5].map((offset) => {
@@ -31,17 +46,18 @@ function luminance(hex: string): number {
     (components[2] ?? 0) * 0.0722
   );
 }
-test('provisional text pairs meet 4.5:1 contrast in both modes', () => {
-  for (const { colors } of Object.values(nativeThemes))
-    for (const [foreground, background] of [
-      [colors.text, colors.background],
-      [colors.muted, colors.surface],
-      [colors.onAccent, colors.accent],
-    ] as const) {
-      const a = luminance(foreground),
-        b = luminance(background);
+test.each(['light', 'dark'] as const)(
+  '%s Pop studio text, focus and component boundaries meet AA',
+  (mode) => {
+    const colors = tokens.colors[mode];
+    for (const pair of contrastPairs) {
+      const a = luminance(colors[pair.foreground]);
+      const b = luminance(colors[pair.background]);
+      const ratio = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
       expect(
-        (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05),
-      ).toBeGreaterThanOrEqual(4.5);
+        ratio,
+        `${pair.use}: ${pair.foreground}/${pair.background}`,
+      ).toBeGreaterThanOrEqual(pair.minimum);
     }
-});
+  },
+);

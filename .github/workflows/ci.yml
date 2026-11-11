@@ -43,7 +43,7 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec supabase start -x studio,imgproxy,edge-runtime,logflare,vector
+      - run: bash scripts/ci-supabase-start.sh
       - run: pnpm db:reset
       - run: pnpm db:types
       - run: git diff --exit-code
@@ -64,7 +64,7 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec supabase start -x studio,imgproxy,edge-runtime,logflare,vector
+      - run: bash scripts/ci-supabase-start.sh
       - run: pnpm db:reset
       - name: Run backend integration tests with local credentials
         shell: bash
@@ -75,5 +75,48 @@ jobs:
           export SUPABASE_ANON_KEY="$ANON_KEY"
           export SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY"
           pnpm test:integration
+      - if: always()
+        run: pnpm db:stop
+
+  e2e-web:
+    needs: integration
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: ci
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: bash scripts/ci-supabase-start.sh
+      - run: pnpm db:reset
+      - run: pnpm --filter @songsmith/frontend exec playwright install --with-deps chromium
+      - run: pnpm e2e
+      - name: Lighthouse mobile report (informational)
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -a
+          source <(pnpm exec supabase status -o env)
+          export NEXT_PUBLIC_SUPABASE_URL="$API_URL"
+          export NEXT_PUBLIC_SUPABASE_ANON_KEY="$ANON_KEY"
+          export CHROME_PATH="$(find ~/.cache/ms-playwright -name chrome -type f | head -1)"
+          pnpm --filter @songsmith/frontend lighthouse
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: lighthouse-mobile
+          path: frontend/.lighthouseci
+          include-hidden-files: true
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: playwright-report-and-traces
+          path: |
+            frontend/playwright-report
+            frontend/test-results
       - if: always()
         run: pnpm db:stop
