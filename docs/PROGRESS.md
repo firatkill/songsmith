@@ -17,7 +17,8 @@ Updated: 2026-11-11.
 
 - T-07 done (PR #10): Next.js 16 web skeleton with TR/EN routes, OTP sign-in, age gate (day/month/year), consent, app shell; nonce CSP and security headers; Pop studio visual direction (owner decision D-42) in `ui-tokens` with AA contrast tests; Playwright E2E-01..03 and CI `e2e-web`; CI retries Supabase start after registry rate limits. T-08 is doing; review fixes and local acceptance complete, reviewer/CI pending.
 
-- T-08 done (PR #11): BullMQ 6 on Redis 7 with the TRD §9.1 queues, worker process, resumable step runner with SQL-persisted steps, sweeper and nightly schedulers, Redis-loss recovery, Bull Board behind staff + MFA, `pnpm dev` for Redis, API, worker and web; A-03 verified. Next: T-09.
+- T-08 done (PR #11): BullMQ 6 on Redis 7 with the TRD §9.1 queues, worker process, resumable step runner with SQL-persisted steps, sweeper and nightly schedulers, Redis-loss recovery, Bull Board behind staff + MFA, `pnpm dev` for Redis, API, worker and web; A-03 verified.
+- T-09 is doing: implementation and local acceptance complete; reviewer/CI pending. Registry-backed 30-second API/worker flag cache, public kill-switch endpoint, fixed-window rate limits on existing profile writes, Istanbul-day cost primitives (0010), regenerated DB/OpenAPI/client types and generated Next type setup. Local checks: 191 unit tests, 237 pgTAP assertions, 29 integration tests. Generation enforcement remains T-25; admin screens remain T-12. Reviewer must remove frontend/next-env.d.ts from the index.
 
 ## Tasks
 
@@ -33,7 +34,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-06 | Auth, profile and age gate                       | done   | ef898af          |
 | T-07 | Web skeleton                                     | done   | 76483d1          |
 | T-08 | Jobs runtime (BullMQ + Redis)                    | done   | d1e2dc0          |
-| T-09 | Flags, kill switches, rate limits, cost counters | todo   |                  |
+| T-09 | Flags, kill switches, rate limits, cost counters | doing  |                  |
 | T-10 | Mobile skeleton and the one-command local stack  | todo   |                  |
 | T-11 | Mock providers, registry and contract tests      | todo   |                  |
 | T-12 | Admin skeleton                                   | todo   |                  |
