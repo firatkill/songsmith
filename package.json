@@ -16,7 +16,7 @@
     "format:write": "prettier --write .",
     "format:check": "turbo run format:verify",
     "format:verify": "prettier --check .",
-    "dev": "node scripts/not-implemented.mjs dev T-08",
+    "dev": "node --env-file-if-exists=.env.local scripts/dev.mjs",
     "dev:all": "node scripts/not-implemented.mjs dev:all T-10",
     "dev:check": "node scripts/not-implemented.mjs dev:check T-10",
     "dev:mobile": "node scripts/not-implemented.mjs dev:mobile T-10",
@@ -35,7 +35,9 @@
     "fixtures:audio": "node scripts/not-implemented.mjs fixtures:audio T-11",
     "build": "turbo run build",
     "check:exports": "node scripts/check-exports.mjs",
-    "check:boundaries": "node scripts/check-boundaries.mjs"
+    "check:boundaries": "node scripts/check-boundaries.mjs",
+    "redis:up": "docker compose -f docker/compose.yml up -d --wait",
+    "redis:down": "docker compose -f docker/compose.yml down"
   },
   "prettier": "./packages/config/prettier.config.mjs",
   "devDependencies": {
