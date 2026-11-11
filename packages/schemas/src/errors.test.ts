@@ -10,7 +10,7 @@ test('UT-02 all codes have HTTP statuses and TR/EN messages', () => {
   expect(Object.keys(errorCatalogue).sort()).toEqual(
     [...errorCodeSchema.options].sort(),
   );
-  expect(Object.keys(errorCatalogue)).toHaveLength(16);
+  expect(Object.keys(errorCatalogue)).toHaveLength(17);
   for (const { status, messageKey } of Object.values(errorCatalogue)) {
     const key: MessageKey = messageKey;
     expect(Number.isInteger(status) && status >= 400 && status <= 599).toBe(
