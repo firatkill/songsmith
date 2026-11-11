@@ -52,5 +52,18 @@ export default [
     files: ['**/schemas/src/db.types.ts'],
     rules: { '@typescript-eslint/no-redundant-type-constituents': 'off' },
   },
+  {
+    files: ['**/backend/**/*.ts'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "CallExpression[callee.type='MemberExpression'][callee.property.name=/^(trace|debug|info|warn|error|fatal)$/] MemberExpression[object.name=/^(req|request)$/][property.name='body']",
+          message: 'SEC-11: never pass request bodies to logger calls.',
+        },
+      ],
+    },
+  },
   ...boundaryConfig,
 ];

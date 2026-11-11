@@ -7,7 +7,8 @@
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --config ../../vitest.config.mjs --project @songsmith/api-client --passWithNoTests",
-    "build": "tsc -p tsconfig.build.json"
+    "build": "tsc -p tsconfig.build.json",
+    "generate": "openapi-typescript ../../backend/openapi.json -o src/generated/schema.ts"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -20,5 +21,12 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "dependencies": {
+    "openapi-fetch": "0.17.0"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.9.3"
+  }
 }

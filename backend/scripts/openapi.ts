@@ -1,0 +1,28 @@
+import { writeFile } from 'node:fs/promises';
+import { Router } from 'express';
+import { OpenApiGeneratorV31 } from '@asteasolutions/zod-to-openapi';
+import { createRegistry } from '../src/lib/route.js';
+import { registerHealth } from '../src/routes/health.js';
+const registry = createRegistry();
+registerHealth(
+  { router: Router(), registry, production: false },
+  { APP_ENV: 'local', PROVIDER_MODE: 'mock' },
+  '0.0.0',
+);
+const document = new OpenApiGeneratorV31(registry.definitions).generateDocument(
+  { openapi: '3.1.0', info: { title: 'Songsmith API', version: '0.0.0' } },
+);
+function sorted(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sorted);
+  if (value && typeof value === 'object')
+    return Object.fromEntries(
+      Object.entries(value)
+        .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+        .map(([k, v]) => [k, sorted(v)]),
+    );
+  return value;
+}
+await writeFile(
+  new URL('../openapi.json', import.meta.url),
+  JSON.stringify(sorted(document), null, 2) + '\n',
+);
