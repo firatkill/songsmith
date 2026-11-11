@@ -9,7 +9,11 @@ Updated: 2026-11-11.
 - Local first (PRD D-14): everything runs on the owner's machine (web, iOS Simulator, Android Emulator) until T-50; jobs use BullMQ on Redis; deployment to a rented server happens once in T-50.
 - T-01 done (PR #1): pnpm/Turborepo monorepo, shared strict TypeScript/ESLint/Prettier config, Vitest, CI `static` green.
 - T-02 done (PR #5): shared packages build to ESM for Node, Next.js and React Native; error catalogue; TR/EN i18n with Turkish casing; provisional ui-tokens; module boundaries enforced by `pnpm check:boundaries`.
-- T-03 done (PR #6): Supabase CLI 3.1.0 pinned; local Postgres 17 with e-mail OTP and Mailpit; default-deny foundation migration (`app`, `restricted`, `audit_log`); pgTAP DB-01/DB-02 (20 assertions); CI `db` job green. Next: T-04.
+- T-03 done (PR #6): Supabase CLI 3.1.0 pinned; local Postgres 17 with e-mail OTP and Mailpit; default-deny foundation migration (`app`, `restricted`, `audit_log`); pgTAP DB-01/DB-02 (20 assertions); CI `db` job green. Current: T-04 doing — implementation and local acceptance complete; reviewer/CI pending.
+
+- T-04 local delivery: six core migrations (0002–0007), explicit read-only client grants and RLS, safe public profile view, secure column-hidden tokens, Turkish/simple search, mock catalogue/language/price/staff seed, and jobs/notifications Realtime publication. No credit/payment tables, backend code or workflow functions.
+- T-04 validation: frozen install, formatting, lint, build, boundaries, exports, typecheck and unit tests pass; pgTAP 164 assertions across seven files pass (12/8/37/50/18/11/28). Original foundation migration/tests and API exposed schemas unchanged. Seed replay succeeds; generated public/app types are byte-stable after regeneration. CI generates types and checks git diff. Finishing commit remains empty until reviewer/CI approval.
+- T-04 decisions: PRD D-20–D-26. Only six flags with explicit TRD defaults are seeded; topup_mode, kill-switch initial states and unspecified rate limits await owner defaults/their owning tasks.
 
 ## Tasks
 
@@ -20,7 +24,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-01 | Monorepo, tooling and CI skeleton                | done   | 2ad951d          |
 | T-02 | Shared packages and module boundaries            | done   | 98fb951          |
 | T-03 | Supabase local and foundation migration          | done   | 5ffce0b          |
-| T-04 | Core schema, RLS and seed                        | todo   |                  |
+| T-04 | Core schema, RLS and seed                        | doing  |                  |
 | T-05 | Backend skeleton                                 | todo   |                  |
 | T-06 | Auth, profile and age gate                       | todo   |                  |
 | T-07 | Web skeleton                                     | todo   |                  |
