@@ -85,5 +85,9 @@
   "web.birthDateError": "Gün, ay ve dört haneli yıl girerek geçerli bir doğum tarihi yaz. Gelecekteki bir tarihi kullanamazsın.",
   "web.requiredConsents": "Devam etmek için gerekli",
   "web.optionalConsents": "Tercih sana kalmış",
-  "web.optionalHelp": "Bunlar isteğe bağlı. İstersen işaretlemeden devam edebilirsin."
+  "web.optionalHelp": "Bunlar isteğe bağlı. İstersen işaretlemeden devam edebilirsin.",
+  "mobile.profile": "Profil",
+  "mobile.createEmpty": "Stüdyonuz boş. Şarkı oluşturma henüz kullanılamıyor.",
+  "mobile.libraryEmpty": "Kitaplığınızda henüz şarkı yok.",
+  "mobile.exploreEmpty": "Keşfedilecek şarkı henüz yok."
 }

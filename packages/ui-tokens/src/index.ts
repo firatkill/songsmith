@@ -7,6 +7,8 @@ export const tokens = {
       surfaceAccent: '#FFE45C',
       text: '#111111',
       muted: '#444444',
+      disabled: '#E5E5E5',
+      onDisabled: '#444444',
       border: '#111111',
       primary: '#111111',
       onPrimary: '#FFE45C',
@@ -30,6 +32,8 @@ export const tokens = {
       surfaceAccent: '#FFE45C',
       text: '#FFFFFF',
       muted: '#C4C4C4',
+      disabled: '#333333',
+      onDisabled: '#C4C4C4',
       border: '#F5F5F5',
       primary: '#111111',
       onPrimary: '#FFE45C',
@@ -116,6 +120,12 @@ export const contrastPairs: readonly {
   minimum: number;
   use: string;
 }[] = [
+  {
+    foreground: 'onDisabled',
+    background: 'disabled',
+    minimum: 4.5,
+    use: 'Disabled button text',
+  },
   {
     foreground: 'text',
     background: 'background',

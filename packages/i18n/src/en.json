@@ -85,5 +85,9 @@
   "web.birthDateError": "Enter a valid date of birth using day, month and four-digit year. The date cannot be in the future.",
   "web.requiredConsents": "Required to continue",
   "web.optionalConsents": "Your choice",
-  "web.optionalHelp": "These are optional. Leave them off if you prefer."
+  "web.optionalHelp": "These are optional. Leave them off if you prefer.",
+  "mobile.profile": "Profile",
+  "mobile.createEmpty": "Your studio is empty. Song creation is not available yet.",
+  "mobile.libraryEmpty": "No songs in your library yet.",
+  "mobile.exploreEmpty": "There are no songs to explore yet."
 }
