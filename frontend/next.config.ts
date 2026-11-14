@@ -12,5 +12,10 @@ const config: NextConfig = {
 export default function nextConfig(phase: string): NextConfig {
   // Static checks can build without credentials; running servers fail closed at startup.
   if (phase !== 'phase-production-build') publicEnv();
-  return config;
+  // Keep the entire development root separate from production and next typegen.
+  return {
+    ...config,
+    distDir:
+      phase === 'phase-development-server' ? '.next-development' : '.next',
+  };
 }

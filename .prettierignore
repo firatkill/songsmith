@@ -4,6 +4,7 @@ node_modules/
 .turbo/
 dist/
 .next/
+.next-development/
 out/
 .expo/
 mobile/ios/

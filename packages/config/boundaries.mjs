@@ -8,6 +8,7 @@ export const boundaryIgnores = [
   '**/.codex-prompts/**',
   '**/coverage/**',
   '**/.next/**',
+  '**/.next-development/**',
   '**/.expo/**',
   '**/mobile/ios/**',
   '**/mobile/android/**',

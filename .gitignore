@@ -3,6 +3,7 @@ node_modules/
 dist/
 *.tsbuildinfo
 .next/
+.next-development/
 out/
 .expo/
 /mobile/ios/
