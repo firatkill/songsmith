@@ -20,8 +20,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useApp } from '../state';
 import { useTheme } from '../theme';
-import { birthDateOrder, type BirthDatePart } from '../birth-date';
-import { codeDigits, nextDatePart } from './logic';
+import {
+  applyDateInput,
+  birthDateOrder,
+  type BirthDatePart,
+} from '../birth-date';
+import { codeDigits } from './logic';
 export function Copy({
   children,
   title = false,
@@ -241,6 +245,9 @@ export function LinkButton({
       onPress={onPress}
       style={{
         minHeight: 44,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
         justifyContent: 'center',
         alignSelf: 'flex-start',
       }}
@@ -256,6 +263,15 @@ export function LinkButton({
       >
         {title}
       </Text>
+      {expanded !== undefined && (
+        <Ionicons
+          name="chevron-down"
+          size={18}
+          color={colors.text}
+          accessible={false}
+          style={{ transform: [{ rotate: expanded ? '180deg' : '0deg' }] }}
+        />
+      )}
     </Pressable>
   );
 }
@@ -351,7 +367,7 @@ export function CodeInput({
               key={index}
               style={{
                 flex: 1,
-                maxWidth: 44,
+                minWidth: 44,
                 minHeight: 52,
                 paddingVertical: 12,
                 borderRadius: radii.field,
@@ -426,6 +442,8 @@ export function DateFields({
   const refs = useRef<
     Partial<Record<BirthDatePart, ComponentRef<typeof TextInput> | null>>
   >({});
+  const latestParts = useRef(parts);
+  latestParts.current = parts;
   return (
     <View style={{ flexDirection: 'row', gap: 12 }}>
       {birthDateOrder(locale).map((part) => (
@@ -438,13 +456,18 @@ export function DateFields({
               refs.current[part] = input;
             }}
             keyboardType="number-pad"
-            maxLength={part === 'year' ? 4 : 2}
+            selectTextOnFocus
             value={parts[part]}
             onChangeText={(raw) => {
-              const value = raw.replace(/\D/g, '');
-              onChange({ ...parts, [part]: value });
-              const next = nextDatePart(locale, part, value);
-              if (next) refs.current[next]?.focus();
+              const result = applyDateInput(
+                locale,
+                part,
+                raw,
+                latestParts.current,
+              );
+              latestParts.current = result.parts;
+              onChange(result.parts);
+              if (result.focus !== part) refs.current[result.focus]?.focus();
             }}
           />
         </View>
@@ -583,7 +606,7 @@ export function SegmentedControl<T extends string>({
             borderRadius: 999,
             justifyContent: 'center',
             backgroundColor:
-              value === option.value ? colors.ink : colors.surface,
+              value === option.value ? colors.selectedSegment : colors.surface,
           }}
         >
           <Text
@@ -593,7 +616,7 @@ export function SegmentedControl<T extends string>({
               fontSize: 14,
               lineHeight: 20,
               color:
-                value === option.value ? colors.surfaceAccent : colors.text,
+                value === option.value ? colors.onSelectedSegment : colors.text,
             }}
           >
             {option.label}
