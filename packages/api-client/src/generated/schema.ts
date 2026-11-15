@@ -528,6 +528,271 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/v1/jobs/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Job status for polling when Realtime is unavailable (A-08); own jobs only. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            'Cache-Control'?: 'private, no-store';
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              errorCode: string | null;
+              /** Format: uuid */
+              jobId: string;
+              modelId: string | null;
+              operation: string;
+              routeReason:
+                | ({
+                    differentModel?: boolean;
+                    fallbackFrom?: string;
+                    /** @enum {string} */
+                    kind: 'auto' | 'manual' | 'source';
+                  } & {
+                    [key: string]: unknown;
+                  })
+                | Record<string, never>;
+              /** Format: uuid */
+              songId: string | null;
+              stageDetail: string | null;
+              /** @enum {string} */
+              status:
+                | 'queued'
+                | 'moderating'
+                | 'running'
+                | 'finishing'
+                | 'ready'
+                | 'failed'
+                | 'refunded'
+                | 'cancelled';
+            };
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/lyrics/rewrite-section': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Rewrites one section with an optional instruction (FR-03). Costs the lyricist rewrite price; requires Idempotency-Key. */
+    post: {
+      parameters: {
+        query?: never;
+        header: {
+          /** @description Unique per request; a replay returns the first result. */
+          'idempotency-key': string;
+        };
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            index: number;
+            instruction?: string;
+            /** @enum {string} */
+            language: 'tr' | 'en';
+            sections: {
+              lines: string[];
+              /** @enum {string} */
+              tag:
+                | '[Intro]'
+                | '[Verse]'
+                | '[Pre-Chorus]'
+                | '[Chorus]'
+                | '[Bridge]'
+                | '[Outro]';
+            }[];
+          };
+        };
+      };
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            'Cache-Control'?: 'private, no-store';
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              explicit: boolean;
+              /** Format: uuid */
+              jobId: string;
+              section: {
+                lines: string[];
+                /** @enum {string} */
+                tag:
+                  | '[Intro]'
+                  | '[Verse]'
+                  | '[Pre-Chorus]'
+                  | '[Chorus]'
+                  | '[Bridge]'
+                  | '[Outro]';
+              };
+            };
+          };
+        };
+        /** @description Rate limit exceeded */
+        429: {
+          headers: {
+            /** @description Seconds until the fixed window resets */
+            'Retry-After'?: number;
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/lyrics/write': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Writes lyrics with section tags, a title and a suggested style (FR-02). Costs the lyricist price from the catalogue; requires Idempotency-Key. */
+    post: {
+      parameters: {
+        query?: never;
+        header: {
+          /** @description Unique per request; a replay returns the first result. */
+          'idempotency-key': string;
+        };
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            description: string;
+            giftNames?: string[];
+            /** @enum {string} */
+            language: 'tr' | 'en';
+            /** @enum {string} */
+            occasion?: 'birthday' | 'anniversary' | 'general';
+            style?: string;
+          };
+        };
+      };
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            'Cache-Control'?: 'private, no-store';
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              explicit: boolean;
+              /** Format: uuid */
+              jobId: string;
+              lyrics: {
+                /** @enum {string} */
+                language: 'tr' | 'en';
+                sections: {
+                  lines: string[];
+                  /** @enum {string} */
+                  tag:
+                    | '[Intro]'
+                    | '[Verse]'
+                    | '[Pre-Chorus]'
+                    | '[Chorus]'
+                    | '[Bridge]'
+                    | '[Outro]';
+                }[];
+                suggestedStyle: string;
+                title: string;
+              };
+            };
+          };
+        };
+        /** @description Rate limit exceeded */
+        429: {
+          headers: {
+            /** @description Seconds until the fixed window resets */
+            'Retry-After'?: number;
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/v1/me': {
     parameters: {
       query?: never;
@@ -957,6 +1222,121 @@ export interface paths {
                   /** @enum {boolean} */
                   explicit: true;
                 };
+          };
+        };
+        /** @description Rate limit exceeded */
+        429: {
+          headers: {
+            /** @description Seconds until the fixed window resets */
+            'Retry-After'?: number;
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/songs': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Starts a song generation job (FR-08): moderation, routing, credit reservation, then the job runs in the worker. Requires Idempotency-Key; a replay returns the same job. */
+    post: {
+      parameters: {
+        query?: never;
+        header: {
+          /** @description Unique per request; a replay returns the first result. */
+          'idempotency-key': string;
+        };
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            description: string;
+            /** @default 120 */
+            durationSec?: number;
+            /** @default false */
+            instrumental?: boolean;
+            /** @enum {string} */
+            language: 'tr' | 'en';
+            modelId?: string;
+            sections?: {
+              lines: string[];
+              /** @enum {string} */
+              tag:
+                | '[Intro]'
+                | '[Verse]'
+                | '[Pre-Chorus]'
+                | '[Chorus]'
+                | '[Bridge]'
+                | '[Outro]';
+            }[];
+            style?: string;
+            title: string;
+          };
+        };
+      };
+      responses: {
+        /** @description HTTP 202 */
+        202: {
+          headers: {
+            'Cache-Control'?: 'private, no-store';
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              errorCode: string | null;
+              /** Format: uuid */
+              jobId: string;
+              modelId: string | null;
+              operation: string;
+              routeReason:
+                | ({
+                    differentModel?: boolean;
+                    fallbackFrom?: string;
+                    /** @enum {string} */
+                    kind: 'auto' | 'manual' | 'source';
+                  } & {
+                    [key: string]: unknown;
+                  })
+                | Record<string, never>;
+              /** Format: uuid */
+              songId: string | null;
+              stageDetail: string | null;
+              /** @enum {string} */
+              status:
+                | 'queued'
+                | 'moderating'
+                | 'running'
+                | 'finishing'
+                | 'ready'
+                | 'failed'
+                | 'refunded'
+                | 'cancelled';
+            };
           };
         };
         /** @description Rate limit exceeded */

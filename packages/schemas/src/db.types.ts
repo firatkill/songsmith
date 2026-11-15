@@ -825,12 +825,44 @@ export type Database = {
         };
       };
       claim_provider_probe: { Args: { provider: string }; Returns: boolean };
+      claim_song_job: {
+        Args: {
+          p_body_sha256: string;
+          p_correlation_id: string;
+          p_job_id: string;
+          p_request: Json;
+          p_route: Json;
+          p_song: Json;
+        };
+        Returns: Database['public']['Tables']['generation_jobs']['Row'];
+        SetofOptions: {
+          from: '*';
+          to: 'generation_jobs';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       cleanup_rate_limits: {
         Args: Record<PropertyKey, never>;
         Returns: number;
       };
       complete_lyricist_job: {
         Args: { p_job_id: string; p_result: Json };
+        Returns: Database['public']['Tables']['generation_jobs']['Row'];
+        SetofOptions: {
+          from: '*';
+          to: 'generation_jobs';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      complete_song_job: {
+        Args: {
+          p_assets: Json;
+          p_duration_ms: number;
+          p_job_id: string;
+          p_model_id: string;
+        };
         Returns: Database['public']['Tables']['generation_jobs']['Row'];
         SetofOptions: {
           from: '*';
@@ -849,6 +881,16 @@ export type Database = {
         Returns: number;
       };
       fail_lyricist_job: {
+        Args: { p_error_code: string; p_job_id: string };
+        Returns: Database['public']['Tables']['generation_jobs']['Row'];
+        SetofOptions: {
+          from: '*';
+          to: 'generation_jobs';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      fail_song_job: {
         Args: { p_error_code: string; p_job_id: string };
         Returns: Database['public']['Tables']['generation_jobs']['Row'];
         SetofOptions: {

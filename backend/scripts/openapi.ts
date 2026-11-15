@@ -10,6 +10,8 @@ import { createLogger } from '../src/lib/log.js';
 import { registerMe } from '../src/routes/me.js';
 import { registerAdmin } from '../src/routes/admin.js';
 import { registerModeration } from '../src/routes/moderation.js';
+import { registerLyrics } from '../src/routes/lyrics.js';
+import { registerSongs } from '../src/routes/songs.js';
 const registry = createRegistry();
 registerModeration(
   { router: Router(), registry, production: false },
@@ -17,6 +19,34 @@ registerModeration(
     throw new Error('OpenAPI does not access the database');
   },
   () => Promise.reject(new Error('OpenAPI does not moderate')),
+);
+const offline = () => {
+  throw new Error('OpenAPI does not access the database');
+};
+const flagCache = createFlagCache(
+  () => Promise.resolve([]),
+  createLogger('silent'),
+);
+registerLyrics(
+  { router: Router(), registry, production: false },
+  {
+    service: offline,
+    flags: flagCache,
+    logger: createLogger('silent'),
+    models: () => Promise.reject(new Error('OpenAPI does not load models')),
+    moderate: () => Promise.reject(new Error('OpenAPI does not moderate')),
+  },
+);
+registerSongs(
+  { router: Router(), registry, production: false },
+  {
+    service: offline,
+    flags: flagCache,
+    logger: createLogger('silent'),
+    models: () => Promise.reject(new Error('OpenAPI does not load models')),
+    moderate: () => Promise.reject(new Error('OpenAPI does not moderate')),
+    enqueue: () => Promise.reject(new Error('OpenAPI does not enqueue')),
+  },
 );
 registerMe({ router: Router(), registry, production: false }, () => {
   throw new Error('OpenAPI does not access the database');

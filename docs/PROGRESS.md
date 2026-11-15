@@ -32,6 +32,7 @@ Updated: 2026-11-15.
 
 - T-17 done (PR #20): credit ledger in migration 0013 (append-only entries, account locks, reservations, guaranteed settlement, refunds, audited adjustments, atomic `start_job` with the per-user concurrency limit, FIFO lots with partial expiry, reconciliation with lots = max(balance, 0)); sign-up grant on e-mail confirmation, once per e-mail hash; typed RPC wrappers; the sweeper expires reservations and the job-failure hook releases them. 399 pgTAP assertions, 48 integration tests including IT-01 and IT-03. Decisions D-97–D-107.
 - T-18 done (PR #21): `POST /v1/lyrics/write` and `/v1/lyrics/rewrite-section` with versioned prompts, validation and one repair attempt, input and output moderation, Idempotency-Key replay through lyricist jobs (migration 0014), catalogue lyricist prices; `packages/domain/src/lyrics.ts` (parse, serialise, add missing tags). Codex hit its usage limit, so the reviewer implemented this task. 433 pgTAP assertions, 56 integration tests including IT-14; lyricist and moderation mock evaluations pass. Decisions D-108–D-115.
+- T-19 done (PR #22): `POST /v1/songs` (moderation, routing, reservation, claimed job and pending song), `GET /v1/jobs/:id`, `generateSong` worker steps with run-time fallback, tagged MP3 in the private-media bucket, settle or release (migration 0015). Codex hit its usage limit, so the reviewer implemented this task. 454 pgTAP assertions, 64 integration tests including IT-15..IT-19. Decisions D-116–D-123.
 
 ## Tasks
 
@@ -57,7 +58,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-16 | Golden sets and evaluation harness               | done   | 7580941          |
 | T-17 | Ledger core                                      | done   | d0b9069          |
 | T-18 | Lyricist                                         | done   | 9eb33b3          |
-| T-19 | Generation job end to end                        | todo   |                  |
+| T-19 | Generation job end to end                        | done   | c14fd6d          |
 | T-20 | Web create flow                                  | todo   |                  |
 | T-21 | Notifications                                    | todo   |                  |
 | T-22 | Web library, player, search, downloads           | todo   |                  |

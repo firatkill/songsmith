@@ -892,6 +892,462 @@
         "x-auth-mode": "public"
       }
     },
+    "/v1/jobs/{id}": {
+      "get": {
+        "description": "Job status for polling when Realtime is unavailable (A-08); own jobs only.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "errorCode": {
+                      "type": ["string", "null"]
+                    },
+                    "jobId": {
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "modelId": {
+                      "type": ["string", "null"]
+                    },
+                    "operation": {
+                      "type": "string"
+                    },
+                    "routeReason": {
+                      "anyOf": [
+                        {
+                          "additionalProperties": {},
+                          "properties": {
+                            "differentModel": {
+                              "type": "boolean"
+                            },
+                            "fallbackFrom": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "enum": ["auto", "manual", "source"],
+                              "type": "string"
+                            }
+                          },
+                          "required": ["kind"],
+                          "type": "object"
+                        },
+                        {
+                          "additionalProperties": false,
+                          "properties": {},
+                          "type": "object"
+                        }
+                      ]
+                    },
+                    "songId": {
+                      "format": "uuid",
+                      "type": ["string", "null"]
+                    },
+                    "stageDetail": {
+                      "type": ["string", "null"]
+                    },
+                    "status": {
+                      "enum": [
+                        "queued",
+                        "moderating",
+                        "running",
+                        "finishing",
+                        "ready",
+                        "failed",
+                        "refunded",
+                        "cancelled"
+                      ],
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "jobId",
+                    "songId",
+                    "operation",
+                    "status",
+                    "stageDetail",
+                    "modelId",
+                    "routeReason",
+                    "errorCode"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "enum": ["private, no-store"],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/lyrics/rewrite-section": {
+      "post": {
+        "description": "Rewrites one section with an optional instruction (FR-03). Costs the lyricist rewrite price; requires Idempotency-Key.",
+        "parameters": [
+          {
+            "description": "Unique per request; a replay returns the first result.",
+            "in": "header",
+            "name": "idempotency-key",
+            "required": true,
+            "schema": {
+              "description": "Unique per request; a replay returns the first result.",
+              "pattern": "^[A-Za-z0-9_-]{8,128}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "index": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "instruction": {
+                    "maxLength": 300,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "language": {
+                    "enum": ["tr", "en"],
+                    "type": "string"
+                  },
+                  "sections": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "lines": {
+                          "items": {
+                            "maxLength": 200,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "maxItems": 60,
+                          "minItems": 1,
+                          "type": "array"
+                        },
+                        "tag": {
+                          "enum": [
+                            "[Intro]",
+                            "[Verse]",
+                            "[Pre-Chorus]",
+                            "[Chorus]",
+                            "[Bridge]",
+                            "[Outro]"
+                          ],
+                          "type": "string"
+                        }
+                      },
+                      "required": ["tag", "lines"],
+                      "type": "object"
+                    },
+                    "maxItems": 20,
+                    "minItems": 1,
+                    "type": "array"
+                  }
+                },
+                "required": ["language", "sections", "index"],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "explicit": {
+                      "type": "boolean"
+                    },
+                    "jobId": {
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "section": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "lines": {
+                          "items": {
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "minItems": 1,
+                          "type": "array"
+                        },
+                        "tag": {
+                          "enum": [
+                            "[Intro]",
+                            "[Verse]",
+                            "[Pre-Chorus]",
+                            "[Chorus]",
+                            "[Bridge]",
+                            "[Outro]"
+                          ],
+                          "type": "string"
+                        }
+                      },
+                      "required": ["tag", "lines"],
+                      "type": "object"
+                    }
+                  },
+                  "required": ["jobId", "section", "explicit"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "enum": ["private, no-store"],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Rate limit exceeded",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the fixed window resets",
+                "schema": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/lyrics/write": {
+      "post": {
+        "description": "Writes lyrics with section tags, a title and a suggested style (FR-02). Costs the lyricist price from the catalogue; requires Idempotency-Key.",
+        "parameters": [
+          {
+            "description": "Unique per request; a replay returns the first result.",
+            "in": "header",
+            "name": "idempotency-key",
+            "required": true,
+            "schema": {
+              "description": "Unique per request; a replay returns the first result.",
+              "pattern": "^[A-Za-z0-9_-]{8,128}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "description": {
+                    "maxLength": 2000,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "giftNames": {
+                    "items": {
+                      "maxLength": 40,
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "maxItems": 5,
+                    "type": "array"
+                  },
+                  "language": {
+                    "enum": ["tr", "en"],
+                    "type": "string"
+                  },
+                  "occasion": {
+                    "enum": ["birthday", "anniversary", "general"],
+                    "type": "string"
+                  },
+                  "style": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": ["language", "description"],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "explicit": {
+                      "type": "boolean"
+                    },
+                    "jobId": {
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "lyrics": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "language": {
+                          "enum": ["tr", "en"],
+                          "type": "string"
+                        },
+                        "sections": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "lines": {
+                                "items": {
+                                  "minLength": 1,
+                                  "type": "string"
+                                },
+                                "minItems": 1,
+                                "type": "array"
+                              },
+                              "tag": {
+                                "enum": [
+                                  "[Intro]",
+                                  "[Verse]",
+                                  "[Pre-Chorus]",
+                                  "[Chorus]",
+                                  "[Bridge]",
+                                  "[Outro]"
+                                ],
+                                "type": "string"
+                              }
+                            },
+                            "required": ["tag", "lines"],
+                            "type": "object"
+                          },
+                          "minItems": 1,
+                          "type": "array"
+                        },
+                        "suggestedStyle": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "title": {
+                          "minLength": 1,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "language",
+                        "sections",
+                        "suggestedStyle"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": ["jobId", "lyrics", "explicit"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "enum": ["private, no-store"],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Rate limit exceeded",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the fixed window resets",
+                "schema": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
     "/v1/me": {
       "get": {
         "responses": {
@@ -1659,6 +2115,225 @@
               }
             },
             "description": "HTTP 200",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "enum": ["private, no-store"],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Rate limit exceeded",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the fixed window resets",
+                "schema": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/songs": {
+      "post": {
+        "description": "Starts a song generation job (FR-08): moderation, routing, credit reservation, then the job runs in the worker. Requires Idempotency-Key; a replay returns the same job.",
+        "parameters": [
+          {
+            "description": "Unique per request; a replay returns the first result.",
+            "in": "header",
+            "name": "idempotency-key",
+            "required": true,
+            "schema": {
+              "description": "Unique per request; a replay returns the first result.",
+              "pattern": "^[A-Za-z0-9_-]{8,128}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "description": {
+                    "maxLength": 2000,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "durationSec": {
+                    "default": 120,
+                    "maximum": 300,
+                    "minimum": 30,
+                    "type": "integer"
+                  },
+                  "instrumental": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "language": {
+                    "enum": ["tr", "en"],
+                    "type": "string"
+                  },
+                  "modelId": {
+                    "maxLength": 64,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "sections": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "lines": {
+                          "items": {
+                            "maxLength": 200,
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "maxItems": 60,
+                          "minItems": 1,
+                          "type": "array"
+                        },
+                        "tag": {
+                          "enum": [
+                            "[Intro]",
+                            "[Verse]",
+                            "[Pre-Chorus]",
+                            "[Chorus]",
+                            "[Bridge]",
+                            "[Outro]"
+                          ],
+                          "type": "string"
+                        }
+                      },
+                      "required": ["tag", "lines"],
+                      "type": "object"
+                    },
+                    "maxItems": 20,
+                    "type": "array"
+                  },
+                  "style": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "title": {
+                    "maxLength": 120,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": ["title", "description", "language"],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "errorCode": {
+                      "type": ["string", "null"]
+                    },
+                    "jobId": {
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "modelId": {
+                      "type": ["string", "null"]
+                    },
+                    "operation": {
+                      "type": "string"
+                    },
+                    "routeReason": {
+                      "anyOf": [
+                        {
+                          "additionalProperties": {},
+                          "properties": {
+                            "differentModel": {
+                              "type": "boolean"
+                            },
+                            "fallbackFrom": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "enum": ["auto", "manual", "source"],
+                              "type": "string"
+                            }
+                          },
+                          "required": ["kind"],
+                          "type": "object"
+                        },
+                        {
+                          "additionalProperties": false,
+                          "properties": {},
+                          "type": "object"
+                        }
+                      ]
+                    },
+                    "songId": {
+                      "format": "uuid",
+                      "type": ["string", "null"]
+                    },
+                    "stageDetail": {
+                      "type": ["string", "null"]
+                    },
+                    "status": {
+                      "enum": [
+                        "queued",
+                        "moderating",
+                        "running",
+                        "finishing",
+                        "ready",
+                        "failed",
+                        "refunded",
+                        "cancelled"
+                      ],
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "jobId",
+                    "songId",
+                    "operation",
+                    "status",
+                    "stageDetail",
+                    "modelId",
+                    "routeReason",
+                    "errorCode"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 202",
             "headers": {
               "Cache-Control": {
                 "schema": {

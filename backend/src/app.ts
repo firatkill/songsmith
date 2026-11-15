@@ -22,6 +22,8 @@ import { createRegistry as createModelRegistry } from './models/registry.js';
 import { registerModeration } from './routes/moderation.js';
 import { createModeration } from './moderation/pipeline.js';
 import { registerLyrics } from './routes/lyrics.js';
+import { registerSongs } from './routes/songs.js';
+import { lazyProducer, type Enqueue } from './jobs/producer.js';
 export interface AppDeps {
   env: Env;
   logger?: Logger;
@@ -29,6 +31,8 @@ export interface AppDeps {
   flags?: FlagService;
   registerRoutes?: (context: RouteContext) => void;
   registerWebhooks?: (router: Router) => void;
+  /** Tests inject queues with a short backoff; default: lazy Redis queues. */
+  enqueue?: Enqueue;
 }
 export function createApp(deps: AppDeps) {
   const app = express();
@@ -148,9 +152,19 @@ export function createApp(deps: AppDeps) {
     models: modelRegistry,
     moderate,
   });
+  const producer = lazyProducer(service, deps.env, logger, flags);
+  registerSongs(context, {
+    service,
+    flags,
+    models: modelRegistry,
+    moderate,
+    enqueue: deps.enqueue ?? producer.enqueue,
+    logger,
+  });
   deps.registerRoutes?.(context);
   const board = lazyBoard(service, deps.env, logger, flags);
-  app.locals['closeQueues'] = () => board.close();
+  app.locals['closeQueues'] = () =>
+    Promise.all([board.close(), producer.close()]).then(() => undefined);
   // One guard for every admin path, Bull Board included (SEC-10).
   app.use('/v1/admin', requireStaff(service, deps.env.SUPABASE_JWT_ISSUER));
   app.use(

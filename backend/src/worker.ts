@@ -6,18 +6,29 @@ import { lazyServiceClient } from './db/client.js';
 import { queueDefinitions, createQueues } from './jobs/queues.js';
 import { ProcessorRegistry, startWorkers } from './jobs/runtime.js';
 import { sweepJobs } from './jobs/sweeper.js';
+import { createRegistry } from './models/registry.js';
+import { createGenerateSong } from './songs/generate.js';
 const env = loadEnv(process.env);
 const logger = createLogger(env.LOG_LEVEL);
 const service = lazyServiceClient(env);
 const flags = createFlags(service, logger);
 const definitions = await queueDefinitions(service, flags);
 const queues = createQueues(definitions, env.REDIS_URL, logger);
+const models = createRegistry(service, env, flags, logger);
+const generateSong = createGenerateSong({
+  service,
+  models: () => models,
+  logger,
+});
 const registry = new ProcessorRegistry()
   .register('maintenance', 'sweeper', () => sweepJobs(service, queues.queues))
   .register('maintenance', 'nightly', () => {
     logger.info('Nightly rate-limit cleanup');
     return cleanupRateLimits(service);
   });
+// One generate processor per music queue (TRD §9.3).
+for (const { name } of definitions.filter((d) => d.name.startsWith('music:')))
+  registry.register(name, 'generate', generateSong);
 const runtime = await startWorkers(
   definitions,
   env.REDIS_URL,

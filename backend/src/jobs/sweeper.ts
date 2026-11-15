@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { recoveryRowsSchema, musicAdapterSchema } from '@songsmith/schemas';
 import { randomUUID } from 'node:crypto';
 import type { Service } from '../lib/auth.js';
@@ -15,10 +16,22 @@ export async function onJobFailedReleaseCredits(
 ): Promise<void> {
   const result = await service()
     .from('generation_jobs')
-    .select('reservation_id')
+    .select('reservation_id,operation')
     .eq('id', jobId)
     .maybeSingle();
-  const row = creditRpcResult(result, jobReservationSchema.nullable());
+  const row = creditRpcResult(
+    result,
+    jobReservationSchema.extend({ operation: z.string() }).nullable(),
+  );
+  // Song jobs also mark the song failed and the job refunded (T-19).
+  if (row?.operation === 'generate') {
+    const failed = await service().schema('app').rpc('fail_song_job', {
+      p_job_id: jobId,
+      p_error_code: 'PROVIDER_TIMEOUT',
+    });
+    if (failed.error) throw new Error('Job failure not recorded');
+    return;
+  }
   if (row?.reservation_id)
     await releaseReservation(service, {
       p_reservation_id: row.reservation_id,
