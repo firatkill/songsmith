@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import * as domain from './index.js';
 
-test('the domain entry point exports the router and the lyrics helpers', () => {
+test('the domain entry point exports the router, the lyrics and the create helpers', () => {
   expect(Object.keys(domain).sort()).toEqual(
     [
       'route',
@@ -12,6 +12,10 @@ test('the domain entry point exports the router and the lyrics helpers', () => {
       'validateSections',
       'addMissingTags',
       'lyricWords',
+      'modelChoice',
+      'durationRange',
+      'clampDuration',
+      'styleText',
     ].sort(),
   );
 });
