@@ -28,6 +28,7 @@ Updated: 2026-11-15.
 
 - T-14 done (PR #17): pure deterministic moderation layer: Turkish-aware normalisation with leetspeak, invisible-character and homoglyph handling; hashed TR/EN hard-block lists with `pnpm moderation:hash`; age-plus-sexual co-occurrence; listed-artist voice/style blocking; profanity passes. UT-30..UT-36. Decisions D-79–D-84.
 - T-15 done (PR #18): moderation pipeline (layer 1, mock classifier, fail-closed retry), atomic decision storage with hard-block case and suspension, friction with cooldown and suspension, `POST /v1/moderation/check` with a 10-minute result reuse, `ACCOUNT_RESTRICTED`, IT-11..IT-13, UT-40 and DB-12. Decisions D-85–D-90.
+- T-16 doing: evaluation harness in `eval/` (mock and live modes, budget guard, reports), moderation golden set (1192 rows, TR and EN, evasion variants, 160 allowed rows) and lyricist golden set (24 rows), CI `eval-mock` job and manual `Eval` workflow. Waiting for the owner to review the hard-block templates. Decisions D-91–D-96.
 
 ## Tasks
 
@@ -50,7 +51,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-13 | Router and catalogue endpoint                    | done   | f8df1d8          |
 | T-14 | Deterministic moderation layer                   | done   | 6bc663e          |
 | T-15 | Moderation pipeline                              | done   | 0deb9bc          |
-| T-16 | Golden sets and evaluation harness               | todo   |                  |
+| T-16 | Golden sets and evaluation harness               | doing  |                  |
 | T-17 | Ledger core                                      | todo   |                  |
 | T-18 | Lyricist                                         | todo   |                  |
 | T-19 | Generation job end to end                        | todo   |                  |
