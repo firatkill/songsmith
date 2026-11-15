@@ -2240,13 +2240,49 @@
                     "minLength": 1,
                     "type": "string"
                   },
+                  "styleControls": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "bpm": {
+                        "maximum": 220,
+                        "minimum": 40,
+                        "type": "integer"
+                      },
+                      "genre": {
+                        "maxLength": 60,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "mood": {
+                        "enum": [
+                          "happy",
+                          "romantic",
+                          "sad",
+                          "calm",
+                          "energetic",
+                          "nostalgic",
+                          "epic"
+                        ],
+                        "type": "string"
+                      },
+                      "tempo": {
+                        "enum": ["slow", "medium", "fast"],
+                        "type": "string"
+                      },
+                      "vocalType": {
+                        "enum": ["female", "male", "duet", "choir"],
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  },
                   "title": {
                     "maxLength": 120,
                     "minLength": 1,
                     "type": "string"
                   }
                 },
-                "required": ["title", "description", "language"],
+                "required": ["title", "language"],
                 "type": "object"
               }
             }
@@ -2358,6 +2394,56 @@
                 "schema": {
                   "minimum": 1,
                   "type": "integer"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/wallet": {
+      "get": {
+        "description": "The caller’s credit balance, credits held by running jobs and the available amount (balance minus held).",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "available": {
+                      "type": "integer"
+                    },
+                    "balance": {
+                      "type": "integer"
+                    },
+                    "held": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": ["balance", "held", "available"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "enum": ["private, no-store"],
+                  "type": "string"
                 }
               }
             }

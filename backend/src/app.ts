@@ -23,6 +23,7 @@ import { registerModeration } from './routes/moderation.js';
 import { createModeration } from './moderation/pipeline.js';
 import { registerLyrics } from './routes/lyrics.js';
 import { registerSongs } from './routes/songs.js';
+import { registerWallet } from './routes/wallet.js';
 import { lazyProducer, type Enqueue } from './jobs/producer.js';
 export interface AppDeps {
   env: Env;
@@ -161,6 +162,7 @@ export function createApp(deps: AppDeps) {
     enqueue: deps.enqueue ?? producer.enqueue,
     logger,
   });
+  registerWallet(context, service);
   deps.registerRoutes?.(context);
   const board = lazyBoard(service, deps.env, logger, flags);
   app.locals['closeQueues'] = () =>

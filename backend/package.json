@@ -16,6 +16,7 @@
     "test": "vitest run --config ../vitest.config.mjs --project @songsmith/backend --passWithNoTests",
     "dev": "tsx watch --env-file-if-exists=../.env.local src/server.ts",
     "start": "node --env-file-if-exists=../.env.local dist/server.js",
+    "start:worker": "node --env-file-if-exists=../.env.local dist/worker.js",
     "build": "tsc -p tsconfig.build.json && tsc -p tsconfig.eval.json && mkdir -p dist/moderation/policy && cp src/moderation/policy/*.md dist/moderation/policy/ && mkdir -p dist/lyricist/prompts && cp src/lyricist/prompts/*.md dist/lyricist/prompts/",
     "openapi": "tsx scripts/openapi.ts",
     "test:integration": "node --env-file-if-exists=../.env.local ../node_modules/vitest/vitest.mjs run --config vitest.integration.config.mjs",

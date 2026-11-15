@@ -41,6 +41,8 @@ export interface GenerateRequest {
   durationSec: number;
   format: 'mp3' | 'wav';
   instrumental?: boolean;
+  // Genre, mood, tempo and vocal type as one English string (T-20, FR-05).
+  style?: string;
   image?: Uint8Array;
 }
 export interface ExtendRequest extends GenerateRequest {

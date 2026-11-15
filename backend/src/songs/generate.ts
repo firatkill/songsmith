@@ -249,6 +249,7 @@ export function createGenerateSong(deps: GenerateDeps) {
                     ),
                     format: 'mp3',
                     instrumental: request.instrumental,
+                    ...(request.style ? { style: request.style } : {}),
                   },
                   ctx(),
                 ),

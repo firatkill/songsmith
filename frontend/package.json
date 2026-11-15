@@ -15,14 +15,15 @@
   },
   "dependencies": {
     "@songsmith/api-client": "workspace:*",
+    "@songsmith/domain": "workspace:*",
     "@songsmith/i18n": "workspace:*",
     "@songsmith/schemas": "workspace:*",
     "@songsmith/ui-tokens": "workspace:*",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.119.0",
     "next": "16.4.6",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "@supabase/ssr": "0.12.7",
-    "@supabase/supabase-js": "2.119.0",
     "zod": "4.6.7"
   },
   "devDependencies": {

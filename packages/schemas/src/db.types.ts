@@ -1169,6 +1169,14 @@ export type Database = {
         Args: { job_id: string; stage_detail: string };
         Returns: undefined;
       };
+      wallet_summary: {
+        Args: { p_user_id: string };
+        Returns: {
+          available: number;
+          balance: number;
+          held: number;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;

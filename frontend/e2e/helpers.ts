@@ -45,3 +45,31 @@ export async function signIn(page: Page, request: APIRequestContext) {
   await expect(page).toHaveURL('/en/age-gate');
   return email;
 }
+// Sign-in, adult age gate and the required consents (T-20 flows start at home).
+export async function onboard(page: Page, request: APIRequestContext) {
+  const email = await signIn(page, request);
+  await page.getByLabel('Day', { exact: true }).fill('1');
+  await page.getByLabel('Month', { exact: true }).fill('1');
+  await page.getByLabel('Year', { exact: true }).fill('1990');
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+  await expect(page).toHaveURL('/en/consent');
+  for (const name of ['Terms of service', 'Privacy notice', 'AI data use'])
+    await page.getByLabel(name, { exact: true }).check();
+  await page
+    .getByRole('button', { name: 'Accept and continue', exact: true })
+    .click();
+  await expect(page).toHaveURL('/en/home');
+  return email;
+}
+const sessionCookie = z.object({ access_token: z.string().min(1) });
+// The browser session's access token, for setting up state through the API.
+export async function accessToken(page: Page) {
+  const cookies = (await page.context().cookies())
+    .filter((c) => /^sb-.*-auth-token(\.\d+)?$/u.test(c.name))
+    .sort((a, b) => a.name.localeCompare(b.name, 'en', { numeric: true }));
+  const raw = cookies.map((c) => c.value).join('');
+  const json = raw.startsWith('base64-')
+    ? Buffer.from(raw.slice(7), 'base64url').toString('utf8')
+    : decodeURIComponent(raw);
+  return sessionCookie.parse(JSON.parse(json)).access_token;
+}

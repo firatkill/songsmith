@@ -133,6 +133,9 @@ importers:
       '@songsmith/api-client':
         specifier: workspace:*
         version: link:../packages/api-client
+      '@songsmith/domain':
+        specifier: workspace:*
+        version: link:../packages/domain
       '@songsmith/i18n':
         specifier: workspace:*
         version: link:../packages/i18n

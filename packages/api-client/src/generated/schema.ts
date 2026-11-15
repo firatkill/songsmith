@@ -1275,7 +1275,7 @@ export interface paths {
       requestBody?: {
         content: {
           'application/json': {
-            description: string;
+            description?: string;
             /** @default 120 */
             durationSec?: number;
             /** @default false */
@@ -1295,6 +1295,23 @@ export interface paths {
                 | '[Outro]';
             }[];
             style?: string;
+            styleControls?: {
+              bpm?: number;
+              genre?: string;
+              /** @enum {string} */
+              mood?:
+                | 'happy'
+                | 'romantic'
+                | 'sad'
+                | 'calm'
+                | 'energetic'
+                | 'nostalgic'
+                | 'epic';
+              /** @enum {string} */
+              tempo?: 'slow' | 'medium' | 'fast';
+              /** @enum {string} */
+              vocalType?: 'female' | 'male' | 'duet' | 'choir';
+            };
             title: string;
           };
         };
@@ -1361,6 +1378,56 @@ export interface paths {
         };
       };
     };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/wallet': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description The caller’s credit balance, credits held by running jobs and the available amount (balance minus held). */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            'Cache-Control'?: 'private, no-store';
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              available: number;
+              balance: number;
+              held: number;
+            };
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;

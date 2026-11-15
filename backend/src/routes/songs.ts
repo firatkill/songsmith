@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import {
+  curatedGenres,
   idempotencyHeadersSchema,
   jobResponseSchema,
   songCreateRequestSchema,
@@ -8,7 +9,7 @@ import {
   type JobResponse,
   type SongJobRow,
 } from '@songsmith/schemas';
-import { route, serialiseLyrics } from '@songsmith/domain';
+import { route, serialiseLyrics, styleText } from '@songsmith/domain';
 import { caller, requireConsent, type Service } from '../lib/auth.js';
 import { requestContext } from '../lib/correlation.js';
 import { AppError } from '../lib/errors.js';
@@ -43,6 +44,7 @@ export function jobResponse(row: SongJobRow): JobResponse {
   });
 }
 const uuid = z.uuid();
+const curated = new Set<string>(curatedGenres);
 
 export function registerSongs(
   context: RouteContext,
@@ -100,15 +102,25 @@ export function registerSongs(
       const lyrics = body.instrumental
         ? ''
         : serialiseLyrics(body.sections ?? []);
+      const controls = body.styleControls;
+      // Curated genre ids need no check; free genre text and style do.
+      const freeStyle = [
+        controls?.genre && !curated.has(controls.genre) ? controls.genre : '',
+        body.style ?? '',
+      ]
+        .filter(Boolean)
+        .join('\n');
       const decision = await deps.moderate({
         userId,
         language: body.language,
         parts: [
           { surface: 'title', text: body.title },
-          { surface: 'description', text: body.description },
+          ...(body.description
+            ? [{ surface: 'description' as const, text: body.description }]
+            : []),
           ...(lyrics ? [{ surface: 'lyrics' as const, text: lyrics }] : []),
-          ...(body.style
-            ? [{ surface: 'style' as const, text: body.style }]
+          ...(freeStyle
+            ? [{ surface: 'style' as const, text: freeStyle }]
             : []),
         ],
       });
@@ -137,6 +149,19 @@ export function registerSongs(
       const price = model?.prices.generate;
       if (!model || !adapter || price === undefined)
         throw new AppError('INTERNAL');
+      // FR-05: controls the routed model does not support are refused.
+      const unsupported = [
+        controls?.bpm !== undefined && !model.capabilities.controls.bpm
+          ? 'styleControls.bpm'
+          : undefined,
+        controls?.vocalType !== undefined &&
+        !model.capabilities.controls.vocalType
+          ? 'styleControls.vocalType'
+          : undefined,
+      ].filter((field) => field !== undefined);
+      if (unsupported.length > 0)
+        throw new AppError('VALIDATION', { fields: unsupported });
+      const providerStyle = styleText(controls, body.style);
       const started = await startJob(service, {
         p_user_id: userId,
         p_operation: 'generate',
@@ -160,18 +185,22 @@ export function registerSongs(
             p_route: { ...routed.reason },
             p_request: {
               title: body.title,
-              description: body.description,
+              description: body.description ?? '',
               lyrics,
               language: body.language,
               instrumental: body.instrumental,
               durationSec: body.durationSec,
+              ...(providerStyle ? { style: providerStyle } : {}),
             },
             p_song: {
               title: body.title,
               lyrics,
               sections: body.instrumental ? [] : (body.sections ?? []),
               language: body.language,
-              style: body.style ? { text: body.style } : {},
+              style: {
+                ...(body.style ? { text: body.style } : {}),
+                ...(controls ? { controls } : {}),
+              },
               instrumental: body.instrumental,
               explicit: decision.explicit,
               moderation_decision_id: decision.decisionId,
