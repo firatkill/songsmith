@@ -201,5 +201,36 @@ export function createRegistryCache(options: {
           }),
         );
     },
+    // The highest-ranked enabled text model priced for both lyricist
+    // operations (FR-71). Prices are shown before the action.
+    async lyricist(): Promise<LyricistModel | undefined> {
+      const candidates = (await availableRows())
+        .filter(({ row }) => row.kind === 'text')
+        .sort(
+          (a, b) =>
+            b.row.quality_rank - a.row.quality_rank ||
+            (a.row.id < b.row.id ? -1 : a.row.id > b.row.id ? 1 : 0),
+        );
+      for (const { row, available } of candidates) {
+        const price = (operation: string) =>
+          row.model_prices.find((p) => p.operation === operation)?.credits;
+        const lyrics = price('lyrics');
+        const rewrite = price('rewrite');
+        if (lyrics && rewrite)
+          return {
+            modelId: row.id,
+            adapterId: row.adapter,
+            available,
+            prices: { lyrics, rewrite },
+          };
+      }
+      return undefined;
+    },
   };
+}
+export interface LyricistModel {
+  modelId: string;
+  adapterId: string;
+  available: boolean;
+  prices: { lyrics: number; rewrite: number };
 }

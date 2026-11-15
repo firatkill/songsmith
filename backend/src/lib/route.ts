@@ -61,6 +61,7 @@ export function defineRoute<
   Q extends z.ZodObject,
   B extends z.ZodType,
   const R extends Responses,
+  H extends z.ZodObject = z.ZodObject,
 >(
   context: RouteContext,
   definition: {
@@ -70,12 +71,13 @@ export function defineRoute<
     description?: string;
     rateLimit?: RateLimitOption;
     responseHeaders?: Record<string, string>;
-    request: { params: P; query: Q; body?: B };
+    request: { params: P; query: Q; body?: B; headers?: H };
     response: R;
     handler: (input: {
       params: z.output<P>;
       query: z.output<Q>;
       body: z.output<B>;
+      headers: z.output<H>;
     }) => Result<R> | Promise<Result<R>>;
   },
 ) {
@@ -108,6 +110,9 @@ export function defineRoute<
     request: {
       params: definition.request.params,
       query: definition.request.query,
+      ...(definition.request.headers
+        ? { headers: definition.request.headers }
+        : {}),
       ...(definition.request.body
         ? {
             body: {
@@ -167,6 +172,8 @@ export function defineRoute<
       params: definition.request.params.parse(req.params),
       query: definition.request.query.parse(req.query),
       body: definition.request.body?.parse(req.body) as z.output<B>,
+      headers: (definition.request.headers?.parse(req.headers) ??
+        {}) as z.output<H>,
     };
     const result = await definition.handler(input);
     const schema = definition.response[Number(result.status)];

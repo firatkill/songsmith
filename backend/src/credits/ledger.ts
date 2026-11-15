@@ -5,6 +5,7 @@ import {
   creditJobSchema,
   creditDiscrepanciesSchema,
   creditIntegerSchema,
+  lyricistJobSchema,
   type Database,
 } from '@songsmith/schemas';
 import type { Service } from '../lib/auth.js';
@@ -125,5 +126,37 @@ export async function reconcileCredits(service: Service) {
   return creditRpcResult(
     await service().schema('app').rpc('reconcile_credits'),
     creditDiscrepanciesSchema,
+  );
+}
+
+// T-18 lyricist jobs: claim stores the body hash, complete settles the full
+// price with the result, fail releases the hold. Each is one transaction.
+export async function claimLyricistJob(
+  service: Service,
+  args: Functions['claim_lyricist_job']['Args'],
+) {
+  return creditRpcResult(
+    await service().schema('app').rpc('claim_lyricist_job', args),
+    lyricistJobSchema,
+  );
+}
+
+export async function completeLyricistJob(
+  service: Service,
+  args: Functions['complete_lyricist_job']['Args'],
+) {
+  return creditRpcResult(
+    await service().schema('app').rpc('complete_lyricist_job', args),
+    lyricistJobSchema,
+  );
+}
+
+export async function failLyricistJob(
+  service: Service,
+  args: Functions['fail_lyricist_job']['Args'],
+) {
+  return creditRpcResult(
+    await service().schema('app').rpc('fail_lyricist_job', args),
+    lyricistJobSchema,
   );
 }

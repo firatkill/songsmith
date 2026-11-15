@@ -213,6 +213,7 @@ describe('mock text', () => {
         {
           system: 'any real lyricist prompt',
           user: JSON.stringify({
+            task: 'write',
             language,
             description: 'summer road trip with friends',
             occasion: 'birthday',

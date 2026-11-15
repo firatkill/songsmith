@@ -6,11 +6,15 @@ import { createLogger } from '../lib/log.js';
 import { capabilities } from '../providers/mock/music.js';
 import { serve, testSource } from '../../test/http.js';
 
-const { catalogue } = vi.hoisted(() => ({ catalogue: vi.fn() }));
+const { catalogue, lyricist } = vi.hoisted(() => ({
+  catalogue: vi.fn(),
+  lyricist: vi.fn(),
+}));
 vi.mock('../models/registry.js', () => ({
   createRegistry: () =>
     Promise.resolve({
       catalogue,
+      lyricist,
       usableModels: () => Promise.resolve([]),
       invalidate: () => {},
     }),
@@ -28,6 +32,12 @@ describe('GET /v1/catalogue', () => {
       available: id !== 'b',
     }));
     catalogue.mockResolvedValue(models.reverse());
+    lyricist.mockResolvedValue({
+      modelId: 'mock-text',
+      adapterId: 'mock-text',
+      available: true,
+      prices: { lyrics: 1, rewrite: 1 },
+    });
     const app = createApp({
       env: loadEnv(testSource),
       logger: createLogger('silent'),
@@ -40,6 +50,11 @@ describe('GET /v1/catalogue', () => {
       const body = catalogueSchema.parse(await response.json());
       expect(body.models.map(({ id }) => id)).toEqual(['z', 'a', 'b']);
       expect(body.models.find(({ id }) => id === 'b')?.available).toBe(false);
+      expect(body.lyricist).toEqual({
+        modelId: 'mock-text',
+        available: true,
+        prices: { lyrics: 1, rewrite: 1 },
+      });
     } finally {
       await http.close();
     }
