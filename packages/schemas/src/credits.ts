@@ -79,3 +79,16 @@ export const jobReservationSchema = z.object({
 });
 export type CreditLedger = z.infer<typeof creditLedgerSchema>;
 export type CreditReservation = z.infer<typeof creditReservationSchema>;
+// GET /v1/wallet (T-20, FR-08): what the create flow needs before Generate.
+// `available` is computed in SQL (app.wallet_summary); clients only display it.
+export const walletSchema = z.strictObject({
+  balance: creditIntegerSchema,
+  held: creditIntegerSchema.nonnegative(),
+  available: creditIntegerSchema,
+});
+export type Wallet = z.infer<typeof walletSchema>;
+export const walletRowSchema = z.object({
+  balance: creditIntegerSchema,
+  held: creditIntegerSchema,
+  available: creditIntegerSchema,
+});
