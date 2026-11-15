@@ -398,6 +398,72 @@ describe('POST /v1/songs', () => {
   });
 });
 
+describe('T-20 create flow additions', () => {
+  it('stores the style controls and sends one style string', async () => {
+    const { token } = await user();
+    const response = await post(parked, token, {
+      ...song({ description: undefined }),
+      style: 'with soft strings',
+      styleControls: { genre: 'turkish_pop', mood: 'happy', tempo: 'fast' },
+    });
+    expect(response.status).toBe(202);
+    const started = jobResponseSchema.parse(await response.json());
+    const row = await client
+      .from('generation_jobs')
+      .select('steps')
+      .eq('id', started.jobId)
+      .single();
+    expect(row.data?.steps).toMatchObject({
+      request: {
+        description: '',
+        style: 'Turkish pop, happy, fast tempo, with soft strings',
+      },
+    });
+    const stored = await client
+      .from('songs')
+      .select('style')
+      .eq('id', started.songId ?? '')
+      .single();
+    expect(stored.data?.style).toEqual({
+      text: 'with soft strings',
+      controls: { genre: 'turkish_pop', mood: 'happy', tempo: 'fast' },
+    });
+  });
+  it('refuses controls the routed model does not support, without charging', async () => {
+    const { id, token } = await user();
+    const before = await balance(id);
+    for (const [styleControls, field] of [
+      [{ bpm: 120 }, 'styleControls.bpm'],
+      [{ vocalType: 'female' }, 'styleControls.vocalType'],
+    ] as const) {
+      const response = await post(http, token, song({ styleControls }));
+      expect(response.status).toBe(400);
+      expect(
+        errorResponseSchema.parse(await response.json()).error,
+      ).toMatchObject({
+        code: 'VALIDATION',
+        details: { fields: [field] },
+      });
+    }
+    expect(await balance(id)).toEqual(before);
+  });
+  it('GET /v1/wallet returns balance, held and available', async () => {
+    const { token } = await user();
+    const wallet = async () => {
+      const response = await fetch(`${http.url}/v1/wallet`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      expect(response.status).toBe(200);
+      expect(response.headers.get('cache-control')).toBe('private, no-store');
+      return await response.json();
+    };
+    expect(await wallet()).toEqual({ balance: 30, held: 0, available: 30 });
+    expect((await post(parked, token, song())).status).toBe(202);
+    expect(await wallet()).toEqual({ balance: 30, held: 10, available: 20 });
+    const anonymous = await fetch(`${http.url}/v1/wallet`);
+    expect(anonymous.status).toBe(401);
+  });
+});
 describe('IT-18 fallback at run time (@isolated)', () => {
   const kill = 'kill_switch:provider:mock-music-a';
   async function startParked(token: string) {

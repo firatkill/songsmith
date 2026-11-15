@@ -12,6 +12,7 @@ import { registerAdmin } from '../src/routes/admin.js';
 import { registerModeration } from '../src/routes/moderation.js';
 import { registerLyrics } from '../src/routes/lyrics.js';
 import { registerSongs } from '../src/routes/songs.js';
+import { registerWallet } from '../src/routes/wallet.js';
 const registry = createRegistry();
 registerModeration(
   { router: Router(), registry, production: false },
@@ -48,6 +49,7 @@ registerSongs(
     enqueue: () => Promise.reject(new Error('OpenAPI does not enqueue')),
   },
 );
+registerWallet({ router: Router(), registry, production: false }, offline);
 registerMe({ router: Router(), registry, production: false }, () => {
   throw new Error('OpenAPI does not access the database');
 });
