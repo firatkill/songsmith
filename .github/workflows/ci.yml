@@ -32,6 +32,29 @@ jobs:
       - run: pnpm test
       - run: pnpm openapi && git diff --exit-code
 
+  # EV-01: mock evaluation on every pull request (cheap, no database). It covers
+  # every change to moderation rules, policy prompts and lyricist prompts.
+  eval-mock:
+    needs: static
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Golden sets match their generator
+        run: pnpm eval:golden && git diff --exit-code eval
+      - run: pnpm eval:moderation --mode mock
+      - run: pnpm eval:lyricist --mode mock
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: eval-mock-reports
+          path: eval/reports
+
   db:
     needs: static
     runs-on: ubuntu-latest

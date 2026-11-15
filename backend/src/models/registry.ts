@@ -18,7 +18,12 @@ import type { FlagService } from '../lib/flags.js';
 import type { Logger } from '../lib/log.js';
 import { createBreakers } from './breakers.js';
 export type AdapterFactories = Map<string, () => Adapter>;
-export async function loadFactories(env: Env): Promise<AdapterFactories> {
+export async function loadFactories(
+  env: Pick<
+    Env,
+    'APP_ENV' | 'PROVIDER_MODE' | 'MOCK_LATENCY_MS' | 'MOCK_FAILURE_RATE'
+  >,
+): Promise<AdapterFactories> {
   const factories =
     env.PROVIDER_MODE === 'live'
       ? (await import('../providers/live/index.js')).liveFactories()

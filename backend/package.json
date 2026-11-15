@@ -3,13 +3,20 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    "./eval": {
+      "types": "./dist/eval.d.ts",
+      "import": "./dist/eval.js",
+      "default": "./dist/eval.js"
+    }
+  },
   "scripts": {
     "lint": "eslint src scripts test",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --config ../vitest.config.mjs --project @songsmith/backend --passWithNoTests",
     "dev": "tsx watch --env-file-if-exists=../.env.local src/server.ts",
     "start": "node --env-file-if-exists=../.env.local dist/server.js",
-    "build": "tsc -p tsconfig.build.json && mkdir -p dist/moderation/policy && cp src/moderation/policy/*.md dist/moderation/policy/",
+    "build": "tsc -p tsconfig.build.json && tsc -p tsconfig.eval.json && mkdir -p dist/moderation/policy && cp src/moderation/policy/*.md dist/moderation/policy/",
     "openapi": "tsx scripts/openapi.ts",
     "test:integration": "node --env-file-if-exists=../.env.local ../node_modules/vitest/vitest.mjs run --config vitest.integration.config.mjs",
     "dev:worker": "tsx watch --env-file-if-exists=../.env.local src/worker.ts"

@@ -1,0 +1,5 @@
+{
+  "hardBlockRecall": 1,
+  "blockRecall": 0.95,
+  "maxFalseBlockRate": 0.05
+}
