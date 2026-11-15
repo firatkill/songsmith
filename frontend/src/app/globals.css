@@ -660,14 +660,14 @@ footer {
   inset: 0;
   width: 100%;
   height: 100%;
-  opacity: 0.02;
+  opacity: 0;
   z-index: 1;
   color: transparent;
   caret-color: transparent;
 }
 .code-boxes {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 44px));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
 }
 .code-boxes > span {
@@ -688,11 +688,17 @@ footer {
 .code-control:has([aria-invalid='true']) .code-boxes > span {
   border-color: var(--colors-danger);
 }
+.auth-card .birth-date {
+  width: 100%;
+  min-inline-size: 0;
+}
 .auth-card .date-fields {
-  grid-template-columns: 1fr 1fr 1.5fr;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr);
   gap: 12px;
 }
 .auth-card .date-fields label {
+  min-width: 0;
   font-size: 14px;
   line-height: 20px;
   font-weight: 600;
@@ -829,8 +835,8 @@ footer {
   font-weight: 600;
 }
 .segmented-control input:checked + span {
-  background: var(--colors-ink);
-  color: var(--colors-surfaceAccent);
+  background: var(--colors-selectedSegment);
+  color: var(--colors-onSelectedSegment);
 }
 .segmented-control input:focus-visible + span {
   outline: 3px solid var(--colors-surfaceAccent);
@@ -882,9 +888,9 @@ footer {
   }
 }
 
-.auth-shell:has(.code-control) .brand,
-.auth-shell:has(.birth-date) .brand,
-.auth-shell:has(.auth-disclosure) .brand,
-.auth-shell:has(.refused-card) .brand {
-  visibility: hidden;
+/* Focus is drawn exclusively by the six visible code cells, never the input overlay. */
+.auth-field .code-control .code-input:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: transparent;
 }

@@ -1,7 +1,11 @@
 'use client';
 import { useRef, type ReactNode, type InputHTMLAttributes } from 'react';
 import { formatMessage as t, type Locale } from '@songsmith/i18n';
-import { birthDateOrder, type BirthDatePart } from '../lib/birth-date';
+import {
+  applyDateInput,
+  birthDateOrder,
+  type BirthDatePart,
+} from '../lib/birth-date';
 export function PrimaryButton({
   children,
   busy,
@@ -90,11 +94,24 @@ export function DateFields({
     {},
   );
   const order = birthDateOrder(locale);
+  function update(part: BirthDatePart, raw: string) {
+    const current = {
+      day: refs.current.day?.value ?? '',
+      month: refs.current.month?.value ?? '',
+      year: refs.current.year?.value ?? '',
+    };
+    const result = applyDateInput(locale, part, raw, current);
+    for (const key of order) {
+      const input = refs.current[key];
+      if (input) input.value = result.parts[key];
+    }
+    if (result.focus !== part) refs.current[result.focus]?.focus();
+  }
   return (
     <fieldset className="birth-date">
       <legend className="visually-hidden">{t(locale, 'web.birthDate')}</legend>
       <div className="date-fields">
-        {order.map((part, index) => (
+        {order.map((part) => (
           <label key={part}>
             {t(locale, `web.${part}`)}
             <input
@@ -106,17 +123,17 @@ export function DateFields({
               inputMode="numeric"
               autoComplete={`bday-${part}`}
               placeholder={t(locale, `ui.${part}Placeholder`)}
-              maxLength={part === 'year' ? 4 : 2}
+              onFocus={(event) => {
+                event.currentTarget.select();
+              }}
+              onPaste={(event) => {
+                event.preventDefault();
+                update(part, event.clipboardData.getData('text'));
+              }}
               aria-invalid={invalid}
               aria-describedby={invalid ? 'birth-error' : 'age-help'}
               onChange={(event) => {
-                event.target.value = event.target.value.replace(/\D/g, '');
-                const next = order[index + 1];
-                if (
-                  event.target.value.length === (part === 'year' ? 4 : 2) &&
-                  next
-                )
-                  refs.current[next]?.focus();
+                update(part, event.currentTarget.value);
               }}
             />
           </label>
