@@ -613,6 +613,13 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: number;
       };
+      moderation_account_status: {
+        Args: { p_user_id: string };
+        Returns: {
+          cooldown_until: string;
+          status: string;
+        }[];
+      };
       rate_limit_hit: {
         Args: { key: string; max: number; window_seconds: number };
         Returns: {
@@ -632,6 +639,29 @@ export type Database = {
         Returns: undefined;
       };
       record_job_recovery: { Args: { job_id: string }; Returns: number };
+      record_moderation_decision: {
+        Args: {
+          p_action: string;
+          p_category: string;
+          p_classifier_model?: string;
+          p_cooldown_seconds: number;
+          p_cooldown_threshold: number;
+          p_input_sha256: string;
+          p_latency_ms: number;
+          p_layers: Json;
+          p_policy_version: string;
+          p_severity: string;
+          p_surface: string;
+          p_suspend_threshold: number;
+          p_text?: string;
+          p_user_id: string;
+          p_window_seconds: number;
+        };
+        Returns: {
+          case_id: string;
+          decision_id: string;
+        }[];
+      };
       record_provider_result: {
         Args: { kind: string; ok: boolean; provider: string };
         Returns: undefined;
@@ -1274,6 +1304,7 @@ export type Database = {
           adult_verified_at: string | null;
           avatar_seed: string;
           bio: string;
+          cooldown_until: string | null;
           created_at: string;
           display_name: string;
           explicit_hidden: boolean;
@@ -1290,6 +1321,7 @@ export type Database = {
           adult_verified_at?: string | null;
           avatar_seed?: string;
           bio?: string;
+          cooldown_until?: string | null;
           created_at?: string;
           display_name?: string;
           explicit_hidden?: boolean;
@@ -1305,6 +1337,7 @@ export type Database = {
           adult_verified_at?: string | null;
           avatar_seed?: string;
           bio?: string;
+          cooldown_until?: string | null;
           created_at?: string;
           display_name?: string;
           explicit_hidden?: boolean;

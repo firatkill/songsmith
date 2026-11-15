@@ -53,6 +53,9 @@ importers:
       '@songsmith/i18n':
         specifier: workspace:*
         version: link:../packages/i18n
+      '@songsmith/moderation-rules':
+        specifier: workspace:*
+        version: link:../packages/moderation-rules
       '@songsmith/schemas':
         specifier: workspace:*
         version: link:../packages/schemas

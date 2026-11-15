@@ -75,16 +75,48 @@ export const mockLyricRequestSchema = z.strictObject({
   occasion: z.enum(['birthday', 'anniversary', 'general']).default('general'),
   giftNames: z.array(z.string().min(1)).default([]),
 });
-// Minimal plumbing categories; T-15 owns the detailed policy taxonomy.
-export const moderationCategorySchema = z.enum([
+export const moderationActionSchema = z.enum([
   'allow',
   'allow_explicit',
   'block',
   'hard_block',
 ]);
+export const policyCategorySchema = z.enum([
+  'minor_sexual',
+  'threat',
+  'terrorism',
+  'private_data',
+  'sexual_explicit',
+  'hate',
+  'harassment',
+  'self_harm',
+  'serious_crime',
+  'artist_impersonation',
+  'copyrighted_lyrics',
+  'spam',
+  'explicit',
+  'none',
+]);
+export type PolicyCategory = z.infer<typeof policyCategorySchema>;
+export type ModerationAction = z.infer<typeof moderationActionSchema>;
+export function tierOf(category: PolicyCategory): ModerationAction {
+  switch (category) {
+    case 'minor_sexual':
+    case 'threat':
+    case 'terrorism':
+    case 'private_data':
+      return 'hard_block';
+    case 'explicit':
+      return 'allow_explicit';
+    case 'none':
+      return 'allow';
+    default:
+      return 'block';
+  }
+}
 export const classifierOutputSchema = z.strictObject({
-  category: moderationCategorySchema,
+  category: policyCategorySchema,
   severity: z.enum(['none', 'low', 'high', 'critical']),
-  evidence: z.array(z.string()),
+  evidence: z.array(z.string().max(200)).max(3),
   confidence: z.number().min(0).max(1),
 });

@@ -27,6 +27,7 @@ Updated: 2026-11-15.
 - T-13 done (PR #16): pure router (UT-20..UT-29) with TR/EN exclusion reasons, shared catalogue schemas, public `GET /v1/catalogue` with fresh availability and shared admin invalidation, generated API client, IT-31 and E2E-04 extended to the public endpoint. Decisions D-74–D-78.
 
 - T-14 done (PR #17): pure deterministic moderation layer: Turkish-aware normalisation with leetspeak, invisible-character and homoglyph handling; hashed TR/EN hard-block lists with `pnpm moderation:hash`; age-plus-sexual co-occurrence; listed-artist voice/style blocking; profanity passes. UT-30..UT-36. Decisions D-79–D-84.
+- T-15 done (PR #18): moderation pipeline (layer 1, mock classifier, fail-closed retry), atomic decision storage with hard-block case and suspension, friction with cooldown and suspension, `POST /v1/moderation/check` with a 10-minute result reuse, `ACCOUNT_RESTRICTED`, IT-11..IT-13, UT-40 and DB-12. Decisions D-85–D-90.
 
 ## Tasks
 
@@ -48,7 +49,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-12 | Admin skeleton                                   | done   | 5e6d9ef          |
 | T-13 | Router and catalogue endpoint                    | done   | f8df1d8          |
 | T-14 | Deterministic moderation layer                   | done   | 6bc663e          |
-| T-15 | Moderation pipeline                              | todo   |                  |
+| T-15 | Moderation pipeline                              | done   | 0deb9bc          |
 | T-16 | Golden sets and evaluation harness               | todo   |                  |
 | T-17 | Ledger core                                      | todo   |                  |
 | T-18 | Lyricist                                         | todo   |                  |

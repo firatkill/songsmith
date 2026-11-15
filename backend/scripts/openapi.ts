@@ -9,7 +9,15 @@ import { createFlagCache } from '../src/lib/flags.js';
 import { createLogger } from '../src/lib/log.js';
 import { registerMe } from '../src/routes/me.js';
 import { registerAdmin } from '../src/routes/admin.js';
+import { registerModeration } from '../src/routes/moderation.js';
 const registry = createRegistry();
+registerModeration(
+  { router: Router(), registry, production: false },
+  () => {
+    throw new Error('OpenAPI does not access the database');
+  },
+  () => Promise.reject(new Error('OpenAPI does not moderate')),
+);
 registerMe({ router: Router(), registry, production: false }, () => {
   throw new Error('OpenAPI does not access the database');
 });
