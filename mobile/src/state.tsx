@@ -20,8 +20,13 @@ import { auth } from './auth/client';
 import { gateStage, type Stage } from './auth/gate';
 import { api } from './api';
 import { selectLocale } from './i18n';
+import { parseAppearance, type Appearance } from '@songsmith/ui-tokens';
 type Me = z.infer<typeof meResponseSchema>;
 interface State {
+  appearance: Appearance;
+  appearanceReady: boolean;
+  setAppearance: (value: Appearance) => Promise<void>;
+  email: string;
   locale: Locale;
   t: (key: MessageKey, values?: MessageValues) => string;
   setLocale: (locale: Locale) => Promise<void>;
@@ -40,6 +45,9 @@ export function Provider({ children }: { children: ReactNode }) {
   const [locale, updateLocale] = useState<Locale>(
     selectLocale(null, getLocales()[0].languageCode ?? null),
   );
+  const [appearance, updateAppearance] = useState<Appearance>('system');
+  const [appearanceReady, setAppearanceReady] = useState(false);
+  const [email, setEmail] = useState('');
   const [stage, setStage] = useState<Stage>('sign-in');
   const [me, setMe] = useState<Me | null>(null);
   const [initialized, setInitialized] = useState(false);
@@ -79,6 +87,7 @@ export function Provider({ children }: { children: ReactNode }) {
       }
       if (current !== generation.current) return;
       setInitialized(true);
+      setEmail(data.session?.user.email ?? '');
       setMe(next);
       setStage(gateStage(signedIn, next, refused.current));
     } catch {
@@ -88,6 +97,16 @@ export function Provider({ children }: { children: ReactNode }) {
     }
   }
   useEffect(() => {
+    void SecureStore.getItemAsync('songsmith.appearance')
+      .then((saved) => {
+        updateAppearance(parseAppearance(saved));
+      })
+      .catch(() => {
+        setError(true);
+      })
+      .finally(() => {
+        setAppearanceReady(true);
+      });
     void SecureStore.getItemAsync('songsmith.locale')
       .then((saved) => {
         updateLocale(selectLocale(saved, getLocales()[0].languageCode ?? null));
@@ -119,12 +138,20 @@ export function Provider({ children }: { children: ReactNode }) {
   async function signOut() {
     const result = await auth.signOut({ scope: 'local' });
     if (result.error) throw result.error;
+    setEmail('');
     setMe(null);
     setStage(refused.current ? 'refused' : 'sign-in');
   }
   return (
     <Context.Provider
       value={{
+        appearance,
+        appearanceReady,
+        email,
+        setAppearance: async (value) => {
+          await SecureStore.setItemAsync('songsmith.appearance', value);
+          updateAppearance(value);
+        },
         locale,
         t: (key, values) => formatMessage(locale, key, values),
         stage,

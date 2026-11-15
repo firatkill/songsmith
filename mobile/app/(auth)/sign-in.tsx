@@ -2,7 +2,16 @@ import { useEffect, useState } from 'react';
 import { z } from '../../src/validation';
 import { auth } from '../../src/auth/client';
 import { useApp } from '../../src/state';
-import { Screen, Copy, Button, Field, ErrorNotice } from '../../src/ui';
+import {
+  Screen,
+  Copy,
+  PrimaryButton,
+  Field,
+  ErrorNotice,
+  CodeInput,
+  LinkButton,
+} from '../../src/ui';
+import { cooldownTime } from '../../src/ui/logic';
 export default function SignIn() {
   const { t, locale } = useApp();
   const [email, setEmail] = useState('');
@@ -21,6 +30,7 @@ export default function SignIn() {
     };
   }, [seconds]);
   async function send() {
+    if (busy) return;
     if (!z.email().safeParse(email).success) {
       setError(t('errors.VALIDATION'));
       return;
@@ -52,6 +62,7 @@ export default function SignIn() {
     }
   }
   async function verify() {
+    if (busy) return;
     if (!/^\d{6}$/.test(code)) {
       setError(t('web.otpError'));
       return;
@@ -78,29 +89,59 @@ export default function SignIn() {
       setBusy(false);
     }
   }
+  function changeEmail() {
+    if (!busy) {
+      setSent(false);
+      setCode('');
+      setError('');
+    }
+  }
   return (
-    <Screen>
-      <Copy title>{t('web.signIn')}</Copy>
+    <Screen
+      brand={!sent}
+      onBack={sent ? changeEmail : undefined}
+      footer={
+        <>
+          <ErrorNotice message={error} />
+          <PrimaryButton
+            testID={sent ? 'verify-code' : 'send-code'}
+            title={t(sent ? 'web.verify' : 'web.sendCode')}
+            busy={busy}
+            onPress={() => {
+              void (sent ? verify() : send());
+            }}
+          />
+          {sent && (
+            <LinkButton title={t('web.changeEmail')} onPress={changeEmail} />
+          )}
+        </>
+      }
+    >
+      <Copy title>{t(sent ? 'ui.codeTitle' : 'ui.signInTitle')}</Copy>
+      <Copy>{t(sent ? 'ui.codeHelp' : 'ui.signInHelp')}</Copy>
       {sent ? (
         <>
-          <Copy>{t('web.codeSent')}</Copy>
-          <Field
-            testID="otp-code"
-            label={t('web.code')}
-            value={code}
-            onChangeText={(value) => {
-              setCode(value.replace(/\D/g, '').slice(0, 6));
-            }}
-            keyboardType="number-pad"
-            textContentType="oneTimeCode"
-            autoComplete="sms-otp"
-            maxLength={6}
-          />
+          <Copy variant="label">{email}</Copy>
+          <CodeInput value={code} onChange={setCode} error={error} />
+          {seconds > 0 ? (
+            <Copy variant="caption">
+              {t('ui.resendTime', { time: cooldownTime(seconds) })}
+            </Copy>
+          ) : (
+            <LinkButton
+              title={t('web.resend')}
+              onPress={() => {
+                void send();
+              }}
+            />
+          )}
         </>
       ) : (
         <Field
           testID="email"
           label={t('web.email')}
+          placeholder={t('ui.emailExample')}
+          error={error}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -108,35 +149,6 @@ export default function SignIn() {
           autoCapitalize="none"
           autoCorrect={false}
         />
-      )}
-      <ErrorNotice message={error} />
-      <Button
-        testID={sent ? 'verify-code' : 'send-code'}
-        disabled={busy}
-        title={t(busy ? 'web.busy' : sent ? 'web.verify' : 'web.sendCode')}
-        onPress={() => {
-          void (sent ? verify() : send());
-        }}
-      />
-      {sent && (
-        <>
-          <Button
-            disabled={busy || seconds > 0}
-            title={seconds ? t('web.cooldown', { seconds }) : t('web.resend')}
-            onPress={() => {
-              void send();
-            }}
-          />
-          <Button
-            disabled={busy}
-            title={t('web.changeEmail')}
-            onPress={() => {
-              setSent(false);
-              setCode('');
-              setError('');
-            }}
-          />
-        </>
       )}
     </Screen>
   );

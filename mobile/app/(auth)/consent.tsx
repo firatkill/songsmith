@@ -1,10 +1,19 @@
 import { useState } from 'react';
-import { Platform, Switch, View } from 'react-native';
+import { Platform } from 'react-native';
 import { consentVersions, type ConsentKind } from '../../src/validation';
 import { useApp } from '../../src/state';
 import { api } from '../../src/api';
 import { errorCode, errorMessage } from '../../src/errors';
-import { Screen, Copy, Button, ErrorNotice } from '../../src/ui';
+import {
+  Screen,
+  Copy,
+  PrimaryButton,
+  ErrorNotice,
+  Group,
+  ToggleRow,
+  LinkButton,
+} from '../../src/ui';
+import { missingConsents } from '../../src/ui/logic';
 const kinds: ConsentKind[] = [
   'terms',
   'privacy',
@@ -21,9 +30,18 @@ export default function Consent() {
     marketing: false,
     analytics: false,
   });
+  const [expanded, setExpanded] = useState(false);
+  const [attempted, setAttempted] = useState(false);
+  const missing = missingConsents(selected);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   async function submit() {
+    if (busy) return;
+    setAttempted(true);
+    if (missing.length) {
+      setError('');
+      return;
+    }
     setBusy(true);
     setError('');
     try {
@@ -53,45 +71,68 @@ export default function Consent() {
     }
   }
   return (
-    <Screen>
-      <Copy title>{t('web.consentTitle')}</Copy>
-      <Copy>{t('web.provisional')}</Copy>
-      <Copy>{t('web.disclosure')}</Copy>
-      {kinds.map((kind, index) => (
-        <View key={kind} style={{ gap: 8 }}>
-          {index === 0 && <Copy title>{t('web.requiredConsents')}</Copy>}
-          {index === 3 && (
-            <>
-              <Copy title>{t('web.optionalConsents')}</Copy>
-              <Copy>{t('web.optionalHelp')}</Copy>
-            </>
-          )}
-          <Copy>{t(`web.${kind}`)}</Copy>
-          <Switch
-            testID={`consent-${kind}`}
-            accessibilityLabel={t(`web.${kind}`)}
-            disabled={busy}
-            value={selected[kind]}
-            onValueChange={(value) => {
-              setSelected({ ...selected, [kind]: value });
+    <Screen
+      footer={
+        <>
+          <ErrorNotice
+            message={attempted && missing.length ? t('ui.consentError') : error}
+          />
+          <PrimaryButton
+            testID="submit-consent"
+            title={t('ui.accept')}
+            busy={busy}
+            onPress={() => {
+              void submit();
             }}
           />
-        </View>
-      ))}
-      <ErrorNotice message={error} />
-      <Button
-        testID="submit-consent"
-        disabled={
-          busy ||
-          !selected.terms ||
-          !selected.privacy ||
-          !selected.ai_disclosure
-        }
-        title={t(busy ? 'web.busy' : 'web.continue')}
+        </>
+      }
+    >
+      <Copy title>{t('web.consentTitle')}</Copy>
+      <Copy>{t('ui.consentHelp')}</Copy>
+      <LinkButton
+        title={t('ui.disclosure')}
+        expanded={expanded}
         onPress={() => {
-          void submit();
+          setExpanded(!expanded);
         }}
       />
+      {expanded && (
+        <>
+          <Copy variant="caption">{t('web.provisional')}</Copy>
+          <Copy variant="caption">{t('web.disclosure')}</Copy>
+        </>
+      )}
+      <Group required>
+        {kinds.slice(0, 3).map((kind) => (
+          <ToggleRow
+            key={kind}
+            testID={`consent-${kind}`}
+            label={t(`ui.${kind}`)}
+            caption={t('ui.required')}
+            value={selected[kind]}
+            invalid={attempted && !selected[kind]}
+            onChange={() => {
+              if (!busy) setSelected({ ...selected, [kind]: !selected[kind] });
+            }}
+          />
+        ))}
+      </Group>
+      <Copy variant="overline">{t('ui.optional')}</Copy>
+      <Group>
+        {kinds.slice(3).map((kind) => (
+          <ToggleRow
+            key={kind}
+            testID={`consent-${kind}`}
+            label={t(`ui.${kind}`)}
+            value={selected[kind]}
+            invalid={false}
+            onChange={() => {
+              if (!busy) setSelected({ ...selected, [kind]: !selected[kind] });
+            }}
+          />
+        ))}
+      </Group>
     </Screen>
   );
 }

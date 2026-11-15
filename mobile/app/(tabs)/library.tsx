@@ -1,5 +1,5 @@
 import { useApp } from '../../src/state';
-import { Screen, Copy } from '../../src/ui';
+import { Screen, Copy, EmptyState } from '../../src/ui';
 export default function Page() {
   const { t } = useApp();
   return (
@@ -7,7 +7,11 @@ export default function Page() {
       <Copy title testID="library-screen">
         {t('web.library')}
       </Copy>
-      <Copy>{t('mobile.libraryEmpty')}</Copy>
+      <EmptyState
+        icon="albums-outline"
+        title={t('mobile.libraryTitle')}
+        body={t('mobile.libraryEmpty')}
+      />
     </Screen>
   );
 }

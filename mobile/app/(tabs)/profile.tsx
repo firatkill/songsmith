@@ -1,9 +1,26 @@
 import { View } from 'react-native';
 import { useState } from 'react';
 import { useApp } from '../../src/state';
-import { Screen, Copy, Button, ErrorNotice, RadioChoice } from '../../src/ui';
+import {
+  Screen,
+  Copy,
+  ErrorNotice,
+  Avatar,
+  Group,
+  ListRow,
+  SegmentedControl,
+} from '../../src/ui';
 export default function Profile() {
-  const { t, me, locale, setLocale, signOut } = useApp();
+  const {
+    t,
+    me,
+    locale,
+    setLocale,
+    signOut,
+    email,
+    appearance,
+    setAppearance,
+  } = useApp();
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   async function run(action: () => Promise<void>) {
@@ -20,34 +37,61 @@ export default function Profile() {
   return (
     <Screen>
       <Copy title>{t('mobile.profile')}</Copy>
-      <Copy>{t('web.welcome', { handle: me?.profile.handle ?? '' })}</Copy>
-      <Copy title>{t('web.settings')}</Copy>
-      <Copy>{t('web.language')}</Copy>
-      <View
-        accessibilityRole="radiogroup"
-        accessibilityLabel={t('web.language')}
-        style={{ gap: 8 }}
-      >
-        {(['en', 'tr'] as const).map((value) => (
-          <RadioChoice
-            key={value}
-            selected={locale === value}
-            busy={busy}
-            title={t(`web.${value}`)}
-            onPress={() => {
-              void run(() => setLocale(value));
+      <Group featured>
+        <View
+          style={{
+            padding: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 16,
+          }}
+        >
+          <Avatar handle={me?.profile.handle ?? ''} />
+          <View style={{ flex: 1, gap: 4 }}>
+            <Copy variant="label">@{me?.profile.handle}</Copy>
+            <Copy variant="caption">{email}</Copy>
+          </View>
+        </View>
+      </Group>
+      <Copy variant="overline">{t('ui.settings')}</Copy>
+      <Group>
+        <ListRow label={t('web.language')}>
+          <SegmentedControl
+            label={t('web.language')}
+            value={locale}
+            options={(['en', 'tr'] as const).map((value) => ({
+              value,
+              label: t(`ui.${value}`),
+            }))}
+            onChange={(value) => {
+              if (!busy) void run(() => setLocale(value));
             }}
           />
-        ))}
-      </View>
+        </ListRow>
+        <ListRow label={t('ui.appearance')}>
+          <SegmentedControl
+            label={t('ui.appearance')}
+            value={appearance}
+            options={(['system', 'light', 'dark'] as const).map((value) => ({
+              value,
+              label: t(`ui.${value}`),
+            }))}
+            onChange={(value) => {
+              if (!busy) void run(() => setAppearance(value));
+            }}
+          />
+        </ListRow>
+      </Group>
+      <Group>
+        <ListRow
+          danger
+          label={t('web.signOut')}
+          onPress={() => {
+            if (!busy) void run(signOut);
+          }}
+        />
+      </Group>
       <ErrorNotice message={error} />
-      <Button
-        disabled={busy}
-        title={t('web.signOut')}
-        onPress={() => {
-          void run(signOut);
-        }}
-      />
     </Screen>
   );
 }

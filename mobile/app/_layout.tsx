@@ -9,15 +9,18 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { BricolageGrotesque_800ExtraBold } from '@expo-google-fonts/bricolage-grotesque/800ExtraBold';
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
+import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
 import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
 import { Provider, useApp } from '../src/state';
 import { Screen, Copy, Button, ErrorNotice } from '../src/ui';
 function Gate() {
-  const { stage, initialized, loading, error, refresh, t } = useApp();
+  const { stage, initialized, loading, error, refresh, t, appearanceReady } =
+    useApp();
   const [fonts, fontError] = useFonts({
     BricolageGrotesque_800ExtraBold,
     Inter_400Regular,
     Inter_500Medium,
+    Inter_600SemiBold,
   });
   const presentation = gatePresentation(initialized, loading, error);
   const theme = useTheme();
@@ -33,7 +36,11 @@ function Gate() {
         />
       </Screen>
     );
-  if (presentation === 'initial-loading' || (!fonts && !fontError))
+  if (
+    !appearanceReady ||
+    presentation === 'initial-loading' ||
+    (!fonts && !fontError)
+  )
     return (
       <Screen>
         <Copy>{t('web.busy')}</Copy>
@@ -41,7 +48,7 @@ function Gate() {
     );
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <StatusBar style="auto" />
+      <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Protected guard={stage === 'ready'}>

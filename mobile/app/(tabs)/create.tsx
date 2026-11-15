@@ -1,5 +1,5 @@
 import { useApp } from '../../src/state';
-import { Screen, Copy } from '../../src/ui';
+import { Screen, Copy, EmptyState } from '../../src/ui';
 export default function Page() {
   const { t } = useApp();
   return (
@@ -7,7 +7,11 @@ export default function Page() {
       <Copy title testID="create-screen">
         {t('web.create')}
       </Copy>
-      <Copy>{t('mobile.createEmpty')}</Copy>
+      <EmptyState
+        icon="musical-note"
+        title={t('mobile.createTitle')}
+        body={t('mobile.createEmpty')}
+      />
     </Screen>
   );
 }
