@@ -25,7 +25,10 @@ insert into public.model_prices (model_id, operation, credits, est_cost_micro_us
 ('mock-music-b', 'instrumental', 10, 100000),
 ('mock-music-b', 'custom_lyrics', 10, 100000),
 ('mock-music-b', 'extend', 10, 100000),
-('mock-music-b', 'stems', 20, 200000)
+('mock-music-b', 'stems', 20, 200000),
+-- T-18: lyricist calls (FR-71); placeholders until Q-04.
+('mock-text', 'lyrics', 1, 1000),
+('mock-text', 'rewrite', 1, 1000)
 on conflict (model_id, operation) do update set credits = excluded.credits, est_cost_micro_usd = excluded.est_cost_micro_usd;
 
 -- TRD §9.1 lines 539, 545; §10.3 line 655. Keys are the T-04 naming decision.

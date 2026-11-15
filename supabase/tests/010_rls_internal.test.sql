@@ -22,7 +22,7 @@ select throws_ok($$select * from app.moderation_actions$$, '42501', 'permission 
 select throws_ok($$select * from app.appeals$$, '42501', 'permission denied for schema app', 'anon: app.appeals unreadable (DB-08)');
 select throws_ok($$select * from restricted.moderation_evidence$$, '42501', 'permission denied for schema restricted', 'DB-07 anon: evidence unreadable');
 select is((select count(*) from public.models), 6::bigint, 'anon: catalogue models readable and seeded');
-select is((select count(*) from public.model_prices), 9::bigint, 'anon: catalogue model_prices readable and seeded');
+select is((select count(*) from public.model_prices), 11::bigint, 'anon: catalogue model_prices readable and seeded');
 select is((select count(*) from public.model_languages), 4::bigint, 'anon: catalogue model_languages readable and seeded');
 reset role;
 set local role authenticated;
@@ -46,7 +46,7 @@ select throws_ok($$select * from app.moderation_actions$$, '42501', 'permission 
 select throws_ok($$select * from app.appeals$$, '42501', 'permission denied for schema app', 'authenticated: app.appeals unreadable (DB-08)');
 select throws_ok($$select * from restricted.moderation_evidence$$, '42501', 'permission denied for schema restricted', 'DB-07 authenticated: evidence unreadable');
 select is((select count(*) from public.models), 6::bigint, 'authenticated: catalogue models readable and seeded');
-select is((select count(*) from public.model_prices), 9::bigint, 'authenticated: catalogue model_prices readable and seeded');
+select is((select count(*) from public.model_prices), 11::bigint, 'authenticated: catalogue model_prices readable and seeded');
 select is((select count(*) from public.model_languages), 4::bigint, 'authenticated: catalogue model_languages readable and seeded');
 reset role;
 select is((select count(*) from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname in ('public','app','restricted') and c.relkind = 'r' and not c.relrowsecurity), 0::bigint, 'RLS enabled in all application schemas');
