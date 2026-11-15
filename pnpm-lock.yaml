@@ -86,6 +86,9 @@ importers:
       jose:
         specifier: 6.2.17
         version: 6.2.17
+      node-id3:
+        specifier: 0.2.9
+        version: 0.2.9
       pino:
         specifier: 10.4.0
         version: 10.4.0
@@ -3557,6 +3560,10 @@ packages:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
     engines: {node: '>=0.10.0'}
 
+  iconv-lite@0.6.2:
+    resolution: {integrity: sha512-2y91h5OpQlolefMPmUlivelittSWy0rP+oYVpn6A7GwVHNE8AWzoYOBNmlwks3LobaJxgHCYZAnyNo2GgpNRNQ==}
+    engines: {node: '>=0.10.0'}
+
   iconv-lite@0.7.3:
     resolution: {integrity: sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ==}
     engines: {node: '>=0.10.0'}
@@ -4213,6 +4220,9 @@ packages:
   node-gyp-build-optional-packages@5.2.2:
     resolution: {integrity: sha512-s+w+rBWnpTMwSFbaE0UXsRlg7hU4FjekKU4eyAih5T8nJuNZT1nNsskXpxmeqSK9UzkBl6UgRlnKc8hz8IEqOw==}
     hasBin: true
+
+  node-id3@0.2.9:
+    resolution: {integrity: sha512-dSxhuxrkkGVRgUhDHFxdY0pilzOREcodO01HcZWfaRkCaPWGmo0dOgD8ygyL6ln4Iv4cmfRxAWn1WD9bIB9Bhw==}
 
   node-int64@0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
@@ -8963,6 +8973,10 @@ snapshots:
     dependencies:
       safer-buffer: 2.1.2
 
+  iconv-lite@0.6.2:
+    dependencies:
+      safer-buffer: 2.1.2
+
   iconv-lite@0.7.3:
     dependencies:
       safer-buffer: 2.1.2
@@ -9798,6 +9812,10 @@ snapshots:
     dependencies:
       detect-libc: 2.1.2
     optional: true
+
+  node-id3@0.2.9:
+    dependencies:
+      iconv-lite: 0.6.2
 
   node-int64@0.4.0: {}
 

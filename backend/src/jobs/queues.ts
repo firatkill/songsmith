@@ -58,6 +58,8 @@ export function createQueues(
   definitions: QueueDefinition[],
   url: string,
   logger: Logger,
+  // Tests shorten the backoff; production always uses defaultJobOptions.
+  jobOptions: JobsOptions = defaultJobOptions,
 ) {
   const connection = new Redis(url, {
     maxRetriesPerRequest: 1,
@@ -70,7 +72,7 @@ export function createQueues(
     definitions.map(({ name }) => {
       const queue = new Queue<JobData, unknown, string>(
         physicalQueueName(name),
-        { connection, defaultJobOptions },
+        { connection, defaultJobOptions: jobOptions },
       );
       queue.on('error', () => {
         logger.error({ errorCode: 'INTERNAL' }, 'Queue error');
