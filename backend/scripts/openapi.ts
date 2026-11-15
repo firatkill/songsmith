@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { OpenApiGeneratorV31 } from '@asteasolutions/zod-to-openapi';
 import { createRegistry } from '../src/lib/route.js';
 import { registerHealth } from '../src/routes/health.js';
+import { registerCatalogue } from '../src/routes/catalogue.js';
 import { registerFlags } from '../src/routes/flags.js';
 import { createFlagCache } from '../src/lib/flags.js';
 import { createLogger } from '../src/lib/log.js';
@@ -28,6 +29,9 @@ registerAdmin(
   },
   createFlagCache(() => Promise.resolve([]), createLogger('silent')),
   () => Promise.reject(new Error('OpenAPI does not load models')),
+);
+registerCatalogue({ router: Router(), registry, production: false }, () =>
+  Promise.reject(new Error('OpenAPI does not load models')),
 );
 const document = new OpenApiGeneratorV31(registry.definitions).generateDocument(
   { openapi: '3.1.0', info: { title: 'Songsmith API', version: '0.0.0' } },

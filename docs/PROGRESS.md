@@ -24,6 +24,8 @@ Updated: 2026-11-15.
 - T-11 done (PR #14): provider types and `ProviderError`; six mock adapters (music A sync, music B async with extend and stems, text as lyricist and classifier, cover, image safety, alignment) with deterministic `⟦mock:…⟧` triggers; `pnpm fixtures:audio` (about 480 KB); registry with the startup capability check, 30 s cache, kill switches and breakers; breaker SQL with single-probe admission; IT-10 contract suite, UT-12 and DB-11. Decisions D-65–D-70.
 - T-12 done (PR #15): `/v1/admin` staff + AAL2 guard (Bull Board included), audited catalogue and flag endpoints, web admin console (TOTP MFA, catalogue editor, flags and kill switches), IT-31 and E2E-04. Decisions D-71–D-73.
 
+- T-13 done (PR #16): pure router (UT-20..UT-29) with TR/EN exclusion reasons, shared catalogue schemas, public `GET /v1/catalogue` with fresh availability and shared admin invalidation, generated API client, IT-31 and E2E-04 extended to the public endpoint. Decisions D-74–D-78.
+
 ## Tasks
 
 A finishing commit is recorded only when acceptance checks, including CI, pass.
@@ -42,7 +44,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-10 | Mobile skeleton and the one-command local stack  | doing  |                  |
 | T-11 | Mock providers, registry and contract tests      | done   | 5571840          |
 | T-12 | Admin skeleton                                   | done   | 5e6d9ef          |
-| T-13 | Router and catalogue endpoint                    | todo   |                  |
+| T-13 | Router and catalogue endpoint                    | done   | f8df1d8          |
 | T-14 | Deterministic moderation layer                   | todo   |                  |
 | T-15 | Moderation pipeline                              | todo   |                  |
 | T-16 | Golden sets and evaluation harness               | todo   |                  |

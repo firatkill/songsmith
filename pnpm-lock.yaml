@@ -254,7 +254,11 @@ importers:
 
   packages/config: {}
 
-  packages/domain: {}
+  packages/domain:
+    dependencies:
+      '@songsmith/schemas':
+        specifier: workspace:*
+        version: link:../schemas
 
   packages/i18n:
     dependencies:

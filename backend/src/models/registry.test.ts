@@ -27,6 +27,10 @@ function row(id: string, overrides: Record<string, unknown> = {}) {
     adapter: id,
     kind: music ? 'music' : id === 'mock-text' ? 'text' : 'image',
     enabled: true,
+    display_name: id,
+    quality_rank: 20,
+    model_prices: [{ operation: 'generate', credits: 10 }],
+    model_languages: [{ language: 'en', status: 'verified' }],
     capabilities: music ? capabilities(id === 'mock-music-a' ? 'a' : 'b') : {},
     ...overrides,
   };
@@ -191,5 +195,118 @@ describe('registry usable models (TRD §8.2)', () => {
     });
     expect(await registry.usableModels()).toEqual([]);
     expect(logger.error).toHaveBeenCalledWith('Catalogue refresh failed');
+  });
+});
+
+describe('public catalogue registry view', () => {
+  it('maps public fields, omits non-music, disabled, unknown and mismatched models', async () => {
+    const { registry } = setup([
+      row('mock-music-a'),
+      row('mock-text', { model_prices: [{ operation: 'lyrics', credits: 1 }] }),
+      row('mock-music-b', { enabled: false }),
+      row('ghost'),
+      row('mismatch', {
+        kind: 'music',
+        adapter: 'mock-music-b',
+        capabilities: capabilities('a'),
+      }),
+    ]);
+    expect((await registry.usableModels()).map(({ id }) => id)).toEqual([
+      'mock-music-a',
+      'mock-text',
+    ]);
+    expect(await registry.catalogue()).toEqual([
+      {
+        id: 'mock-music-a',
+        displayName: 'mock-music-a',
+        qualityRank: 20,
+        capabilities: capabilities('a'),
+        prices: { generate: 10 },
+        languages: { en: 'verified' },
+        available: true,
+      },
+    ]);
+  });
+  it('silently omits prices for operations the music router does not handle', async () => {
+    const { registry, logger } = setup([
+      row('mock-music-b', {
+        model_prices: [
+          { operation: 'generate', credits: 10 },
+          { operation: 'extend', credits: 15 },
+          { operation: 'remix', credits: 20 },
+        ],
+      }),
+    ]);
+    const models = await registry.catalogue();
+    expect(models).toHaveLength(1);
+    expect(models[0]).toMatchObject({
+      id: 'mock-music-b',
+      available: true,
+    });
+    expect(models[0]?.prices).toEqual({ generate: 10, extend: 15 });
+    expect(logger.error).not.toHaveBeenCalled();
+  });
+  it('reads breaker and kill-switch availability afresh without reloading catalogue rows', async () => {
+    const health = [{ provider: 'mock-music-a', breaker_state: 'closed' }];
+    let killed = false;
+    const { registry, load } = setup(
+      [row('mock-music-a'), row('mock-music-b')],
+      health,
+      ({ provider, operation }) =>
+        (killed && provider === 'mock-music-b') || operation === 'stems',
+    );
+    expect((await registry.catalogue()).every((model) => model.available)).toBe(
+      true,
+    );
+    health[0] = { provider: 'mock-music-a', breaker_state: 'open' };
+    killed = true;
+    expect(
+      (await registry.catalogue()).map(({ available }) => available),
+    ).toEqual([false, false]);
+    health[0] = { provider: 'mock-music-a', breaker_state: 'half_open' };
+    killed = false;
+    expect((await registry.catalogue()).every((model) => model.available)).toBe(
+      true,
+    );
+    expect(
+      (await registry.catalogue('stems')).every((model) => !model.available),
+    ).toBe(true);
+    expect(load).toHaveBeenCalledTimes(1);
+  });
+  it('shares the 30 s cache and invalidation with usableModels, returning detached data', async () => {
+    const rows = [row('mock-music-a')];
+    const { registry, load, advance } = setup(rows);
+    const first = await registry.catalogue();
+    first[0]?.capabilities.operations.pop();
+    rows[0] = row('mock-music-a', { quality_rank: 42 });
+    advance(29_999);
+    expect((await registry.catalogue())[0]?.qualityRank).toBe(20);
+    expect((await registry.catalogue())[0]?.capabilities).toEqual(
+      capabilities('a'),
+    );
+    await registry.usableModels();
+    expect(load).toHaveBeenCalledTimes(1);
+    advance(1);
+    expect((await registry.catalogue())[0]?.qualityRank).toBe(42);
+    rows[0] = row('mock-music-a', { enabled: false });
+    registry.invalidate();
+    expect(await registry.catalogue()).toEqual([]);
+    expect(await registry.usableModels()).toEqual([]);
+    expect(load).toHaveBeenCalledTimes(3);
+  });
+  it('fails closed on invalid joined data and retries after one second', async () => {
+    const { registry, load, advance } = setup([row('mock-music-a')]);
+    await registry.catalogue();
+    load.mockResolvedValueOnce([
+      row('mock-music-a', {
+        model_prices: [{ operation: 'generate', credits: 1.5 }],
+      }),
+    ]);
+    registry.invalidate();
+    expect(await registry.catalogue()).toEqual([]);
+    advance(999);
+    expect(await registry.catalogue()).toEqual([]);
+    advance(1);
+    expect(await registry.catalogue()).toHaveLength(1);
   });
 });

@@ -20,5 +20,8 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "dependencies": {
+    "@songsmith/schemas": "workspace:*"
+  }
 }

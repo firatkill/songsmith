@@ -1,6 +1,7 @@
 import { createHmac } from 'node:crypto';
 import { test, expect } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
+import { catalogueSchema } from '@songsmith/schemas';
 import { signIn } from './helpers';
 
 // Local service credentials come from scripts/e2e-web.mjs (supabase status).
@@ -74,6 +75,15 @@ test('E2E-04 @isolated staff with MFA disables a model and it becomes unusable',
     // The admin write invalidates this server's registry, so the change shows
     // at once; other processes see it within the 30 s catalogue cache.
     await expect(status).toHaveText('Not usable');
+    const apiUrl = process.env['NEXT_PUBLIC_API_URL'];
+    if (!apiUrl) throw new Error('Run through pnpm e2e');
+    const catalogue = await request.get(`${apiUrl}/v1/catalogue`);
+    expect(catalogue.status()).toBe(200);
+    expect(
+      catalogueSchema
+        .parse(await catalogue.json())
+        .models.map((model) => model.id),
+    ).not.toContain('mock-music-b');
     await page.reload();
     await expect(page.getByTestId('status-mock-music-b')).toHaveText(
       'Not usable',

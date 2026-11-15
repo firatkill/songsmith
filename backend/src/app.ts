@@ -12,10 +12,11 @@ import { requireStaff } from './lib/auth.js';
 import { lazyBoard } from './jobs/board.js';
 import { createFlags, type FlagService } from './lib/flags.js';
 import { rateLimitStage } from './lib/rate-limit.js';
+import { registerCatalogue } from './routes/catalogue.js';
 import { registerFlags } from './routes/flags.js';
 import { registerMe } from './routes/me.js';
 import { registerHealth } from './routes/health.js';
-import { registerAdmin, type AdminRegistry } from './routes/admin.js';
+import { registerAdmin } from './routes/admin.js';
 import { auditMutations } from './lib/audit.js';
 import { createRegistry as createModelRegistry } from './models/registry.js';
 export interface AppDeps {
@@ -116,8 +117,8 @@ export function createApp(deps: AppDeps) {
   registerHealth(context, deps.env, deps.version ?? '0.0.0');
   registerMe(context, service);
   registerFlags(context, flags);
-  // Built on first use: the startup capability check needs the database.
-  let models: Promise<AdminRegistry> | undefined;
+  // The server initializes this before listening; tests may initialize on first use.
+  let models: ReturnType<typeof createModelRegistry> | undefined;
   const modelRegistry = () => {
     models ??= createModelRegistry(service, deps.env, flags, logger).catch(
       (error: unknown) => {
@@ -127,7 +128,9 @@ export function createApp(deps: AppDeps) {
     );
     return models;
   };
+  app.locals['initializeModels'] = modelRegistry;
   registerAdmin(context, service, flags, modelRegistry);
+  registerCatalogue(context, modelRegistry);
   deps.registerRoutes?.(context);
   const board = lazyBoard(service, deps.env, logger, flags);
   app.locals['closeQueues'] = () => board.close();

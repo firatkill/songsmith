@@ -163,5 +163,17 @@
   "admin.default": "Default: {value}",
   "admin.invalidJson": "Enter valid JSON.",
   "admin.on": "On",
-  "admin.off": "Off"
+  "admin.off": "Off",
+  "router.reason.cannot_generate": "This model cannot generate songs.",
+  "router.reason.cannot_instrumental": "This model cannot generate instrumental music.",
+  "router.reason.cannot_custom_lyrics": "This model cannot use your lyrics.",
+  "router.reason.cannot_extend": "This model cannot extend songs.",
+  "router.reason.cannot_stems": "This model cannot separate stems.",
+  "router.reason.cannot_image_input": "This model cannot use image input.",
+  "router.reason.language_unverified": "This language is not verified for this model.",
+  "router.reason.unavailable": "This model is temporarily unavailable.",
+  "router.reason.no_price": "No credit price is configured for this operation.",
+  "router.reason.not_source_model": "Use the model that created the source song.",
+  "router.reason.no_external_audio": "This model cannot use audio from another model.",
+  "router.reason.unknown_model": "This model is not in the catalogue."
 }
