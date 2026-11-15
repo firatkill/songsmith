@@ -62,6 +62,447 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/v1/admin/catalogue": {
+      "get": {
+        "description": "All catalogue rows with prices, languages and current usability.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "models": {
+                      "items": {
+                        "properties": {
+                          "adapter": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "type": "string"
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "isMock": {
+                            "type": "boolean"
+                          },
+                          "kind": {
+                            "enum": ["music", "text", "image", "alignment"],
+                            "type": "string"
+                          },
+                          "languages": {
+                            "items": {
+                              "properties": {
+                                "language": {
+                                  "type": "string"
+                                },
+                                "status": {
+                                  "enum": ["unverified", "beta", "verified"],
+                                  "type": "string"
+                                }
+                              },
+                              "required": ["language", "status"],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "prices": {
+                            "items": {
+                              "properties": {
+                                "credits": {
+                                  "type": "integer"
+                                },
+                                "estCostMicroUsd": {
+                                  "type": "integer"
+                                },
+                                "operation": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "operation",
+                                "credits",
+                                "estCostMicroUsd"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "qualityRank": {
+                            "type": "integer"
+                          },
+                          "usable": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "kind",
+                          "adapter",
+                          "displayName",
+                          "enabled",
+                          "qualityRank",
+                          "isMock",
+                          "usable",
+                          "prices",
+                          "languages"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": ["models"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/admin/catalogue/{id}": {
+      "patch": {
+        "description": "Enable or disable a model or change its quality rank. Audited; applies within 60 s.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-zA-Z0-9_-]{1,64}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "qualityRank": {
+                    "maximum": 1000,
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "adapter": {
+                      "type": "string"
+                    },
+                    "displayName": {
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "isMock": {
+                      "type": "boolean"
+                    },
+                    "kind": {
+                      "enum": ["music", "text", "image", "alignment"],
+                      "type": "string"
+                    },
+                    "languages": {
+                      "items": {
+                        "properties": {
+                          "language": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "enum": ["unverified", "beta", "verified"],
+                            "type": "string"
+                          }
+                        },
+                        "required": ["language", "status"],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "prices": {
+                      "items": {
+                        "properties": {
+                          "credits": {
+                            "type": "integer"
+                          },
+                          "estCostMicroUsd": {
+                            "type": "integer"
+                          },
+                          "operation": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["operation", "credits", "estCostMicroUsd"],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "qualityRank": {
+                      "type": "integer"
+                    },
+                    "usable": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "kind",
+                    "adapter",
+                    "displayName",
+                    "enabled",
+                    "qualityRank",
+                    "isMock",
+                    "usable",
+                    "prices",
+                    "languages"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/admin/flags": {
+      "get": {
+        "description": "Every registered flag with its current and default value.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "flags": {
+                      "items": {
+                        "properties": {
+                          "defaultValue": {},
+                          "description": {
+                            "type": "string"
+                          },
+                          "isDefault": {
+                            "type": "boolean"
+                          },
+                          "key": {
+                            "type": "string"
+                          },
+                          "placeholder": {
+                            "type": "boolean"
+                          },
+                          "public": {
+                            "type": "boolean"
+                          },
+                          "type": {
+                            "enum": ["boolean", "number", "json"],
+                            "type": "string"
+                          },
+                          "value": {}
+                        },
+                        "required": [
+                          "key",
+                          "description",
+                          "public",
+                          "placeholder",
+                          "type",
+                          "isDefault"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": ["flags"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/admin/flags/{key}": {
+      "put": {
+        "description": "Set a flag value. Validated against the flag registry; audited; applies within 60 s.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "value": {}
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "defaultValue": {},
+                    "description": {
+                      "type": "string"
+                    },
+                    "isDefault": {
+                      "type": "boolean"
+                    },
+                    "key": {
+                      "type": "string"
+                    },
+                    "placeholder": {
+                      "type": "boolean"
+                    },
+                    "public": {
+                      "type": "boolean"
+                    },
+                    "type": {
+                      "enum": ["boolean", "number", "json"],
+                      "type": "string"
+                    },
+                    "value": {}
+                  },
+                  "required": [
+                    "key",
+                    "description",
+                    "public",
+                    "placeholder",
+                    "type",
+                    "isDefault"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/admin/whoami": {
+      "get": {
+        "description": "Staff identity for the admin console (staff and AAL2 only).",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "roles": {
+                      "items": {
+                        "enum": ["moderator", "admin"],
+                        "type": "string"
+                      },
+                      "minItems": 1,
+                      "type": "array"
+                    },
+                    "userId": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["userId", "roles"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
     "/v1/flags/public": {
       "get": {
         "description": "Public kill-switch states only. Cached for 30 seconds.",

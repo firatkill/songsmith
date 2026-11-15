@@ -4,6 +4,316 @@
  */
 
 export interface paths {
+  '/v1/admin/catalogue': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description All catalogue rows with prices, languages and current usability. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              models: {
+                adapter: string;
+                displayName: string;
+                enabled: boolean;
+                id: string;
+                isMock: boolean;
+                /** @enum {string} */
+                kind: 'music' | 'text' | 'image' | 'alignment';
+                languages: {
+                  language: string;
+                  /** @enum {string} */
+                  status: 'unverified' | 'beta' | 'verified';
+                }[];
+                prices: {
+                  credits: number;
+                  estCostMicroUsd: number;
+                  operation: string;
+                }[];
+                qualityRank: number;
+                usable: boolean;
+              }[];
+            };
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/catalogue/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** @description Enable or disable a model or change its quality rank. Audited; applies within 60 s. */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            enabled?: boolean;
+            qualityRank?: number;
+          };
+        };
+      };
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              adapter: string;
+              displayName: string;
+              enabled: boolean;
+              id: string;
+              isMock: boolean;
+              /** @enum {string} */
+              kind: 'music' | 'text' | 'image' | 'alignment';
+              languages: {
+                language: string;
+                /** @enum {string} */
+                status: 'unverified' | 'beta' | 'verified';
+              }[];
+              prices: {
+                credits: number;
+                estCostMicroUsd: number;
+                operation: string;
+              }[];
+              qualityRank: number;
+              usable: boolean;
+            };
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    trace?: never;
+  };
+  '/v1/admin/flags': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Every registered flag with its current and default value. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              flags: {
+                defaultValue?: unknown;
+                description: string;
+                isDefault: boolean;
+                key: string;
+                placeholder: boolean;
+                public: boolean;
+                /** @enum {string} */
+                type: 'boolean' | 'number' | 'json';
+                value?: unknown;
+              }[];
+            };
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/flags/{key}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** @description Set a flag value. Validated against the flag registry; audited; applies within 60 s. */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          key: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            value?: unknown;
+          };
+        };
+      };
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              defaultValue?: unknown;
+              description: string;
+              isDefault: boolean;
+              key: string;
+              placeholder: boolean;
+              public: boolean;
+              /** @enum {string} */
+              type: 'boolean' | 'number' | 'json';
+              value?: unknown;
+            };
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/admin/whoami': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Staff identity for the admin console (staff and AAL2 only). */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              roles: ('moderator' | 'admin')[];
+              /** Format: uuid */
+              userId: string;
+            };
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/v1/flags/public': {
     parameters: {
       query?: never;
