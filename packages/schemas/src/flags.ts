@@ -179,6 +179,13 @@ export const flagRegistry = {
     'Placeholder HTTP limit for lyrics',
     true,
   ),
+  'rate_limit:songs': flag(
+    rateLimitValueSchema,
+    { max: 10, windowSeconds: 60 },
+    false,
+    'Placeholder HTTP limit for songs',
+    true,
+  ),
   'rate_limit:me_patch': flag(
     rateLimitValueSchema,
     { max: 30, windowSeconds: 60 },
