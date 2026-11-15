@@ -52,3 +52,8 @@ on conflict (id) do update set handle = excluded.handle, display_name = excluded
 insert into app.staff_roles (user_id, role)
 values ('00000000-0000-4000-8000-000000000004', 'admin')
 on conflict (user_id, role) do nothing;
+
+-- T-17: same idempotency key as the confirmation trigger; no duplicate grant.
+select app.grant_credits('00000000-0000-4000-8000-000000000004',30,
+  'signup_grant','signup','00000000-0000-4000-8000-000000000004',
+  'signup:00000000-0000-4000-8000-000000000004');
