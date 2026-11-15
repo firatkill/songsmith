@@ -814,10 +814,30 @@ export type Database = {
           user_total: string;
         }[];
       };
+      claim_lyricist_job: {
+        Args: { p_body_sha256: string; p_job_id: string };
+        Returns: Database['public']['Tables']['generation_jobs']['Row'];
+        SetofOptions: {
+          from: '*';
+          to: 'generation_jobs';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       claim_provider_probe: { Args: { provider: string }; Returns: boolean };
       cleanup_rate_limits: {
         Args: Record<PropertyKey, never>;
         Returns: number;
+      };
+      complete_lyricist_job: {
+        Args: { p_job_id: string; p_result: Json };
+        Returns: Database['public']['Tables']['generation_jobs']['Row'];
+        SetofOptions: {
+          from: '*';
+          to: 'generation_jobs';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
       };
       consume_credit_lots: {
         Args: { p_amount: number; p_user_id: string };
@@ -827,6 +847,16 @@ export type Database = {
       expire_reservations: {
         Args: Record<PropertyKey, never>;
         Returns: number;
+      };
+      fail_lyricist_job: {
+        Args: { p_error_code: string; p_job_id: string };
+        Returns: Database['public']['Tables']['generation_jobs']['Row'];
+        SetofOptions: {
+          from: '*';
+          to: 'generation_jobs';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
       };
       grant_credits: {
         Args: {

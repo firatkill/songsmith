@@ -172,6 +172,13 @@ export const flagRegistry = {
     'Placeholder HTTP limit for moderation_check',
     true,
   ),
+  'rate_limit:lyrics': flag(
+    rateLimitValueSchema,
+    { max: 20, windowSeconds: 60 },
+    false,
+    'Placeholder HTTP limit for lyrics',
+    true,
+  ),
   'rate_limit:me_patch': flag(
     rateLimitValueSchema,
     { max: 30, windowSeconds: 60 },

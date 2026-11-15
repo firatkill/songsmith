@@ -16,8 +16,18 @@ export const catalogueModelSchema = z.object({
   available: z.boolean(),
 });
 export type CatalogueModel = z.infer<typeof catalogueModelSchema>;
+// T-18: the lyricist's prices, shown before a lyric call (FR-71).
+export const catalogueLyricistSchema = z.object({
+  modelId: z.string().min(1),
+  available: z.boolean(),
+  prices: z.object({
+    lyrics: z.number().int().positive(),
+    rewrite: z.number().int().positive(),
+  }),
+});
 export const catalogueSchema = z.object({
   models: z.array(catalogueModelSchema),
+  lyricist: catalogueLyricistSchema.nullable(),
 });
 export const routerReasonCodeSchema = z.enum([
   'cannot_generate',

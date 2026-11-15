@@ -9,3 +9,4 @@ export * from './admin.js';
 export * from './catalogue.js';
 export * from './moderation.js';
 export * from './credits.js';
+export * from './lyrics.js';

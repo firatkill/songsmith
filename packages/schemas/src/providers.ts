@@ -50,30 +50,63 @@ export const providerHealthSchema = z.object({
   provider: z.string(),
   breaker_state: breakerStateSchema,
 });
+// FR-02: the six section tags the lyricist writes and the editors accept.
 export const sectionTagSchema = z.enum([
+  '[Intro]',
   '[Verse]',
+  '[Pre-Chorus]',
   '[Chorus]',
   '[Bridge]',
   '[Outro]',
 ]);
+export type SectionTag = z.infer<typeof sectionTagSchema>;
+export const lyricSectionSchema = z.strictObject({
+  tag: sectionTagSchema,
+  lines: z.array(z.string().min(1)).min(1),
+});
+export type LyricSection = z.infer<typeof lyricSectionSchema>;
 export const lyricsSchema = z.strictObject({
   title: z.string().min(1),
   language: z.enum(['tr', 'en']),
-  sections: z
-    .array(
-      z.strictObject({
-        tag: sectionTagSchema,
-        lines: z.array(z.string().min(1)).min(1),
-      }),
-    )
-    .min(1),
+  sections: z.array(lyricSectionSchema).min(1),
   suggestedStyle: z.string().min(1),
 });
-export const mockLyricRequestSchema = z.strictObject({
-  language: z.enum(['tr', 'en']),
-  description: z.string(),
-  occasion: z.enum(['birthday', 'anniversary', 'general']).default('general'),
-  giftNames: z.array(z.string().min(1)).default([]),
+export const lyricLanguageSchema = z.enum(['tr', 'en']);
+export type LyricLanguage = z.infer<typeof lyricLanguageSchema>;
+export const occasionSchema = z.enum(['birthday', 'anniversary', 'general']);
+// The data block the lyricist sends to the text model (T-18). The mock text
+// adapter reads the same shape, so real prompts work against the mock.
+export const lyricistDataSchema = z.discriminatedUnion('task', [
+  z.strictObject({
+    task: z.literal('write'),
+    language: lyricLanguageSchema,
+    description: z.string(),
+    style: z.string().optional(),
+    occasion: occasionSchema.default('general'),
+    giftNames: z.array(z.string().min(1)).default([]),
+  }),
+  z.strictObject({
+    task: z.literal('rewrite'),
+    language: lyricLanguageSchema,
+    sections: z.array(lyricSectionSchema).min(1),
+    index: z.number().int().nonnegative(),
+    instruction: z.string().optional(),
+  }),
+]);
+export type LyricistData = z.infer<typeof lyricistDataSchema>;
+// Starts the repair note the lyricist appends after an invalid answer.
+export const LYRICIST_REPAIR_PREFIX = 'Your previous answer was invalid:';
+// Model output before validation: tags are checked by the lyricist so an
+// invalid tag leads to the repair attempt instead of a provider error.
+export const rawSectionSchema = z.strictObject({
+  tag: z.string().min(1).max(40),
+  lines: z.array(z.string().min(1).max(400)).min(1).max(80),
+});
+export const rawLyricsSchema = z.strictObject({
+  title: z.string().min(1).max(200),
+  language: z.string().min(1).max(16),
+  sections: z.array(rawSectionSchema).min(1).max(30),
+  suggestedStyle: z.string().min(1).max(400),
 });
 export const moderationActionSchema = z.enum([
   'allow',
