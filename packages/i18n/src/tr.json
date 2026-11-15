@@ -121,5 +121,11 @@
   "ui.privacy": "Gizlilik bildirimi",
   "ui.ai_disclosure": "Yapay zekâ veri kullanımı",
   "ui.marketing": "Pazarlama e-postaları",
-  "ui.analytics": "Zorunlu olmayan analizler"
+  "ui.analytics": "Zorunlu olmayan analizler",
+  "mockLyrics.birthday": "Doğum günü şarkısı",
+  "mockLyrics.anniversary": "Yıl dönümümüz",
+  "mockLyrics.general": "Bizim şarkımız",
+  "mockLyrics.style": "Sıcak akustik pop",
+  "mockLyrics.verse": "{names}, {keywords} için söylüyoruz",
+  "mockLyrics.chorus": "{title}, {names} ile birlikte"
 }
