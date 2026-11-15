@@ -7,6 +7,8 @@ const schema = z
   .object({
     APP_ENV: z.enum(['local', 'ci', 'production']).default('local'),
     PROVIDER_MODE: z.enum(['mock', 'live']).default('mock'),
+    MOCK_LATENCY_MS: z.coerce.number().int().min(0).max(300000).default(3000),
+    MOCK_FAILURE_RATE: z.coerce.number().min(0).max(1).default(0),
     ALLOW_MOCK_IN_PRODUCTION: flag,
     ALLOW_LIVE_PROVIDERS: flag,
     SUPABASE_URL: z.url(),

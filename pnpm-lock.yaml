@@ -41,6 +41,9 @@ importers:
       '@asteasolutions/zod-to-openapi':
         specifier: 9.1.0
         version: 9.1.0(zod@4.6.7)
+      '@breezystack/lamejs':
+        specifier: 1.2.7
+        version: 1.2.7
       '@bull-board/api':
         specifier: 9.13.0
         version: 9.13.0(@bull-board/ui@9.13.0(bullmq@6.7.4(ioredis@6.0.0))(typescript@6.0.3))(bullmq@6.7.4(ioredis@6.0.0))(typescript@6.0.3)
@@ -77,6 +80,9 @@ importers:
       pino:
         specifier: 10.4.0
         version: 10.4.0
+      pngjs:
+        specifier: 7.0.0
+        version: 7.0.0
       zod:
         specifier: 4.6.7
         version: 4.6.7
@@ -87,6 +93,9 @@ importers:
       '@types/express':
         specifier: 5.0.6
         version: 5.0.6
+      '@types/pngjs':
+        specifier: 6.0.5
+        version: 6.0.5
       tsx:
         specifier: 4.23.15
         version: 4.23.15
@@ -675,6 +684,9 @@ packages:
   '@babel/types@7.29.11':
     resolution: {integrity: sha512-WCsemW40Cpc6gouC1SrY6PBaZ+oLRlEVY9XBvZBI7il/HyUrb2nJ505wE1MHEFyDZNnrWDEuy4jL50WVHfTTSQ==}
     engines: {node: '>=6.9.0'}
+
+  '@breezystack/lamejs@1.2.7':
+    resolution: {integrity: sha512-6wc7ck65ctA75Hq7FYHTtTvGnYs6msgdxiSUICQ+A01nVOWg6rqouZB8IdyteRlfpYYiFovkf67dIeOgWIUzTA==}
 
   '@bull-board/api@9.13.0':
     resolution: {integrity: sha512-iUy2x5/oYuxWDtjw1LWH2y8aSTGR8+Iv9axVJSw8ypWr0yujrP/bF+2BmGbHRqpeE8cOCBbxU6TBGrBbJMVDoQ==}
@@ -2230,6 +2242,9 @@ packages:
 
   '@types/node@24.19.2':
     resolution: {integrity: sha512-93d49wCWJkCyN87MxLpNN6KXPCwFw7bVUg79mGUV1OS40JGWwVCr8n61DXCSqz7CV6/VfPkb7xec7uP2M+QHWQ==}
+
+  '@types/pngjs@6.0.5':
+    resolution: {integrity: sha512-0k5eKfrA83JOZPppLtS2C7OUtyNAl2wKNxfyYl9Q5g9lPkgBl/9hNyAu6HuEH2J4XmIv2znEpkDd0SaZVxW6iQ==}
 
   '@types/qs@6.15.1':
     resolution: {integrity: sha512-GZHUBZR9hckSUhrxmp1nG6NwdpM9fCunJwyThLW1X3AyHgd9IlHb6VANpQQqDr2o/qQp6McZ3y/IA2rVzKzSbw==}
@@ -4379,6 +4394,10 @@ packages:
     resolution: {integrity: sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==}
     engines: {node: '>=4.0.0'}
 
+  pngjs@7.0.0:
+    resolution: {integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow==}
+    engines: {node: '>=14.19.0'}
+
   postcss@8.5.23:
     resolution: {integrity: sha512-g50586zr4bZmwFiTlflMu8E0bDTb5I5gertgwAKmsdUlTQIhZtunzUlD1WSzwcVWPoAVpsrA6vlfCD7oXvRwgg==}
     engines: {node: ^10 || ^12 || >=14}
@@ -5893,6 +5912,8 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.29.13
       '@babel/helper-validator-identifier': 7.29.7
+
+  '@breezystack/lamejs@1.2.7': {}
 
   '@bull-board/api@9.13.0(@bull-board/ui@9.13.0(bullmq@6.7.4(ioredis@6.0.0))(typescript@6.0.3))(bullmq@6.7.4(ioredis@6.0.0))(typescript@6.0.3)':
     dependencies:
@@ -7437,6 +7458,10 @@ snapshots:
   '@types/node@24.19.2':
     dependencies:
       undici-types: 7.24.6
+
+  '@types/pngjs@6.0.5':
+    dependencies:
+      '@types/node': 24.19.2
 
   '@types/qs@6.15.1': {}
 
@@ -9992,6 +10017,8 @@ snapshots:
   pluralize@8.0.0: {}
 
   pngjs@3.4.0: {}
+
+  pngjs@7.0.0: {}
 
   postcss@8.5.23:
     dependencies:

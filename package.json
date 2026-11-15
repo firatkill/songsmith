@@ -32,7 +32,7 @@
     "eval:lyricist": "node scripts/not-implemented.mjs eval:lyricist T-16",
     "eval:language": "node scripts/not-implemented.mjs eval:language T-46",
     "openapi": "pnpm --filter @songsmith/schemas build && pnpm --filter @songsmith/i18n build && pnpm --filter @songsmith/backend openapi && pnpm --filter @songsmith/api-client generate && prettier --write backend/openapi.json packages/api-client/src/generated/schema.ts",
-    "fixtures:audio": "node scripts/not-implemented.mjs fixtures:audio T-11",
+    "fixtures:audio": "pnpm --filter @songsmith/backend exec tsx scripts/fixtures-audio.ts",
     "build": "turbo run build",
     "check:exports": "node scripts/check-exports.mjs",
     "check:boundaries": "node scripts/check-boundaries.mjs",

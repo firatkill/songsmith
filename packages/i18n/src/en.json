@@ -121,5 +121,11 @@
   "ui.privacy": "Privacy notice",
   "ui.ai_disclosure": "AI data use",
   "ui.marketing": "Marketing emails",
-  "ui.analytics": "Non-essential analytics"
+  "ui.analytics": "Non-essential analytics",
+  "mockLyrics.birthday": "A birthday song",
+  "mockLyrics.anniversary": "Our anniversary",
+  "mockLyrics.general": "Our song",
+  "mockLyrics.style": "Warm acoustic pop",
+  "mockLyrics.verse": "{names}, we sing of {keywords}",
+  "mockLyrics.chorus": "{title}, together with {names}"
 }
