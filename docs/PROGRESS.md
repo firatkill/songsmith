@@ -26,6 +26,8 @@ Updated: 2026-11-15.
 
 - T-13 done (PR #16): pure router (UT-20..UT-29) with TR/EN exclusion reasons, shared catalogue schemas, public `GET /v1/catalogue` with fresh availability and shared admin invalidation, generated API client, IT-31 and E2E-04 extended to the public endpoint. Decisions D-74–D-78.
 
+- T-14 doing: pure deterministic library complete (UT-30–UT-36), hashed TR/EN seed data, artist/context lists, pure SHA-256 and stdin hash utility. Local install, format, lint, build, boundaries, exports, typecheck and tests pass; reviewer/CI pending. Decisions D-79–D-84. No T-15 work; moderation evaluation remains the T-16 stub.
+
 ## Tasks
 
 A finishing commit is recorded only when acceptance checks, including CI, pass.
@@ -45,7 +47,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-11 | Mock providers, registry and contract tests      | done   | 5571840          |
 | T-12 | Admin skeleton                                   | done   | 5e6d9ef          |
 | T-13 | Router and catalogue endpoint                    | done   | f8df1d8          |
-| T-14 | Deterministic moderation layer                   | todo   |                  |
+| T-14 | Deterministic moderation layer                   | doing  |                  |
 | T-15 | Moderation pipeline                              | todo   |                  |
 | T-16 | Golden sets and evaluation harness               | todo   |                  |
 | T-17 | Ledger core                                      | todo   |                  |
