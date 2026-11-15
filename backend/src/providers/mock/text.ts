@@ -1,5 +1,6 @@
 import {
   classifierOutputSchema,
+  tierOf,
   lyricsSchema,
   mockLyricRequestSchema,
 } from '@songsmith/schemas';
@@ -12,7 +13,7 @@ export const TEXT_COST_MICRO_USD = 1000;
 // The requested output schema selects the mock role, so real prompts work unchanged.
 // Callers run moderate() first (T-15/T-18); this adapter is never a moderation entry point.
 const classifierProbe = {
-  category: 'allow',
+  category: 'none',
   severity: 'none',
   evidence: [],
   confidence: 0.1,
@@ -25,18 +26,24 @@ export function createText(runtime: MockRuntime): TextAdapter {
         if (!Number.isSafeInteger(req.maxTokens) || req.maxTokens <= 0)
           throw new ProviderError('invalid_request', false);
         await simulate(runtime, req.user, ctx.signal);
+        if (
+          runtime.mode === 'mock' &&
+          req.user.includes('⟦mock:fail:invalid_json⟧')
+        ) {
+          JSON.parse('{');
+        }
         let value: unknown;
         if (req.schema.safeParse(classifierProbe).success) {
           const marker = categoryTrigger(req.user, runtime.mode);
-          const category = marker ?? 'allow';
+          const category = marker ?? 'none';
           value = classifierOutputSchema.parse({
             category,
             severity:
-              category === 'hard_block'
+              tierOf(category) === 'hard_block'
                 ? 'critical'
-                : category === 'block'
+                : tierOf(category) === 'block'
                   ? 'high'
-                  : category === 'allow_explicit'
+                  : category === 'explicit'
                     ? 'low'
                     : 'none',
             evidence: [],

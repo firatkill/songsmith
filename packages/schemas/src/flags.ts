@@ -158,6 +158,13 @@ export const flagRegistry = {
     true,
     'Disable video',
   ),
+  'rate_limit:moderation_check': flag(
+    rateLimitValueSchema,
+    { max: 30, windowSeconds: 60 },
+    false,
+    'Placeholder HTTP limit for moderation_check',
+    true,
+  ),
   'rate_limit:me_patch': flag(
     rateLimitValueSchema,
     { max: 30, windowSeconds: 60 },

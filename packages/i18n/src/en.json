@@ -175,5 +175,16 @@
   "router.reason.no_price": "No credit price is configured for this operation.",
   "router.reason.not_source_model": "Use the model that created the source song.",
   "router.reason.no_external_audio": "This model cannot use audio from another model.",
-  "router.reason.unknown_model": "This model is not in the catalogue."
+  "router.reason.unknown_model": "This model is not in the catalogue.",
+  "errors.ACCOUNT_RESTRICTED": "Your account is temporarily restricted.",
+  "moderation.hardBlocked": "This request cannot be processed.",
+  "moderation.blocked.sexual_explicit": "Please remove explicit sexual content.",
+  "moderation.blocked.hate": "Please remove hateful content.",
+  "moderation.blocked.harassment": "Please remove harassment.",
+  "moderation.blocked.self_harm": "Please remove encouragement of self-harm.",
+  "moderation.blocked.serious_crime": "Please remove instructions for serious crimes.",
+  "moderation.blocked.artist_impersonation": "Please describe a musical style without impersonating an artist.",
+  "moderation.blocked.copyrighted_lyrics": "Please use original lyrics.",
+  "moderation.blocked.spam": "Please remove spam.",
+  "moderation.blocked.classifier_error": "We could not check this request. Please try again."
 }

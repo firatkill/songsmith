@@ -179,18 +179,18 @@ describe('audio fixtures', () => {
 describe('mock text', () => {
   const text = (): TextAdapter => createText(runtime());
 
-  it('classifier returns the marker category, else allow with low confidence', async () => {
+  it('classifier returns the marker category, else none with low confidence', async () => {
     const marked = await text().completeJson(
       {
         system: 'any real classifier prompt',
-        user: 'test row ⟦mock:hard_block⟧',
+        user: 'test row ⟦mock:minor_sexual⟧',
         schema: classifierOutputSchema,
         maxTokens: 100,
       },
       context(),
     );
     expect(marked.value).toMatchObject({
-      category: 'hard_block',
+      category: 'minor_sexual',
       severity: 'critical',
       confidence: 1,
     });
@@ -203,7 +203,7 @@ describe('mock text', () => {
       },
       context(),
     );
-    expect(plain.value).toMatchObject({ category: 'allow' });
+    expect(plain.value).toMatchObject({ category: 'none' });
     expect(plain.value.confidence).toBeLessThan(0.5);
   });
 

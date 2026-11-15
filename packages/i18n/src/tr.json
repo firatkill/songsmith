@@ -175,5 +175,16 @@
   "router.reason.no_price": "Bu işlem için kredi fiyatı belirlenmedi.",
   "router.reason.not_source_model": "Kaynak şarkıyı oluşturan modeli kullanın.",
   "router.reason.no_external_audio": "Bu model başka bir modelin sesini kullanamaz.",
-  "router.reason.unknown_model": "Bu model katalogda bulunmuyor."
+  "router.reason.unknown_model": "Bu model katalogda bulunmuyor.",
+  "errors.ACCOUNT_RESTRICTED": "Hesabınız geçici olarak kısıtlandı.",
+  "moderation.hardBlocked": "Bu istek işlenemiyor.",
+  "moderation.blocked.sexual_explicit": "Lütfen açık cinsel içeriği kaldırın.",
+  "moderation.blocked.hate": "Lütfen nefret içeriğini kaldırın.",
+  "moderation.blocked.harassment": "Lütfen taciz içeriğini kaldırın.",
+  "moderation.blocked.self_harm": "Lütfen kendine zarar vermeye teşvik eden içeriği kaldırın.",
+  "moderation.blocked.serious_crime": "Lütfen ağır suçlara yönelik talimatları kaldırın.",
+  "moderation.blocked.artist_impersonation": "Lütfen bir sanatçıyı taklit etmeden müzik tarzını tarif edin.",
+  "moderation.blocked.copyrighted_lyrics": "Lütfen özgün şarkı sözleri kullanın.",
+  "moderation.blocked.spam": "Lütfen spam içeriğini kaldırın.",
+  "moderation.blocked.classifier_error": "Bu istek kontrol edilemedi. Lütfen tekrar deneyin."
 }
