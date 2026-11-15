@@ -32,7 +32,7 @@
     "eval:moderation": "pnpm --filter @songsmith/eval... build && pnpm --filter @songsmith/eval run eval moderation",
     "eval:lyricist": "pnpm --filter @songsmith/eval... build && pnpm --filter @songsmith/eval run eval lyricist",
     "eval:language": "node scripts/not-implemented.mjs eval:language T-46",
-    "eval:golden": "pnpm --filter @songsmith/eval run golden && prettier --check eval",
+    "eval:golden": "pnpm --filter @songsmith/eval... build && pnpm --filter @songsmith/eval run golden && prettier --check eval",
     "openapi": "pnpm --filter @songsmith/schemas build && pnpm --filter @songsmith/i18n build && pnpm --filter @songsmith/backend openapi && pnpm --filter @songsmith/api-client generate && prettier --write backend/openapi.json packages/api-client/src/generated/schema.ts",
     "fixtures:audio": "pnpm --filter @songsmith/backend exec tsx scripts/fixtures-audio.ts",
     "build": "turbo run build",
