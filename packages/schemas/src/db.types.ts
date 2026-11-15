@@ -433,8 +433,11 @@ export type Database = {
       provider_health: {
         Row: {
           breaker_state: string;
+          consecutive_timeouts: number;
           created_at: string;
           failure_count: number;
+          failure_times: string[];
+          half_open_at: string | null;
           id: string;
           opened_at: string | null;
           provider: string;
@@ -444,8 +447,11 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           breaker_state?: string;
+          consecutive_timeouts?: number;
           created_at?: string;
           failure_count?: number;
+          failure_times?: string[];
+          half_open_at?: string | null;
           id?: string;
           opened_at?: string | null;
           provider: string;
@@ -454,8 +460,11 @@ export type Database = {
         };
         Update: {
           breaker_state?: string;
+          consecutive_timeouts?: number;
           created_at?: string;
           failure_count?: number;
+          failure_times?: string[];
+          half_open_at?: string | null;
           id?: string;
           opened_at?: string | null;
           provider?: string;
@@ -599,6 +608,7 @@ export type Database = {
           user_total: string;
         }[];
       };
+      claim_provider_probe: { Args: { provider: string }; Returns: boolean };
       cleanup_rate_limits: {
         Args: Record<PropertyKey, never>;
         Returns: number;
@@ -622,6 +632,10 @@ export type Database = {
         Returns: undefined;
       };
       record_job_recovery: { Args: { job_id: string }; Returns: number };
+      record_provider_result: {
+        Args: { kind: string; ok: boolean; provider: string };
+        Returns: undefined;
+      };
       save_job_step: {
         Args: { job_id: string; step: string; value: Json };
         Returns: undefined;
