@@ -21,6 +21,7 @@ import { AppError } from '../lib/errors.js';
 import { requestContext } from '../lib/correlation.js';
 import type { createRegistry } from '../models/registry.js';
 import { ProviderError } from '../providers/errors.js';
+import type { TextAdapter } from '../providers/types.js';
 import { buildPolicyPrompt, POLICY_VERSION } from './prompt.js';
 export { POLICY_VERSION } from './prompt.js';
 export const CACHE_MS = 600_000;
@@ -65,6 +66,50 @@ export function combineDecision(
     severity: classifier.severity,
     lowConfidence: action === 'hard_block' && classifier.confidence < 0.8,
   };
+}
+export type ClassifierOutput = z.infer<typeof classifierOutputSchema>;
+// Layers 1 and 2 without persistence; shared by moderate() and the eval harness.
+export async function runLayers(input: {
+  text: string;
+  classifier: TextAdapter | undefined;
+  userId: string;
+  correlationId: string;
+  onCost?: (costMicroUsd: number | null) => void;
+}) {
+  const layer1 = checkDeterministic(input.text);
+  let classifier: ClassifierOutput | undefined;
+  if (layer1.action === 'pass' && input.classifier) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const prompt = buildPolicyPrompt(input.text);
+        const result = await input.classifier.completeJson(
+          {
+            system: prompt.system,
+            user: prompt.user,
+            schema: classifierOutputSchema,
+            maxTokens: 1024,
+          },
+          {
+            userId: input.userId,
+            jobId: randomUUID(),
+            correlationId: input.correlationId,
+            signal: AbortSignal.timeout(30_000),
+          },
+        );
+        input.onCost?.(result.costMicroUsd);
+        classifier = classifierOutputSchema.parse(result.value);
+        break;
+      } catch (error) {
+        if (!(
+          error instanceof ProviderError ||
+          error instanceof z.ZodError ||
+          error instanceof SyntaxError
+        ))
+          throw error; // The error middleware maps unknown errors to INTERNAL.
+      }
+    }
+  }
+  return { layer1, classifier, combined: combineDecision(layer1, classifier) };
 }
 // Reusable by generation endpoints when they arrive. Expiry is evaluated in SQL.
 export async function requireModerationAccount(
@@ -124,51 +169,27 @@ export function createModeration(deps: {
         cached: true,
       };
     const text = combineParts(parts);
-    const layer1 = checkDeterministic(text);
-    let classifier: z.infer<typeof classifierOutputSchema> | undefined;
     let modelId: string | null = null;
-    if (layer1.action === 'pass') {
+    let adapter: TextAdapter | undefined;
+    if (checkDeterministic(text).action === 'pass') {
       const registry = await deps.models();
       const model = (await registry.usableModels())
         .filter((m) => m.kind === 'text')
         .sort(
           (a, b) => b.quality_rank - a.quality_rank || a.id.localeCompare(b.id),
         )[0];
-      const adapter = model ? registry.adapter(model.adapter) : undefined;
-      if (model && adapter && 'completeJson' in adapter) {
+      const candidate = model ? registry.adapter(model.adapter) : undefined;
+      if (model && candidate && 'completeJson' in candidate) {
         modelId = model.id;
-        for (let attempt = 0; attempt < 2; attempt++) {
-          try {
-            const prompt = buildPolicyPrompt(text);
-            const result = await adapter.completeJson(
-              {
-                system: prompt.system,
-                user: prompt.user,
-                schema: classifierOutputSchema,
-                maxTokens: 1024,
-              },
-              {
-                userId,
-                jobId: randomUUID(),
-                correlationId:
-                  requestContext.getStore()?.correlationId ?? randomUUID(),
-                signal: AbortSignal.timeout(30_000),
-              },
-            );
-            classifier = classifierOutputSchema.parse(result.value);
-            break;
-          } catch (error) {
-            if (!(
-              error instanceof ProviderError ||
-              error instanceof z.ZodError ||
-              error instanceof SyntaxError
-            ))
-              throw new AppError('INTERNAL');
-          }
-        }
+        adapter = candidate;
       }
     }
-    const combined = combineDecision(layer1, classifier);
+    const { layer1, classifier, combined } = await runLayers({
+      text,
+      classifier: adapter,
+      userId,
+      correlationId: requestContext.getStore()?.correlationId ?? randomUUID(),
+    });
     const latencyMs = Math.max(0, Math.round(now() - start));
     const flags = await deps.flags.getFlags();
     const storeEvidence =
