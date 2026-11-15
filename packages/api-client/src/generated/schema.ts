@@ -314,6 +314,94 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/v1/catalogue': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Enabled music models with capabilities, credit prices, language statuses and current availability. */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            'Cache-Control'?: 'public, max-age=30';
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              models: {
+                available: boolean;
+                capabilities: {
+                  acceptsExternalAudio: boolean;
+                  controls: {
+                    bpm: boolean;
+                    lengthControl: boolean;
+                    vocalType: boolean;
+                  };
+                  maxDurationSec: number;
+                  minDurationSec: number;
+                  operations: (
+                    | 'generate'
+                    | 'instrumental'
+                    | 'custom_lyrics'
+                    | 'extend'
+                    | 'stems'
+                    | 'image_input'
+                  )[];
+                  outputFormats: ('mp3' | 'wav')[];
+                  returnsLyrics: boolean;
+                  /** @enum {string} */
+                  returnsTimestamps: 'none' | 'line' | 'word';
+                  stemSets: string[];
+                  watermark: ('synthid' | 'c2pa' | 'none')[];
+                };
+                displayName: string;
+                id: string;
+                languages: {
+                  [key: string]: 'unverified' | 'beta' | 'verified';
+                };
+                prices: {
+                  custom_lyrics?: number;
+                  extend?: number;
+                  generate?: number;
+                  image_input?: number;
+                  instrumental?: number;
+                  stems?: number;
+                };
+                qualityRank: number;
+              }[];
+            };
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/v1/flags/public': {
     parameters: {
       query?: never;

@@ -503,6 +503,204 @@
         "x-auth-mode": "required"
       }
     },
+    "/v1/catalogue": {
+      "get": {
+        "description": "Enabled music models with capabilities, credit prices, language statuses and current availability.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "models": {
+                      "items": {
+                        "properties": {
+                          "available": {
+                            "type": "boolean"
+                          },
+                          "capabilities": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "acceptsExternalAudio": {
+                                "type": "boolean"
+                              },
+                              "controls": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "bpm": {
+                                    "type": "boolean"
+                                  },
+                                  "lengthControl": {
+                                    "type": "boolean"
+                                  },
+                                  "vocalType": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "bpm",
+                                  "lengthControl",
+                                  "vocalType"
+                                ],
+                                "type": "object"
+                              },
+                              "maxDurationSec": {
+                                "exclusiveMinimum": 0,
+                                "type": "integer"
+                              },
+                              "minDurationSec": {
+                                "exclusiveMinimum": 0,
+                                "type": "integer"
+                              },
+                              "operations": {
+                                "items": {
+                                  "enum": [
+                                    "generate",
+                                    "instrumental",
+                                    "custom_lyrics",
+                                    "extend",
+                                    "stems",
+                                    "image_input"
+                                  ],
+                                  "type": "string"
+                                },
+                                "minItems": 1,
+                                "type": "array"
+                              },
+                              "outputFormats": {
+                                "items": {
+                                  "enum": ["mp3", "wav"],
+                                  "type": "string"
+                                },
+                                "minItems": 1,
+                                "type": "array"
+                              },
+                              "returnsLyrics": {
+                                "type": "boolean"
+                              },
+                              "returnsTimestamps": {
+                                "enum": ["none", "line", "word"],
+                                "type": "string"
+                              },
+                              "stemSets": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "watermark": {
+                                "items": {
+                                  "enum": ["synthid", "c2pa", "none"],
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              }
+                            },
+                            "required": [
+                              "operations",
+                              "maxDurationSec",
+                              "minDurationSec",
+                              "outputFormats",
+                              "controls",
+                              "returnsTimestamps",
+                              "returnsLyrics",
+                              "acceptsExternalAudio",
+                              "stemSets",
+                              "watermark"
+                            ],
+                            "type": "object"
+                          },
+                          "displayName": {
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "id": {
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "languages": {
+                            "additionalProperties": {
+                              "enum": ["unverified", "beta", "verified"],
+                              "type": "string"
+                            },
+                            "type": "object"
+                          },
+                          "prices": {
+                            "properties": {
+                              "custom_lyrics": {
+                                "minimum": 0,
+                                "type": "integer"
+                              },
+                              "extend": {
+                                "minimum": 0,
+                                "type": "integer"
+                              },
+                              "generate": {
+                                "minimum": 0,
+                                "type": "integer"
+                              },
+                              "image_input": {
+                                "minimum": 0,
+                                "type": "integer"
+                              },
+                              "instrumental": {
+                                "minimum": 0,
+                                "type": "integer"
+                              },
+                              "stems": {
+                                "minimum": 0,
+                                "type": "integer"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "qualityRank": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "displayName",
+                          "qualityRank",
+                          "capabilities",
+                          "prices",
+                          "languages",
+                          "available"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": ["models"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "enum": ["public, max-age=30"],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "public"
+      }
+    },
     "/v1/flags/public": {
       "get": {
         "description": "Public kill-switch states only. Cached for 30 seconds.",

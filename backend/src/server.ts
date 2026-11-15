@@ -4,6 +4,7 @@ import { createLogger } from './lib/log.js';
 const env = loadEnv(process.env);
 const logger = createLogger(env.LOG_LEVEL);
 const app = createApp({ env, logger });
+await (app.locals['initializeModels'] as () => Promise<unknown>)();
 const server = app.listen(env.API_PORT, () => {
   logger.info(
     { port: env.API_PORT, env: env.APP_ENV, providerMode: env.PROVIDER_MODE },

@@ -1,8 +1,11 @@
 import { isDeepStrictEqual } from 'node:util';
 import { z } from 'zod';
 import {
-  catalogueRowSchema,
+  registryCatalogueRowSchema,
+  catalogueModelSchema,
+  type CatalogueModel,
   musicCapabilitiesSchema,
+  operationSchema,
   emptyCapabilitiesSchema,
   providerHealthSchema,
 } from '@songsmith/schemas';
@@ -40,14 +43,16 @@ export async function createRegistry(
     load: async (signal) => {
       const result = await service()
         .from('models')
-        .select('id,adapter,kind,enabled,capabilities')
+        .select(
+          'id,adapter,kind,enabled,capabilities,display_name,quality_rank,model_prices(operation,credits),model_languages(language,status)',
+        )
         .abortSignal(signal);
       if (result.error) throw new Error('Catalogue unavailable');
       return result.data;
     },
     health: () => createBreakers(service).states(),
   });
-  await registry.usableModels(); // Explicit startup check; owning tasks wire startup.
+  await registry.usableModels(); // Validate capabilities before serving the registry.
   return registry;
 }
 export function createRegistryCache(options: {
@@ -60,7 +65,7 @@ export function createRegistryCache(options: {
 }) {
   const now = options.now ?? Date.now;
   let expires = -Infinity;
-  let rows: z.infer<typeof catalogueRowSchema>[] = [];
+  let rows: z.infer<typeof registryCatalogueRowSchema>[] = [];
   let inFlight: Promise<void> | undefined;
   async function refresh() {
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -75,7 +80,7 @@ export function createRegistryCache(options: {
           }, 2000);
         }),
       ]);
-      const next = z.array(catalogueRowSchema).parse(raw);
+      const next = z.array(registryCatalogueRowSchema).parse(raw);
       rows = next.filter((row) => {
         if (!row.enabled) return false;
         const factory = options.factories.get(row.adapter);
@@ -124,8 +129,34 @@ export function createRegistryCache(options: {
       clearTimeout(timer);
     }
   }
+  async function availableRows(operation?: string) {
+    if (now() >= expires) {
+      inFlight ??= refresh().finally(() => {
+        inFlight = undefined;
+      });
+      await inFlight;
+    }
+    const snapshot = rows;
+    // Health is intentionally fresh: an opened breaker takes effect immediately.
+    const health = z.array(providerHealthSchema).parse(await options.health());
+    const open = new Set(
+      health
+        .filter((row) => row.breaker_state === 'open')
+        .map((row) => row.provider),
+    );
+    const usable = await Promise.all(
+      snapshot.map(
+        async (row) =>
+          !open.has(row.adapter) &&
+          !(await options.flags.killSwitch({
+            provider: row.adapter,
+            ...(operation ? { operation } : {}),
+          })),
+      ),
+    );
+    return snapshot.map((row, i) => ({ row, available: usable[i] === true }));
+  }
   return {
-    // Admin catalogue writes call this so this process sees the change at once.
     invalidate() {
       expires = -Infinity;
     },
@@ -133,32 +164,37 @@ export function createRegistryCache(options: {
       return options.factories.get(id)?.();
     },
     async usableModels(operation?: string) {
-      if (now() >= expires) {
-        inFlight ??= refresh().finally(() => {
-          inFlight = undefined;
-        });
-        await inFlight;
-      }
-      // Health is intentionally fresh: an opened breaker takes effect immediately.
-      const health = z
-        .array(providerHealthSchema)
-        .parse(await options.health());
-      const open = new Set(
-        health
-          .filter((row) => row.breaker_state === 'open')
-          .map((row) => row.provider),
+      return structuredClone(
+        (await availableRows(operation))
+          .filter(({ available }) => available)
+          .map(({ row }) => row),
       );
-      const usable = await Promise.all(
-        rows.map(
-          async (row) =>
-            !open.has(row.adapter) &&
-            !(await options.flags.killSwitch({
-              provider: row.adapter,
-              ...(operation ? { operation } : {}),
-            })),
-        ),
-      );
-      return structuredClone(rows.filter((_row, i) => usable[i]));
+    },
+    async catalogue(operation?: string): Promise<CatalogueModel[]> {
+      return (await availableRows(operation))
+        .filter(({ row }) => row.kind === 'music')
+        .map(({ row, available }) =>
+          catalogueModelSchema.parse({
+            id: row.id,
+            displayName: row.display_name,
+            qualityRank: row.quality_rank,
+            capabilities: row.capabilities,
+            prices: Object.fromEntries(
+              row.model_prices
+                .filter(
+                  (price) => operationSchema.safeParse(price.operation).success,
+                )
+                .map((price) => [price.operation, price.credits]),
+            ),
+            languages: Object.fromEntries(
+              row.model_languages.map((language) => [
+                language.language,
+                language.status,
+              ]),
+            ),
+            available,
+          }),
+        );
     },
   };
 }
