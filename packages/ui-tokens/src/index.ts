@@ -2,11 +2,15 @@
 export const tokens = {
   colors: {
     light: {
-      background: '#FFFFFF',
+      background: '#FAFAF7',
+      canvas: '#FAFAF7',
+      ink: '#111111',
+      fieldBorder: '#DADAD4',
+      hairline: '#ECECE6',
       surface: '#FFFFFF',
       surfaceAccent: '#FFE45C',
       text: '#111111',
-      muted: '#444444',
+      muted: '#55554F',
       disabled: '#E5E5E5',
       onDisabled: '#444444',
       border: '#111111',
@@ -28,6 +32,10 @@ export const tokens = {
     },
     dark: {
       background: '#111111',
+      canvas: '#111111',
+      ink: '#111111',
+      fieldBorder: '#3A3A37',
+      hairline: '#2A2A28',
       surface: '#1C1C1C',
       surfaceAccent: '#FFE45C',
       text: '#FFFFFF',
@@ -53,11 +61,34 @@ export const tokens = {
     },
   },
   fontFamily: { display: 'Bricolage Grotesque', body: 'Inter' },
-  fontWeight: { body: 400, medium: 500, display: 800 },
+  fontWeight: { body: 400, medium: 500, label: 600, display: 800 },
   lineHeight: { body: 1.6, heading: 1.1 },
-  spacing: { none: 0, xs: 4, sm: 8, md: 16, lg: 24, xl: 32, xxl: 48, hero: 80 },
-  radii: { none: 0, sm: 4, control: 10, card: 14, pill: 999 },
+  spacing: {
+    none: 0,
+    xs: 4,
+    sm: 8,
+    compact: 12,
+    md: 16,
+    screen: 20,
+    lg: 24,
+    xl: 32,
+    xxl: 48,
+    hero: 80,
+  },
+  radii: {
+    none: 0,
+    sm: 4,
+    control: 12,
+    field: 12,
+    button: 14,
+    card: 16,
+    pill: 999,
+  },
   typeScale: {
+    caption: 13,
+    overline: 12,
+    screenTitle: 32,
+    sectionTitle: 20,
     sm: 14,
     body: 16,
     lead: 20,
@@ -66,7 +97,7 @@ export const tokens = {
     display: 72,
   },
   borderWidth: { default: 2, focus: 3 },
-  shadow: { offsetX: 4, offsetY: 4, blur: 0, spread: 0 },
+  shadow: { offsetX: 3, offsetY: 3, blur: 0, spread: 0 },
 } as const;
 export type ThemeMode = keyof typeof tokens.colors;
 export function createTheme(mode: ThemeMode) {
@@ -120,6 +151,20 @@ export const contrastPairs: readonly {
   minimum: number;
   use: string;
 }[] = [
+  ...(['text', 'muted', 'danger'] as const).flatMap((foreground) =>
+    (['canvas', 'surface'] as const).map((background) => ({
+      foreground,
+      background,
+      minimum: 4.5,
+      use: 'Auth text and validation',
+    })),
+  ),
+  {
+    foreground: 'surfaceAccent',
+    background: 'ink',
+    minimum: 4.5,
+    use: 'Selected segment',
+  },
   {
     foreground: 'onDisabled',
     background: 'disabled',
@@ -231,3 +276,18 @@ export const contrastPairs: readonly {
     use: 'Yellow card UI outline',
   })),
 ];
+
+export type Appearance = 'system' | ThemeMode;
+export function parseAppearance(value: unknown): Appearance {
+  return value === 'light' || value === 'dark' ? value : 'system';
+}
+export function resolveAppearance(
+  preference: Appearance,
+  system: string | null | undefined,
+): ThemeMode {
+  return preference === 'system'
+    ? system === 'dark'
+      ? 'dark'
+      : 'light'
+    : preference;
+}
