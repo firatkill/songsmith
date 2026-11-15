@@ -3,15 +3,34 @@ import { randomUUID } from 'node:crypto';
 import type { Service } from '../lib/auth.js';
 import type { JobQueue } from './queues.js';
 import { enqueue } from './enqueue.js';
-// T-17 owns reservation expiry and release/refund. This hook intentionally
-// performs no ledger operations until that task supplies the implementation.
-export const onJobFailedReleaseCredits: (jobId: string) => Promise<void> = () =>
-  Promise.resolve();
+import { jobReservationSchema } from '@songsmith/schemas';
+import {
+  expireReservations,
+  releaseReservation,
+  creditRpcResult,
+} from '../credits/ledger.js';
+export async function onJobFailedReleaseCredits(
+  service: Service,
+  jobId: string,
+): Promise<void> {
+  const result = await service()
+    .from('generation_jobs')
+    .select('reservation_id')
+    .eq('id', jobId)
+    .maybeSingle();
+  const row = creditRpcResult(result, jobReservationSchema.nullable());
+  if (row?.reservation_id)
+    await releaseReservation(service, {
+      p_reservation_id: row.reservation_id,
+      p_reason: 'job_failed',
+    });
+}
 export async function sweepJobs(
   service: Service,
   queues: Map<string, JobQueue>,
-  release = onJobFailedReleaseCredits,
+  release = (jobId: string) => onJobFailedReleaseCredits(service, jobId),
 ) {
+  await expireReservations(service);
   // Keyset pagination avoids PostgREST's row cap and mutations shifting offsets.
   let after = '00000000-0000-0000-0000-000000000000';
   for (;;) {

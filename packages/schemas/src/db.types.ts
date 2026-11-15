@@ -107,6 +107,164 @@ export type Database = {
         };
         Relationships: [];
       };
+      credit_accounts: {
+        Row: {
+          balance: number;
+          held: number;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          balance?: number;
+          held?: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          balance?: number;
+          held?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      credit_ledger: {
+        Row: {
+          amount: number;
+          balance_after: number;
+          created_at: string;
+          expires_at: string | null;
+          id: string;
+          idempotency_key: string;
+          kind: string;
+          ref_id: string | null;
+          ref_kind: string;
+          request: NonNullable<Json>;
+          sequence: number;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount: number;
+          balance_after: number;
+          created_at?: string;
+          expires_at?: string | null;
+          id?: string;
+          idempotency_key: string;
+          kind: string;
+          ref_id?: string | null;
+          ref_kind: string;
+          request: NonNullable<Json>;
+          sequence?: never;
+          user_id: string;
+        };
+        Update: {
+          amount?: number;
+          balance_after?: number;
+          created_at?: string;
+          expires_at?: string | null;
+          id?: string;
+          idempotency_key?: string;
+          kind?: string;
+          ref_id?: string | null;
+          ref_kind?: string;
+          request?: NonNullable<Json>;
+          sequence?: never;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      credit_lots: {
+        Row: {
+          expires_at: string | null;
+          ledger_id: string;
+          remaining: number;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          expires_at?: string | null;
+          ledger_id: string;
+          remaining: number;
+          user_id: string;
+        };
+        Update: {
+          expires_at?: string | null;
+          ledger_id?: string;
+          remaining?: number;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'credit_lots_ledger_id_fkey';
+            columns: ['ledger_id'];
+            isOneToOne: true;
+            referencedRelation: 'credit_ledger';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      credit_reservations: {
+        Row: {
+          amount: number;
+          created_at: string;
+          expires_at: string;
+          id: string;
+          idempotency_key: string;
+          job_id: string | null;
+          release_reason: string | null;
+          request: NonNullable<Json>;
+          settled_amount: number | null;
+          settled_ledger_id: string | null;
+          start_concurrency_limit: number | null;
+          status: string;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount: number;
+          created_at?: string;
+          expires_at: string;
+          id?: string;
+          idempotency_key: string;
+          job_id?: string | null;
+          release_reason?: string | null;
+          request: NonNullable<Json>;
+          settled_amount?: number | null;
+          settled_ledger_id?: string | null;
+          start_concurrency_limit?: number | null;
+          status?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          amount?: number;
+          created_at?: string;
+          expires_at?: string;
+          id?: string;
+          idempotency_key?: string;
+          job_id?: string | null;
+          release_reason?: string | null;
+          request?: NonNullable<Json>;
+          settled_amount?: number | null;
+          settled_ledger_id?: string | null;
+          start_concurrency_limit?: number | null;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'credit_reservations_settled_ledger_id_fkey';
+            columns: ['settled_ledger_id'];
+            isOneToOne: false;
+            referencedRelation: 'credit_ledger';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       data_requests: {
         Row: {
           artifact_path: string | null;
@@ -557,6 +715,25 @@ export type Database = {
         };
         Relationships: [];
       };
+      signup_grants: {
+        Row: {
+          email_hash: string;
+          granted_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          email_hash: string;
+          granted_at?: string;
+          user_id: string;
+        };
+        Update: {
+          email_hash?: string;
+          granted_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       staff_roles: {
         Row: {
           created_at: string;
@@ -591,6 +768,35 @@ export type Database = {
         Args: { at_time?: string; micro_usd: number; scope: string };
         Returns: undefined;
       };
+      adjust_credits: {
+        Args: {
+          p_actor_id: string;
+          p_amount: number;
+          p_idem_key: string;
+          p_reason: string;
+          p_user_id: string;
+        };
+        Returns: {
+          amount: number;
+          balance_after: number;
+          created_at: string;
+          expires_at: string | null;
+          id: string;
+          idempotency_key: string;
+          kind: string;
+          ref_id: string | null;
+          ref_kind: string;
+          request: NonNullable<Json>;
+          sequence: number;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'credit_ledger';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       before_user_created: { Args: { event: Json }; Returns: Json };
       cap_status: {
         Args: {
@@ -613,6 +819,61 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: number;
       };
+      consume_credit_lots: {
+        Args: { p_amount: number; p_user_id: string };
+        Returns: undefined;
+      };
+      expire_credits: { Args: Record<PropertyKey, never>; Returns: number };
+      expire_reservations: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
+      grant_credits: {
+        Args: {
+          p_amount: number;
+          p_expires_at?: string;
+          p_idem_key: string;
+          p_kind: string;
+          p_ref_id: string;
+          p_ref_kind: string;
+          p_user_id: string;
+        };
+        Returns: {
+          amount: number;
+          balance_after: number;
+          created_at: string;
+          expires_at: string | null;
+          id: string;
+          idempotency_key: string;
+          kind: string;
+          ref_id: string | null;
+          ref_kind: string;
+          request: NonNullable<Json>;
+          sequence: number;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'credit_ledger';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      lock_credit_account: {
+        Args: { p_user_id: string };
+        Returns: {
+          balance: number;
+          held: number;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'credit_accounts';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       moderation_account_status: {
         Args: { p_user_id: string };
         Returns: {
@@ -620,12 +881,53 @@ export type Database = {
           status: string;
         }[];
       };
+      post_credit_entry: {
+        Args: {
+          p_amount: number;
+          p_expires_at: string;
+          p_idem_key: string;
+          p_kind: string;
+          p_ref_id: string;
+          p_ref_kind: string;
+          p_request: Json;
+          p_user_id: string;
+        };
+        Returns: {
+          amount: number;
+          balance_after: number;
+          created_at: string;
+          expires_at: string | null;
+          id: string;
+          idempotency_key: string;
+          kind: string;
+          ref_id: string | null;
+          ref_kind: string;
+          request: NonNullable<Json>;
+          sequence: number;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'credit_ledger';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       rate_limit_hit: {
         Args: { key: string; max: number; window_seconds: number };
         Returns: {
           allowed: boolean;
           remaining: number;
           reset_at: string;
+        }[];
+      };
+      reconcile_credits: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          actual: number;
+          check: string;
+          expected: number;
+          user_id: string;
         }[];
       };
       record_consent: {
@@ -666,9 +968,130 @@ export type Database = {
         Args: { kind: string; ok: boolean; provider: string };
         Returns: undefined;
       };
+      refund_spend: {
+        Args: { p_idem_key: string; p_ledger_id: string; p_reason: string };
+        Returns: {
+          amount: number;
+          balance_after: number;
+          created_at: string;
+          expires_at: string | null;
+          id: string;
+          idempotency_key: string;
+          kind: string;
+          ref_id: string | null;
+          ref_kind: string;
+          request: NonNullable<Json>;
+          sequence: number;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'credit_ledger';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      release_reservation: {
+        Args: { p_reason: string; p_reservation_id: string };
+        Returns: {
+          amount: number;
+          created_at: string;
+          expires_at: string;
+          id: string;
+          idempotency_key: string;
+          job_id: string | null;
+          release_reason: string | null;
+          request: NonNullable<Json>;
+          settled_amount: number | null;
+          settled_ledger_id: string | null;
+          start_concurrency_limit: number | null;
+          status: string;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'credit_reservations';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      reserve_credits: {
+        Args: {
+          p_amount: number;
+          p_idem_key: string;
+          p_job_id: string;
+          p_ttl?: string;
+          p_user_id: string;
+        };
+        Returns: {
+          amount: number;
+          created_at: string;
+          expires_at: string;
+          id: string;
+          idempotency_key: string;
+          job_id: string | null;
+          release_reason: string | null;
+          request: NonNullable<Json>;
+          settled_amount: number | null;
+          settled_ledger_id: string | null;
+          start_concurrency_limit: number | null;
+          status: string;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'credit_reservations';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       save_job_step: {
         Args: { job_id: string; step: string; value: Json };
         Returns: undefined;
+      };
+      settle_reservation: {
+        Args: { p_final_amount: number; p_reservation_id: string };
+        Returns: {
+          amount: number;
+          created_at: string;
+          expires_at: string;
+          id: string;
+          idempotency_key: string;
+          job_id: string | null;
+          release_reason: string | null;
+          request: NonNullable<Json>;
+          settled_amount: number | null;
+          settled_ledger_id: string | null;
+          start_concurrency_limit: number | null;
+          status: string;
+          updated_at: string;
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'credit_reservations';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      start_job: {
+        Args: {
+          p_amount: number;
+          p_concurrency_limit: number;
+          p_idem_key: string;
+          p_model_id: string;
+          p_operation: string;
+          p_user_id: string;
+        };
+        Returns: Database['public']['Tables']['generation_jobs']['Row'];
+        SetofOptions: {
+          from: '*';
+          to: 'generation_jobs';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
       };
       touch_job: {
         Args: { job_id: string; stage_detail: string };

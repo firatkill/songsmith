@@ -47,7 +47,7 @@ it('public set is exactly all, seeded providers and generation operations', () =
       .sort(),
   ).toEqual(expected);
 });
-it('preserves D-26 defaults and marks every HTTP limit and cap as a placeholder', () => {
+it('preserves D-26 and T-17 defaults and marks HTTP limits and caps as placeholders', () => {
   expect(
     Object.fromEntries(
       Object.entries(flagRegistry)
@@ -55,6 +55,7 @@ it('preserves D-26 defaults and marks every HTTP limit and cap as a placeholder'
         .map(([key, entry]) => [key, entry.default]),
     ),
   ).toEqual({
+    signup_grant_credits: 30,
     music_queue_concurrency: 4,
     per_user_concurrency: 2,
     block_window_seconds: 86400,
