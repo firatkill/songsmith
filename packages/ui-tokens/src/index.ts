@@ -9,6 +9,8 @@ export const tokens = {
       hairline: '#ECECE6',
       surface: '#FFFFFF',
       surfaceAccent: '#FFE45C',
+      selectedSegment: '#111111',
+      onSelectedSegment: '#FFE45C',
       text: '#111111',
       muted: '#55554F',
       disabled: '#E5E5E5',
@@ -38,6 +40,8 @@ export const tokens = {
       hairline: '#2A2A28',
       surface: '#1C1C1C',
       surfaceAccent: '#FFE45C',
+      selectedSegment: '#FFE45C',
+      onSelectedSegment: '#111111',
       text: '#FFFFFF',
       muted: '#C4C4C4',
       disabled: '#333333',
@@ -151,6 +155,12 @@ export const contrastPairs: readonly {
   minimum: number;
   use: string;
 }[] = [
+  {
+    foreground: 'onSelectedSegment',
+    background: 'selectedSegment',
+    minimum: 4.5,
+    use: 'Selected settings segment',
+  },
   ...(['text', 'muted', 'danger'] as const).flatMap((foreground) =>
     (['canvas', 'surface'] as const).map((background) => ({
       foreground,
