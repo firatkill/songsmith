@@ -42,7 +42,7 @@ const client = createClient<Database>(status.API_URL, status.SERVICE_ROLE_KEY, {
 const service = () => client;
 const store = stepStore(service);
 const logger = createLogger('silent');
-const redisUrl = process.env['REDIS_URL'] ?? 'redis://localhost:6379';
+const redisUrl = process.env['REDIS_URL']?.trim() || 'redis://localhost:6379';
 if (!['localhost', '127.0.0.1'].includes(new URL(redisUrl).hostname))
   throw new Error('Local Redis required');
 let userId: string;

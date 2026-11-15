@@ -1,3 +1,4 @@
+import { fileURLToPath, URL } from 'node:url';
 import js from '@eslint/js';
 import { boundaryConfig } from './boundaries.mjs';
 import tseslint from 'typescript-eslint';
@@ -11,6 +12,7 @@ export default [
       '**/.turbo/**',
       '**/dist/**',
       '**/.next/**',
+      '**/.next-development/**',
       '**/out/**',
       '**/.expo/**',
       '**/coverage/**',
@@ -30,7 +32,10 @@ export default [
   {
     files: ['**/*.ts'],
     languageOptions: {
-      parserOptions: { projectService: true },
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: fileURLToPath(new URL('../../', import.meta.url)),
+      },
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',

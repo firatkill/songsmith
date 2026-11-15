@@ -64,7 +64,11 @@ const schema = z
   }));
 export type Env = z.infer<typeof schema>;
 export function loadEnv(source: Record<string, string | undefined>): Env {
-  const result = schema.safeParse(source);
+  const result = schema.safeParse(
+    Object.fromEntries(
+      Object.entries(source).filter(([, value]) => value?.trim() !== ''),
+    ),
+  );
   if (!result.success)
     throw new Error(
       `Invalid environment keys: ${[...new Set(result.error.issues.map((i) => i.path.join('.')))].join(', ')}. Check environment configuration and provider overrides.`,

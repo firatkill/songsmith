@@ -18,13 +18,23 @@ const workspaces = [
 
 export default defineConfig({
   test: {
-    projects: workspaces.map((workspace) => ({
-      test: {
-        name: `@songsmith/${workspace.split('/').at(-1)}`,
-        root: fileURLToPath(new URL(`./${workspace}/`, import.meta.url)),
-        environment: 'node',
-        include: ['src/**/*.test.ts'],
+    projects: [
+      {
+        test: {
+          name: '@songsmith/scripts',
+          root: fileURLToPath(new URL('./', import.meta.url)),
+          environment: 'node',
+          include: ['scripts/*.test.mjs'],
+        },
       },
-    })),
+      ...workspaces.map((workspace) => ({
+        test: {
+          name: `@songsmith/${workspace.split('/').at(-1)}`,
+          root: fileURLToPath(new URL(`./${workspace}/`, import.meta.url)),
+          environment: 'node',
+          include: ['src/**/*.test.ts'],
+        },
+      })),
+    ],
   },
 });

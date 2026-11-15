@@ -55,7 +55,7 @@ async function signIn(page: Page, request: APIRequestContext) {
     .toBe(true);
   // A single input accepts pasted codes without six separate focus targets.
   await page.getByLabel('6-digit code').fill(code);
-  await page.getByRole('button', { name: 'Verify code', exact: true }).click();
+  await page.getByRole('button', { name: 'Verify', exact: true }).click();
   await expect(page).toHaveURL('/en/age-gate');
   return email;
 }
@@ -72,19 +72,13 @@ test('E2E-01 OTP, adult, consent, persisted session and sign out; onboarding acc
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
   await expect(page).toHaveURL('/en/consent');
   await accessible(page);
-  await expect(
-    page.getByLabel('Marketing emails (optional)'),
-  ).not.toBeChecked();
-  await expect(
-    page.getByLabel('Non-essential analytics (optional)'),
-  ).not.toBeChecked();
-  for (const name of [
-    'I accept the terms of service (required)',
-    'I acknowledge the privacy notice (required)',
-    'I agree to the AI data disclosure (required)',
-  ])
+  await expect(page.getByLabel('Marketing emails')).not.toBeChecked();
+  await expect(page.getByLabel('Non-essential analytics')).not.toBeChecked();
+  for (const name of ['Terms of service', 'Privacy notice', 'AI data use'])
     await page.getByLabel(name, { exact: true }).check();
-  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Accept and continue', exact: true })
+    .click();
   await expect(page).toHaveURL('/en/home');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     /Welcome, user_[a-f0-9]{12}/,

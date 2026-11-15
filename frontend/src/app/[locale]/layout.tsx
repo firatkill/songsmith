@@ -1,6 +1,10 @@
 import { Bricolage_Grotesque, Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
-import { headers } from 'next/headers';
+import {
+  appearanceAttribute,
+  appearanceCookieName,
+} from '../../lib/appearance';
+import { headers, cookies } from 'next/headers';
 import { tokensCss, systemTokensCss } from '@songsmith/ui-tokens';
 import { formatMessage as t } from '@songsmith/i18n';
 import { pageLocale, type PageProps } from '../../lib/page';
@@ -13,7 +17,7 @@ const displayFont = Bricolage_Grotesque({
 });
 const bodyFont = Inter({
   subsets: ['latin', 'latin-ext'],
-  weight: ['400', '500'],
+  weight: ['400', '500', '600'],
   display: 'swap',
   variable: '--font-body',
 });
@@ -31,6 +35,9 @@ export default async function Layout({
   return (
     <html
       lang={locale}
+      data-theme={appearanceAttribute(
+        (await cookies()).get(appearanceCookieName)?.value,
+      )}
       className={`${displayFont.variable} ${bodyFont.variable}`}
     >
       <head>

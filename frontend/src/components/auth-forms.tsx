@@ -2,7 +2,16 @@
 import { useEffect, useState, type SubmitEvent } from 'react';
 import { formatMessage as t, type Locale } from '@songsmith/i18n';
 import { z, consentVersions, type ConsentKind } from '../lib/validation';
-import { birthDateOrder, parseBirthDate } from '../lib/birth-date';
+import {
+  PrimaryButton,
+  LinkButton,
+  TextField,
+  CodeInput,
+  DateFields,
+  ToggleRow,
+  Group,
+} from './auth-ui';
+import { parseBirthDate } from '../lib/birth-date';
 import { browserAuth } from '../lib/auth-browser';
 import { api } from '../lib/api';
 import { apiErrorCode, apiErrorMessage } from '../lib/errors';
@@ -36,6 +45,7 @@ export function SignIn({ locale }: { locale: Locale }) {
     };
   }, [seconds]);
   async function send() {
+    if (busy) return;
     if (!z.email().safeParse(email).success) {
       setError(t(locale, 'errors.VALIDATION'));
       return;
@@ -66,6 +76,7 @@ export function SignIn({ locale }: { locale: Locale }) {
   }
   async function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy) return;
     if (!sent) {
       await send();
       return;
@@ -90,89 +101,94 @@ export function SignIn({ locale }: { locale: Locale }) {
       setBusy(false);
     }
   }
+  function changeEmail() {
+    if (!busy) {
+      setSent(false);
+      setCode('');
+      setError('');
+    }
+  }
   return (
-    <section className="card card-accent">
-      <h1>{t(locale, 'web.signIn')}</h1>
+    <section className="auth-card">
+      {sent && (
+        <button
+          className="back-button"
+          type="button"
+          aria-label={t(locale, 'ui.back')}
+          onClick={changeEmail}
+        >
+          ←
+        </button>
+      )}
+      <h1>{t(locale, sent ? 'ui.codeTitle' : 'ui.signInTitle')}</h1>
+      <p>{t(locale, sent ? 'ui.codeHelp' : 'ui.signInHelp')}</p>
+      {sent && <p className="email-destination">{email}</p>}
       <form
         method="post"
+        noValidate
         onSubmit={(event) => {
           void submit(event);
         }}
       >
         {!sent ? (
-          <label>
-            {t(locale, 'web.email')}
-            <input
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(event) => {
-                setEmail(event.target.value);
-              }}
-            />
-          </label>
+          <TextField
+            label={t(locale, 'web.email')}
+            type="email"
+            autoComplete="email"
+            placeholder={t(locale, 'ui.emailExample')}
+            value={email}
+            error={error}
+            onChange={(event) => {
+              setEmail(event.target.value);
+            }}
+          />
         ) : (
           <>
-            <p role="status">{t(locale, 'web.codeSent')}</p>
-            <label>
-              {t(locale, 'web.code')}
-              <input
-                autoFocus
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                pattern="[0-9]{6}"
-                maxLength={6}
-                required
-                value={code}
-                onChange={(event) => {
-                  setCode(event.target.value.replace(/\D/g, '').slice(0, 6));
+            <CodeInput
+              locale={locale}
+              value={code}
+              onChange={setCode}
+              error={error}
+            />
+            {seconds > 0 ? (
+              <p className="caption">
+                {t(locale, 'ui.resendTime', {
+                  time: `${String(Math.floor(seconds / 60))}:${String(seconds % 60).padStart(2, '0')}`,
+                })}
+              </p>
+            ) : (
+              <LinkButton
+                onClick={() => {
+                  void send();
                 }}
-              />
-            </label>
+              >
+                {t(locale, 'web.resend')}
+              </LinkButton>
+            )}
           </>
         )}
-        <ErrorNotice message={error} />
-        <button disabled={busy} type="submit">
-          {t(locale, busy ? 'web.busy' : sent ? 'web.verify' : 'web.sendCode')}
-        </button>
-        {sent && (
-          <>
-            <button
-              className="secondary"
-              type="button"
-              disabled={busy || seconds > 0}
-              onClick={() => {
-                void send();
-              }}
-            >
-              {seconds > 0
-                ? t(locale, 'web.cooldown', { seconds })
-                : t(locale, 'web.resend')}
-            </button>
-            <button
-              className="secondary"
-              type="button"
-              disabled={busy}
-              onClick={() => {
-                setSent(false);
-                setCode('');
-                setError('');
-              }}
-            >
+        <div className="auth-footer">
+          <ErrorNotice message={error} />
+          <PrimaryButton busy={busy}>
+            {t(locale, sent ? 'web.verify' : 'web.sendCode')}
+          </PrimaryButton>
+          {sent && (
+            <LinkButton onClick={changeEmail}>
               {t(locale, 'web.changeEmail')}
-            </button>
-          </>
-        )}
+            </LinkButton>
+          )}
+        </div>
       </form>
     </section>
   );
 }
+
 export function AgeGate({ locale }: { locale: Locale }) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   async function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy) return;
     const form = event.currentTarget;
     const values = new FormData(form);
     const dateOfBirth = parseBirthDate({
@@ -205,7 +221,29 @@ export function AgeGate({ locale }: { locale: Locale }) {
     }
   }
   return (
-    <section className="card">
+    <section className="auth-card">
+      <button
+        className="back-button"
+        type="button"
+        aria-label={t(locale, 'ui.back')}
+        onClick={() => {
+          if (!busy) {
+            setBusy(true);
+            void browserAuth()
+              .signOut({ scope: 'local' })
+              .then((result) => {
+                if (result.error) throw result.error;
+                location.assign(`/${locale}/sign-in`);
+              })
+              .catch(() => {
+                setError(t(locale, 'web.authError'));
+                setBusy(false);
+              });
+          }
+        }}
+      >
+        ←
+      </button>
       <h1>{t(locale, 'web.ageTitle')}</h1>
       <p id="age-help">{t(locale, 'web.ageHelp')}</p>
       <form
@@ -215,37 +253,19 @@ export function AgeGate({ locale }: { locale: Locale }) {
           void submit(event);
         }}
       >
-        <fieldset
-          className="birth-date"
-          aria-describedby={error ? 'age-help birth-error' : 'age-help'}
-        >
-          <legend>{t(locale, 'web.birthDate')}</legend>
-          <div className="date-fields">
-            {birthDateOrder(locale).map((part) => (
-              <label key={part}>
-                {t(locale, `web.${part}`)}
-                <input
-                  name={part}
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete={`bday-${part}`}
-                  maxLength={part === 'year' ? 4 : 2}
-                  required
-                  aria-invalid={error === t(locale, 'web.birthDateError')}
-                  aria-describedby={error ? 'birth-error' : undefined}
-                />
-              </label>
-            ))}
-          </div>
-        </fieldset>
-        <ErrorNotice message={error} id="birth-error" />
-        <button disabled={busy}>
-          {t(locale, busy ? 'web.busy' : 'web.continue')}
-        </button>
+        <DateFields
+          locale={locale}
+          invalid={error === t(locale, 'web.birthDateError')}
+        />
+        <div className="auth-footer">
+          <ErrorNotice message={error} id="birth-error" />
+          <PrimaryButton busy={busy}>{t(locale, 'web.continue')}</PrimaryButton>
+        </div>
       </form>
     </section>
   );
 }
+
 const kinds: ConsentKind[] = [
   'terms',
   'privacy',
@@ -254,11 +274,25 @@ const kinds: ConsentKind[] = [
   'analytics',
 ];
 export function Consent({ locale }: { locale: Locale }) {
+  const [selected, setSelected] = useState<Record<ConsentKind, boolean>>({
+    terms: false,
+    privacy: false,
+    ai_disclosure: false,
+    marketing: false,
+    analytics: false,
+  });
+  const [attempted, setAttempted] = useState(false);
+  const missing = kinds.slice(0, 3).filter((kind) => !selected[kind]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   async function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    if (busy) return;
+    setAttempted(true);
+    if (missing.length) {
+      setError('');
+      return;
+    }
     setBusy(true);
     setError('');
     try {
@@ -267,7 +301,7 @@ export function Consent({ locale }: { locale: Locale }) {
           body: {
             kind,
             version: consentVersions[kind],
-            granted: data.get(kind) === 'on',
+            granted: selected[kind],
             source: 'web',
           },
         });
@@ -284,46 +318,61 @@ export function Consent({ locale }: { locale: Locale }) {
     }
   }
   return (
-    <section className="card">
+    <section className="auth-card">
       <h1>{t(locale, 'web.consentTitle')}</h1>
-      <p className="notice">{t(locale, 'web.provisional')}</p>
-      <p id="ai-disclosure">{t(locale, 'web.disclosure')}</p>
+      <p>{t(locale, 'ui.consentHelp')}</p>
+      <details className="auth-disclosure">
+        <summary className="link-button">{t(locale, 'ui.disclosure')}</summary>
+        <p className="caption">{t(locale, 'web.provisional')}</p>
+        <p className="caption" id="ai-disclosure">
+          {t(locale, 'web.disclosure')}
+        </p>
+      </details>
       <form
         method="post"
+        noValidate
         onSubmit={(event) => {
           void submit(event);
         }}
       >
-        <fieldset className="consent-group">
-          <legend>{t(locale, 'web.requiredConsents')}</legend>
+        <Group required label={t(locale, 'web.requiredConsents')}>
           {kinds.slice(0, 3).map((kind) => (
-            <label className="check" key={kind}>
-              <input
-                type="checkbox"
-                name={kind}
-                required
-                aria-describedby={
-                  kind === 'ai_disclosure' ? 'ai-disclosure' : undefined
-                }
-              />
-              {t(locale, `web.${kind}`)}
-            </label>
+            <ToggleRow
+              key={kind}
+              name={kind}
+              label={t(locale, `ui.${kind}`)}
+              caption={t(locale, 'ui.required')}
+              checked={selected[kind]}
+              invalid={attempted && !selected[kind]}
+              onChange={(value) => {
+                if (!busy) setSelected({ ...selected, [kind]: value });
+              }}
+            />
           ))}
-        </fieldset>
-        <fieldset className="consent-group" aria-describedby="optional-help">
-          <legend>{t(locale, 'web.optionalConsents')}</legend>
-          <p id="optional-help">{t(locale, 'web.optionalHelp')}</p>
+        </Group>
+        <p className="overline">{t(locale, 'ui.optional')}</p>
+        <Group label={t(locale, 'web.optionalConsents')}>
           {kinds.slice(3).map((kind) => (
-            <label className="check" key={kind}>
-              <input type="checkbox" name={kind} />
-              {t(locale, `web.${kind}`)}
-            </label>
+            <ToggleRow
+              key={kind}
+              name={kind}
+              label={t(locale, `ui.${kind}`)}
+              checked={selected[kind]}
+              invalid={false}
+              onChange={(value) => {
+                if (!busy) setSelected({ ...selected, [kind]: value });
+              }}
+            />
           ))}
-        </fieldset>
-        <ErrorNotice message={error} />
-        <button disabled={busy}>
-          {t(locale, busy ? 'web.busy' : 'web.continue')}
-        </button>
+        </Group>
+        <div className="auth-footer">
+          <ErrorNotice
+            message={
+              attempted && missing.length ? t(locale, 'ui.consentError') : error
+            }
+          />
+          <PrimaryButton busy={busy}>{t(locale, 'ui.accept')}</PrimaryButton>
+        </div>
       </form>
     </section>
   );

@@ -1,3 +1,9 @@
+import { cookies } from 'next/headers';
+import { AppearanceSetting } from '../../../../components/appearance-setting';
+import {
+  appearanceFromCookie,
+  appearanceCookieName,
+} from '../../../../lib/appearance';
 import { formatMessage as t } from '@songsmith/i18n';
 import { requireStage } from '../../../../lib/session';
 import { pageLocale, type PageProps } from '../../../../lib/page';
@@ -8,8 +14,12 @@ export default async function Page({ params }: PageProps) {
     <main id="main">
       <section className="studio-card">
         <h1>{t(locale, 'web.settings')}</h1>
-        <p className="status-chip">{t(locale, 'web.comingSoon')}</p>
-        <p>{t(locale, 'web.placeholder')}</p>
+        <AppearanceSetting
+          locale={locale}
+          initial={appearanceFromCookie(
+            (await cookies()).get(appearanceCookieName)?.value,
+          )}
+        />
       </section>
     </main>
   );

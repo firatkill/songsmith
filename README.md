@@ -187,3 +187,7 @@ with `SONGSMITH_DEV_POLLING=1 pnpm dev`.
 Ctrl-C stops the Node processes; `pnpm redis:down` stops Redis while preserving
 its AOF volume. See [jobs runtime](docs/runbooks/jobs-runtime.md) for queue
 configuration, recovery limits, test isolation and the staff/MFA Bull Board guard.
+
+## Local full stack
+
+Follow [the local development runbook](docs/runbooks/local-dev.md) for the web, iOS and Android setup, first development builds, `pnpm dev:check`, `pnpm dev:all`, and Maestro M-01.

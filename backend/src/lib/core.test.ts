@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { parseEnv } from 'node:util';
 import { describe, it, expect } from 'vitest';
 import { loadEnv } from './env.js';
 import { newToken } from './ids.js';
@@ -6,6 +8,15 @@ import { requestContext } from './correlation.js';
 import { testSource } from '../../test/http.js';
 
 describe('UT-03 environment', () => {
+  it.each(['', '  \t '])('blank example entries use defaults (%j)', (blank) => {
+    const example = parseEnv(
+      readFileSync(new URL('../../../.env.example', import.meta.url), 'utf8'),
+    );
+    const empty = Object.fromEntries(
+      Object.keys(example).map((key) => [key, blank]),
+    );
+    expect(loadEnv({ ...empty, ...testSource })).toEqual(loadEnv(testSource));
+  });
   it('uses conservative defaults', () => {
     expect(loadEnv(testSource)).toMatchObject({
       APP_ENV: 'local',

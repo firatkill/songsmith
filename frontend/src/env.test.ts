@@ -25,3 +25,15 @@ test.each([
     expect(String(error)).not.toContain(value);
   }
 });
+
+test.each(['', '  \t '])(
+  'blank optional API URL uses default (%j)',
+  (blank) => {
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'http://localhost:54321');
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-public-key');
+    vi.stubEnv('NEXT_PUBLIC_API_URL', blank);
+    expect(publicEnv().NEXT_PUBLIC_API_URL).toBe('http://localhost:4000');
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', blank);
+    expect(publicEnv).toThrow('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  },
+);

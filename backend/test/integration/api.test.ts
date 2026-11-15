@@ -89,9 +89,9 @@ it('echoes correlation ID', async () => {
   expect(r.headers.get('x-correlation-id')).toBe('integration-123');
 });
 it('PostgREST exposes app to service role but refuses anon', async (ctx) => {
-  let url = process.env['SUPABASE_URL'];
-  let anon = process.env['SUPABASE_ANON_KEY'];
-  let service = process.env['SUPABASE_SERVICE_ROLE_KEY'];
+  let url = process.env['SUPABASE_URL']?.trim() || undefined;
+  let anon = process.env['SUPABASE_ANON_KEY']?.trim() || undefined;
+  let service = process.env['SUPABASE_SERVICE_ROLE_KEY']?.trim() || undefined;
   if (!url || !anon || !service) {
     let status: string;
     try {

@@ -1,0 +1,103 @@
+appId: com.songsmith.app.dev
+name: M-01 OTP to Create
+---
+- stopApp
+- clearState
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - clearKeychain
+- openLink: ${DEV_URL}
+# Briefly allow native launch UI to settle; the sheet may open asynchronously.
+- waitForAnimationToEnd:
+    timeout: 3000
+- runFlow:
+    when:
+      visible: 'Tools|Fast Refresh'
+    commands:
+      # The backdrop is above the sheet. If the sheet vanishes, this only taps
+      # the inert top margin of sign-in; never use Android Back or tap the gear.
+      - tapOn:
+          point: '50%,10%'
+# Native defaults and SDK 58 launch flags suppress onboarding and menu opening.
+# Allow a cold bundle load plus first SecureStore key creation on the emulator.
+- extendedWaitUntil:
+    visible:
+      id: email
+    timeout: 30000
+    optional: true
+# Recover once; stop first to avoid reloading a running Expo dev-client context.
+- runFlow:
+    when:
+      notVisible:
+        id: email
+    commands:
+      - stopApp
+      - openLink: ${DEV_URL}
+      # Briefly allow native launch UI to settle; the sheet may open asynchronously.
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - runFlow:
+          when:
+            visible: 'Tools|Fast Refresh'
+          commands:
+            # The backdrop is above the sheet. If the sheet vanishes, this only taps
+            # the inert top margin of sign-in; never use Android Back or tap the gear.
+            - tapOn:
+                point: '50%,10%'
+      - extendedWaitUntil:
+          visible:
+            id: email
+          timeout: 30000
+- runScript: unique-email.js
+- tapOn:
+    id: email
+- inputText: ${output.email}
+- tapOn:
+    id: send-code
+# Only email delivery may wait up to 15s; HTTP runs on the Maestro host.
+- extendedWaitUntil:
+    visible:
+      id: otp-code
+    timeout: 15000
+- runScript: mailpit.js
+- tapOn:
+    id: otp-code
+- inputText: ${output.otp}
+- tapOn:
+    id: verify-code
+- tapOn:
+    id: birth-day
+- inputText: '15'
+- tapOn:
+    id: birth-month
+- inputText: '6'
+- tapOn:
+    id: birth-year
+- inputText: '1990'
+- hideKeyboard
+- tapOn:
+    id: submit-age
+- scrollUntilVisible:
+    element:
+      id: consent-terms
+- tapOn:
+    id: consent-terms
+- scrollUntilVisible:
+    element:
+      id: consent-privacy
+- tapOn:
+    id: consent-privacy
+- scrollUntilVisible:
+    element:
+      id: consent-ai_disclosure
+- tapOn:
+    id: consent-ai_disclosure
+- scrollUntilVisible:
+    element:
+      id: submit-consent
+- tapOn:
+    id: submit-consent
+- assertVisible:
+    id: create-screen

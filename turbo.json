@@ -30,6 +30,13 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+    },
+    "//#test:scripts": {
+      "outputs": []
+    },
+    "@songsmith/mobile#build": {
+      "dependsOn": ["^build"],
+      "outputs": []
     }
   },
   "globalEnv": [
