@@ -15,6 +15,9 @@ import { rateLimitStage } from './lib/rate-limit.js';
 import { registerFlags } from './routes/flags.js';
 import { registerMe } from './routes/me.js';
 import { registerHealth } from './routes/health.js';
+import { registerAdmin, type AdminRegistry } from './routes/admin.js';
+import { auditMutations } from './lib/audit.js';
+import { createRegistry as createModelRegistry } from './models/registry.js';
 export interface AppDeps {
   env: Env;
   logger?: Logger;
@@ -113,12 +116,26 @@ export function createApp(deps: AppDeps) {
   registerHealth(context, deps.env, deps.version ?? '0.0.0');
   registerMe(context, service);
   registerFlags(context, flags);
+  // Built on first use: the startup capability check needs the database.
+  let models: Promise<AdminRegistry> | undefined;
+  const modelRegistry = () => {
+    models ??= createModelRegistry(service, deps.env, flags, logger).catch(
+      (error: unknown) => {
+        models = undefined;
+        throw error;
+      },
+    );
+    return models;
+  };
+  registerAdmin(context, service, flags, modelRegistry);
   deps.registerRoutes?.(context);
   const board = lazyBoard(service, deps.env, logger, flags);
   app.locals['closeQueues'] = () => board.close();
+  // One guard for every admin path, Bull Board included (SEC-10).
+  app.use('/v1/admin', requireStaff(service, deps.env.SUPABASE_JWT_ISSUER));
   app.use(
     '/v1/admin/queues',
-    requireStaff(service, deps.env.SUPABASE_JWT_ISSUER),
+    auditMutations(service, 'queues', logger),
     board.handler,
   );
   app.use('/v1', router);

@@ -125,6 +125,10 @@ export function createRegistryCache(options: {
     }
   }
   return {
+    // Admin catalogue writes call this so this process sees the change at once.
+    invalidate() {
+      expires = -Infinity;
+    },
     adapter(id: string) {
       return options.factories.get(id)?.();
     },

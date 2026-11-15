@@ -99,6 +99,11 @@ export function createFlagCache(
     ];
     return keys.some((key) => isFlagKey(key) && flags[key] === true);
   }
-  return { getFlag, getFlags, killSwitch };
+  // Admin writes call this so the writing process sees the change at once;
+  // other processes pick it up within FLAG_CACHE_MS.
+  function invalidate() {
+    expires = -Infinity;
+  }
+  return { getFlag, getFlags, killSwitch, invalidate };
 }
 export type FlagService = ReturnType<typeof createFlags>;

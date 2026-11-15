@@ -748,7 +748,8 @@ footer {
 .toggle-row .caption {
   margin-top: 4px;
 }
-.toggle-row input[type='checkbox'] {
+.toggle-row input[type='checkbox'],
+input.admin-switch[type='checkbox'] {
   width: 48px;
   height: 28px;
   border: 0;
@@ -756,7 +757,8 @@ footer {
   background: var(--colors-fieldBorder);
   margin: 0;
 }
-.toggle-row input[type='checkbox']::after {
+.toggle-row input[type='checkbox']::after,
+input.admin-switch[type='checkbox']::after {
   content: '';
   position: absolute;
   top: 3px;
@@ -768,10 +770,12 @@ footer {
   background: var(--colors-surfaceOnAccent);
   transform: none;
 }
-.toggle-row input[type='checkbox']:checked {
+.toggle-row input[type='checkbox']:checked,
+input.admin-switch[type='checkbox']:checked {
   background: var(--colors-ink);
 }
-.toggle-row input[type='checkbox']:checked::after {
+.toggle-row input[type='checkbox']:checked::after,
+input.admin-switch[type='checkbox']:checked::after {
   left: 23px;
   background: var(--colors-surfaceAccent);
 }
@@ -872,10 +876,12 @@ footer {
   }
 }
 @media (forced-colors: active) {
-  .toggle-row input[type='checkbox'] {
+  .toggle-row input[type='checkbox'],
+  input.admin-switch[type='checkbox'] {
     appearance: auto;
   }
-  .toggle-row input[type='checkbox']::after {
+  .toggle-row input[type='checkbox']::after,
+  input.admin-switch[type='checkbox']::after {
     display: none;
   }
   .code-control .code-input {
@@ -893,4 +899,225 @@ footer {
   outline: none;
   box-shadow: none;
   border-color: transparent;
+}
+
+/* Admin console (T-12): same tokens and controls as the redesigned auth screens. */
+.admin-shell {
+  background: var(--colors-canvas);
+  min-height: 100vh;
+}
+.admin-shell header {
+  border-bottom: 1px solid var(--colors-hairline);
+}
+.admin-shell .auth-main {
+  max-width: 480px;
+  margin: auto;
+  padding: 32px 20px;
+}
+.admin-main {
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 var(--spacing-lg) var(--spacing-xxl);
+}
+.admin-nav-title {
+  align-self: center;
+  margin-right: var(--spacing-sm);
+  font-family: var(--font-display), var(--fontFamily-display), sans-serif;
+  font-weight: var(--fontWeight-display);
+}
+.admin-card {
+  max-width: none;
+  display: grid;
+  gap: var(--spacing-md);
+}
+.admin-card h1 {
+  margin: 0;
+}
+.admin-card h2 {
+  margin: var(--spacing-lg) 0 var(--spacing-xs);
+  font-size: 20px;
+}
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 2px solid var(--colors-fieldBorder);
+  border-radius: var(--radii-card);
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.admin-table th,
+.admin-table td {
+  padding: 12px 16px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--colors-hairline);
+}
+.admin-table thead th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--colors-muted);
+  background: var(--colors-canvas);
+}
+.admin-table tbody tr:last-child th,
+.admin-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.admin-table tbody th {
+  font-weight: 400;
+}
+.admin-model {
+  display: grid;
+  gap: 2px;
+}
+.admin-model-name {
+  font-weight: 600;
+}
+.admin-badge {
+  justify-self: start;
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: var(--radii-pill);
+  background: var(--colors-accentSoft);
+  color: var(--colors-onAccentSoft);
+  font-size: 12px;
+  font-weight: 600;
+}
+.admin-status {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--radii-pill);
+  font-size: 12px;
+  font-weight: 600;
+  border: 2px solid var(--colors-text);
+  background: var(--colors-surfaceAccent);
+  color: var(--colors-onSurfaceAccent);
+  white-space: nowrap;
+}
+.admin-status[data-usable='false'] {
+  border-color: var(--colors-danger);
+  background: var(--colors-dangerSurface);
+  color: var(--colors-danger);
+}
+.admin-inline-form {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+.admin-number,
+.admin-json {
+  min-height: 40px;
+  border: 2px solid var(--colors-fieldBorder);
+  border-radius: var(--radii-field);
+  background: var(--colors-surface);
+  color: var(--colors-text);
+  padding: 6px 10px;
+  font: inherit;
+}
+input.admin-number {
+  width: 140px;
+  flex: none;
+}
+.admin-json {
+  flex: 1;
+  min-width: 0;
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+}
+.admin-number:focus-visible,
+.admin-json:focus-visible {
+  outline: 3px solid var(--colors-surfaceAccent);
+  border-color: var(--colors-text);
+}
+.admin-number[aria-invalid='true'] {
+  border-color: var(--colors-danger);
+}
+.admin-save {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 2px solid var(--colors-text);
+  border-radius: var(--radii-button);
+  background: var(--colors-surface);
+  color: var(--colors-text);
+  font-weight: 600;
+  cursor: pointer;
+}
+.admin-save:disabled {
+  border-color: var(--colors-fieldBorder);
+  color: var(--colors-muted);
+  cursor: default;
+}
+.admin-row-state {
+  display: block;
+  min-height: 18px;
+  font-size: 13px;
+  color: var(--colors-muted);
+}
+.admin-group .caption {
+  display: block;
+}
+.admin-flag-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 2px solid var(--colors-fieldBorder);
+  border-radius: var(--radii-card);
+  background: var(--colors-surface);
+}
+.admin-flag-list li {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border-bottom: 1px solid var(--colors-hairline);
+}
+.admin-flag-list li:last-child {
+  border-bottom: 0;
+}
+.admin-flag-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+.mfa-enroll {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin: 0 0 24px;
+}
+.mfa-qr {
+  background: #ffffff;
+  border: 2px solid var(--colors-border);
+  border-radius: var(--radii-field);
+  padding: 8px;
+}
+.mfa-secret {
+  font-size: 13px;
+  word-break: break-all;
+  text-align: center;
+  padding: 6px 10px;
+  border-radius: var(--radii-field);
+  background: var(--colors-canvas);
+}
+.admin-card,
+.admin-section,
+.admin-flag-list li,
+.admin-group .toggle-row > span {
+  min-width: 0;
+}
+.admin-card code {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  .admin-main {
+    padding: 0 16px 32px;
+  }
+  .admin-card {
+    padding: 20px;
+  }
+  .admin-inline-form {
+    flex-wrap: wrap;
+  }
 }
