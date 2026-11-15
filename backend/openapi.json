@@ -15,6 +15,7 @@
                   "FORBIDDEN",
                   "CONSENT_REQUIRED",
                   "NOT_ADULT",
+                  "ACCOUNT_RESTRICTED",
                   "VALIDATION",
                   "PAYLOAD_TOO_LARGE",
                   "MODERATION_BLOCKED",
@@ -1446,6 +1447,198 @@
               }
             },
             "description": "HTTP 200"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Rate limit exceeded",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the fixed window resets",
+                "schema": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/moderation/check": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "language": {
+                    "maxLength": 64,
+                    "pattern": "^[a-zA-Z]{2,8}(?:-[a-zA-Z0-9]{1,8})*$",
+                    "type": "string"
+                  },
+                  "parts": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "surface": {
+                          "enum": [
+                            "description",
+                            "lyrics",
+                            "style",
+                            "rewrite_instruction",
+                            "cover_instruction",
+                            "gift",
+                            "title",
+                            "profile"
+                          ],
+                          "type": "string"
+                        },
+                        "text": {
+                          "maxLength": 12000,
+                          "minLength": 1,
+                          "type": "string"
+                        }
+                      },
+                      "required": ["surface", "text"],
+                      "type": "object"
+                    },
+                    "maxItems": 6,
+                    "minItems": 1,
+                    "type": "array"
+                  }
+                },
+                "required": ["parts"],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "action": {
+                          "enum": ["block"],
+                          "type": "string"
+                        },
+                        "category": {
+                          "anyOf": [
+                            {
+                              "enum": [
+                                "minor_sexual",
+                                "threat",
+                                "terrorism",
+                                "private_data",
+                                "sexual_explicit",
+                                "hate",
+                                "harassment",
+                                "self_harm",
+                                "serious_crime",
+                                "artist_impersonation",
+                                "copyrighted_lyrics",
+                                "spam",
+                                "explicit",
+                                "none"
+                              ],
+                              "type": "string"
+                            },
+                            {
+                              "enum": ["classifier_error"],
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "decisionId": {
+                          "format": "uuid",
+                          "type": "string"
+                        },
+                        "explicit": {
+                          "enum": [false],
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "decisionId",
+                        "action",
+                        "category",
+                        "explicit"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "action": {
+                          "enum": ["allow", "hard_block"],
+                          "type": "string"
+                        },
+                        "decisionId": {
+                          "format": "uuid",
+                          "type": "string"
+                        },
+                        "explicit": {
+                          "enum": [false],
+                          "type": "boolean"
+                        }
+                      },
+                      "required": ["decisionId", "action", "explicit"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "action": {
+                          "enum": ["allow_explicit"],
+                          "type": "string"
+                        },
+                        "decisionId": {
+                          "format": "uuid",
+                          "type": "string"
+                        },
+                        "explicit": {
+                          "enum": [true],
+                          "type": "boolean"
+                        }
+                      },
+                      "required": ["decisionId", "action", "explicit"],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "HTTP 200",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "enum": ["private, no-store"],
+                  "type": "string"
+                }
+              }
+            }
           },
           "429": {
             "content": {

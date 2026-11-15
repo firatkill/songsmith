@@ -862,6 +862,123 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/v1/moderation/check': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            language?: string;
+            parts: {
+              /** @enum {string} */
+              surface:
+                | 'description'
+                | 'lyrics'
+                | 'style'
+                | 'rewrite_instruction'
+                | 'cover_instruction'
+                | 'gift'
+                | 'title'
+                | 'profile';
+              text: string;
+            }[];
+          };
+        };
+      };
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            'Cache-Control'?: 'private, no-store';
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json':
+              | {
+                  /** @enum {string} */
+                  action: 'block';
+                  category:
+                    | (
+                        | 'minor_sexual'
+                        | 'threat'
+                        | 'terrorism'
+                        | 'private_data'
+                        | 'sexual_explicit'
+                        | 'hate'
+                        | 'harassment'
+                        | 'self_harm'
+                        | 'serious_crime'
+                        | 'artist_impersonation'
+                        | 'copyrighted_lyrics'
+                        | 'spam'
+                        | 'explicit'
+                        | 'none'
+                      )
+                    | 'classifier_error';
+                  /** Format: uuid */
+                  decisionId: string;
+                  /** @enum {boolean} */
+                  explicit: false;
+                }
+              | {
+                  /** @enum {string} */
+                  action: 'allow' | 'hard_block';
+                  /** Format: uuid */
+                  decisionId: string;
+                  /** @enum {boolean} */
+                  explicit: false;
+                }
+              | {
+                  /** @enum {string} */
+                  action: 'allow_explicit';
+                  /** Format: uuid */
+                  decisionId: string;
+                  /** @enum {boolean} */
+                  explicit: true;
+                };
+          };
+        };
+        /** @description Rate limit exceeded */
+        429: {
+          headers: {
+            /** @description Seconds until the fixed window resets */
+            'Retry-After'?: number;
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -874,6 +991,7 @@ export interface components {
           | 'FORBIDDEN'
           | 'CONSENT_REQUIRED'
           | 'NOT_ADULT'
+          | 'ACCOUNT_RESTRICTED'
           | 'VALIDATION'
           | 'PAYLOAD_TOO_LARGE'
           | 'MODERATION_BLOCKED'
