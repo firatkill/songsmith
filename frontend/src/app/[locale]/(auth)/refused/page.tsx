@@ -5,10 +5,12 @@ export default async function Refused({ params }: PageProps) {
   const locale = await pageLocale(params);
   return (
     <main id="main">
-      <section className="card">
+      <section className="auth-card refused-card">
         <h1>{t(locale, 'web.refusalTitle')}</h1>
         <p>{t(locale, 'web.refusal')}</p>
-        <Link href={`/${locale}`}>{t(locale, 'web.back')}</Link>
+        <Link className="link-button" href={`/${locale}/sign-in`}>
+          {t(locale, 'ui.backSignIn')}
+        </Link>
       </section>
     </main>
   );

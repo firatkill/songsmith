@@ -7,9 +7,9 @@ export default async function Layout({
 }: PageProps & { children: ReactNode }) {
   const locale = await pageLocale(params);
   return (
-    <>
+    <div className="auth-shell">
       <Header locale={locale} />
       {children}
-    </>
+    </div>
   );
 }
