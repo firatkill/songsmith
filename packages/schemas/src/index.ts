@@ -6,3 +6,4 @@ export * from './jobs.js';
 export * from './flags.js';
 export * from './providers.js';
 export * from './admin.js';
+export * from './catalogue.js';

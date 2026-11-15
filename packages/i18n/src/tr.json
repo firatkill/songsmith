@@ -163,5 +163,17 @@
   "admin.default": "Varsayılan: {value}",
   "admin.invalidJson": "Geçerli bir JSON gir.",
   "admin.on": "Açık",
-  "admin.off": "Kapalı"
+  "admin.off": "Kapalı",
+  "router.reason.cannot_generate": "Bu model şarkı oluşturamaz.",
+  "router.reason.cannot_instrumental": "Bu model enstrümantal müzik oluşturamaz.",
+  "router.reason.cannot_custom_lyrics": "Bu model şarkı sözlerinizi kullanamaz.",
+  "router.reason.cannot_extend": "Bu model şarkıları uzatamaz.",
+  "router.reason.cannot_stems": "Bu model ses kanallarını ayıramaz.",
+  "router.reason.cannot_image_input": "Bu model görsel girdi kullanamaz.",
+  "router.reason.language_unverified": "Bu dil bu model için doğrulanmadı.",
+  "router.reason.unavailable": "Bu model geçici olarak kullanılamıyor.",
+  "router.reason.no_price": "Bu işlem için kredi fiyatı belirlenmedi.",
+  "router.reason.not_source_model": "Kaynak şarkıyı oluşturan modeli kullanın.",
+  "router.reason.no_external_audio": "Bu model başka bir modelin sesini kullanamaz.",
+  "router.reason.unknown_model": "Bu model katalogda bulunmuyor."
 }
