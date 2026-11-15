@@ -21,6 +21,7 @@ import { auditMutations } from './lib/audit.js';
 import { createRegistry as createModelRegistry } from './models/registry.js';
 import { registerModeration } from './routes/moderation.js';
 import { createModeration } from './moderation/pipeline.js';
+import { registerLyrics } from './routes/lyrics.js';
 export interface AppDeps {
   env: Env;
   logger?: Logger;
@@ -133,11 +134,20 @@ export function createApp(deps: AppDeps) {
   app.locals['initializeModels'] = modelRegistry;
   registerAdmin(context, service, flags, modelRegistry);
   registerCatalogue(context, modelRegistry);
-  registerModeration(
-    context,
+  const moderate = createModeration({
     service,
-    createModeration({ service, flags, logger, models: modelRegistry }),
-  );
+    flags,
+    logger,
+    models: modelRegistry,
+  });
+  registerModeration(context, service, moderate);
+  registerLyrics(context, {
+    service,
+    flags,
+    logger,
+    models: modelRegistry,
+    moderate,
+  });
   deps.registerRoutes?.(context);
   const board = lazyBoard(service, deps.env, logger, flags);
   app.locals['closeQueues'] = () => board.close();

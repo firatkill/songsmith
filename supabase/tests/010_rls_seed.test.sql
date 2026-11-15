@@ -2,7 +2,7 @@ begin;
 select no_plan();
 -- Assert seed contents; idempotence is also verified by replaying seed.sql locally.
 select is((select count(*) from public.models), 6::bigint, 'seed contains six models');
-select is((select count(*) from public.model_prices), 9::bigint, 'seed contains nine prices');
+select is((select count(*) from public.model_prices), 11::bigint, 'seed contains eleven prices');
 select is((select count(*) from public.model_languages), 4::bigint, 'seed contains four language statuses');
 select is((select count(*) from app.flags), 6::bigint, 'seed contains six documented flags');
 select is((select count(*) from app.staff_roles), 1::bigint, 'seed contains one staff assignment');

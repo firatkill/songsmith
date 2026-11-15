@@ -34,7 +34,9 @@ test('catalogue permits missing operation prices but rejects fractional credits 
     prices: {},
     languages: { 'en-US': 'verified' },
   };
-  expect(catalogueSchema.safeParse({ models: [model] }).success).toBe(true);
+  expect(
+    catalogueSchema.safeParse({ models: [model], lyricist: null }).success,
+  ).toBe(true);
   for (const override of [
     { prices: { generate: 1.5 } },
     { prices: { generate: -1 } },
@@ -42,7 +44,27 @@ test('catalogue permits missing operation prices but rejects fractional credits 
     { available: 'yes' },
   ])
     expect(
-      catalogueSchema.safeParse({ models: [{ ...model, ...override }] })
-        .success,
+      catalogueSchema.safeParse({
+        models: [{ ...model, ...override }],
+        lyricist: null,
+      }).success,
     ).toBe(false);
+});
+
+test('catalogue lyricist prices are positive integers or absent', () => {
+  const lyricist = {
+    modelId: 'mock-text',
+    available: true,
+    prices: { lyrics: 1, rewrite: 1 },
+  };
+  expect(catalogueSchema.safeParse({ models: [], lyricist }).success).toBe(
+    true,
+  );
+  expect(
+    catalogueSchema.safeParse({
+      models: [],
+      lyricist: { ...lyricist, prices: { lyrics: 0, rewrite: 1 } },
+    }).success,
+  ).toBe(false);
+  expect(catalogueSchema.safeParse({ models: [] }).success).toBe(false);
 });

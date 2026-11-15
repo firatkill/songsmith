@@ -321,7 +321,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** @description Enabled music models with capabilities, credit prices, language statuses and current availability. */
+    /** @description Enabled music models with capabilities, credit prices, language statuses and current availability, plus the lyricist prices. */
     get: {
       parameters: {
         query?: never;
@@ -339,6 +339,14 @@ export interface paths {
           };
           content: {
             'application/json': {
+              lyricist: {
+                available: boolean;
+                modelId: string;
+                prices: {
+                  lyrics: number;
+                  rewrite: number;
+                };
+              } | null;
               models: {
                 available: boolean;
                 capabilities: {
@@ -1003,6 +1011,7 @@ export interface components {
           | 'CAP_REACHED'
           | 'KILL_SWITCH'
           | 'PROVIDER_TIMEOUT'
+          | 'LYRICS_INVALID'
           | 'NOT_FOUND'
           | 'CONFLICT'
           | 'INTERNAL';

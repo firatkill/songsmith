@@ -9,6 +9,10 @@ export { runLayers, combineParts } from './moderation/pipeline.js';
 export type { ClassifierOutput } from './moderation/pipeline.js';
 export { POLICY_VERSION } from './moderation/prompt.js';
 export { ProviderError } from './providers/errors.js';
+export { writeLyrics, nameMissing } from './lyricist/index.js';
+export { LYRICIST_PROMPT_VERSION } from './lyricist/prompt.js';
+export { detectLanguage, languageMatches } from './lyricist/language.js';
+export { AppError } from './lib/errors.js';
 export type { TextAdapter } from './providers/types.js';
 
 // Mock mode: the mock text adapter with no latency or random failures.

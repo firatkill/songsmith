@@ -31,6 +31,7 @@ Updated: 2026-11-15.
 - T-16 done (PR #19): evaluation harness in `eval/` (mock and live modes, budget guard, reports), moderation golden set (1192 rows, TR and EN, evasion variants, 160 allowed rows) and lyricist golden set (24 rows), CI `eval-mock` job and manual `Eval` workflow. Owner approved the hard-block templates on 2026-11-15. Decisions D-91–D-96.
 
 - T-17 done (PR #20): credit ledger in migration 0013 (append-only entries, account locks, reservations, guaranteed settlement, refunds, audited adjustments, atomic `start_job` with the per-user concurrency limit, FIFO lots with partial expiry, reconciliation with lots = max(balance, 0)); sign-up grant on e-mail confirmation, once per e-mail hash; typed RPC wrappers; the sweeper expires reservations and the job-failure hook releases them. 399 pgTAP assertions, 48 integration tests including IT-01 and IT-03. Decisions D-97–D-107.
+- T-18 done (PR #21): `POST /v1/lyrics/write` and `/v1/lyrics/rewrite-section` with versioned prompts, validation and one repair attempt, input and output moderation, Idempotency-Key replay through lyricist jobs (migration 0014), catalogue lyricist prices; `packages/domain/src/lyrics.ts` (parse, serialise, add missing tags). Codex hit its usage limit, so the reviewer implemented this task. 433 pgTAP assertions, 56 integration tests including IT-14; lyricist and moderation mock evaluations pass. Decisions D-108–D-115.
 
 ## Tasks
 
@@ -55,7 +56,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-15 | Moderation pipeline                              | done   | 0deb9bc          |
 | T-16 | Golden sets and evaluation harness               | done   | 7580941          |
 | T-17 | Ledger core                                      | done   | d0b9069          |
-| T-18 | Lyricist                                         | todo   |                  |
+| T-18 | Lyricist                                         | done   | 9eb33b3          |
 | T-19 | Generation job end to end                        | todo   |                  |
 | T-20 | Web create flow                                  | todo   |                  |
 | T-21 | Notifications                                    | todo   |                  |

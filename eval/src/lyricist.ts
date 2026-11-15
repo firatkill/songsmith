@@ -1,6 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { lyricsSchema, sectionTagSchema } from '@songsmith/schemas';
-import type { TextAdapter } from '@songsmith/backend/eval';
+import {
+  AppError,
+  languageMatches,
+  nameMissing,
+  writeLyrics,
+  type TextAdapter,
+} from '@songsmith/backend/eval';
 import type { Budget } from './budget.js';
 import type { LyricistRow } from './golden.js';
 import { guarded } from './moderation.js';
@@ -18,39 +24,39 @@ export interface LyricistResult {
   namesOk: boolean | null;
 }
 
-// T-16 measures what exists before the lyricist (T-18): schema validity,
-// section tags, the declared language and gift names. T-18 adds its prompt and
-// a language detector and runs these rows through the real lyricist module.
+// Rows run through the real lyricist module (T-18): validation and the repair
+// attempt included. A row whose lyrics still fail validation is invalid.
 export async function runLyricist(options: {
   rows: LyricistRow[];
   model: TextAdapter;
   budget?: Budget;
 }): Promise<LyricistResult[]> {
-  const model = guarded(options.model, options.budget);
+  const adapter = guarded(options.model, options.budget);
   const results: LyricistResult[] = [];
   for (const row of options.rows) {
-    const output = await model
-      .completeJson(
-        {
-          system: 'Write song lyrics as JSON.',
-          user: JSON.stringify({
-            language: row.lang,
-            description: row.description,
-            occasion: row.occasion,
-            giftNames: row.giftNames,
-          }),
-          schema: lyricsSchema,
-          maxTokens: 2000,
-        },
-        {
+    const output = await writeLyrics(
+      {
+        adapter,
+        ctx: {
           userId: '00000000-0000-4000-8000-000000000000',
           jobId: randomUUID(),
           correlationId: randomUUID(),
           signal: AbortSignal.timeout(60_000),
         },
-      )
-      .then((r) => lyricsSchema.safeParse(r.value))
-      .catch(() => undefined);
+      },
+      {
+        task: 'write',
+        language: row.lang,
+        description: row.description,
+        occasion: row.occasion,
+        giftNames: row.giftNames,
+      },
+    )
+      .then((r) => lyricsSchema.safeParse(r.lyrics))
+      .catch((error: unknown) => {
+        if (error instanceof AppError) return undefined; // LYRICS_INVALID
+        throw error;
+      });
     if (!output?.success) {
       results.push({
         id: row.id,
@@ -62,21 +68,17 @@ export async function runLyricist(options: {
       continue;
     }
     const lyrics = output.data;
-    const text = lyrics.sections
-      .flatMap((s) => s.lines)
-      .join('\n')
-      .toLocaleLowerCase(row.lang);
+    const text = lyrics.sections.flatMap((s) => s.lines).join('\n');
     results.push({
       id: row.id,
       valid: true,
       tagsOk: lyrics.sections.every(
         (s) => sectionTagSchema.safeParse(s.tag).success,
       ),
-      languageOk: lyrics.language === row.lang,
+      languageOk:
+        lyrics.language === row.lang && languageMatches(text, row.lang),
       namesOk: row.giftNames.length
-        ? row.giftNames.every((name) =>
-            text.includes(name.toLocaleLowerCase(row.lang)),
-          )
+        ? row.giftNames.every((name) => !nameMissing(text, name, row.lang))
         : null,
     });
   }

@@ -27,6 +27,7 @@
                   "CAP_REACHED",
                   "KILL_SWITCH",
                   "PROVIDER_TIMEOUT",
+                  "LYRICS_INVALID",
                   "NOT_FOUND",
                   "CONFLICT",
                   "INTERNAL"
@@ -506,13 +507,40 @@
     },
     "/v1/catalogue": {
       "get": {
-        "description": "Enabled music models with capabilities, credit prices, language statuses and current availability.",
+        "description": "Enabled music models with capabilities, credit prices, language statuses and current availability, plus the lyricist prices.",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
                   "properties": {
+                    "lyricist": {
+                      "properties": {
+                        "available": {
+                          "type": "boolean"
+                        },
+                        "modelId": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "prices": {
+                          "properties": {
+                            "lyrics": {
+                              "exclusiveMinimum": 0,
+                              "type": "integer"
+                            },
+                            "rewrite": {
+                              "exclusiveMinimum": 0,
+                              "type": "integer"
+                            }
+                          },
+                          "required": ["lyrics", "rewrite"],
+                          "type": "object"
+                        }
+                      },
+                      "required": ["modelId", "available", "prices"],
+                      "type": ["object", "null"]
+                    },
                     "models": {
                       "items": {
                         "properties": {
@@ -673,7 +701,7 @@
                       "type": "array"
                     }
                   },
-                  "required": ["models"],
+                  "required": ["models", "lyricist"],
                   "type": "object"
                 }
               }

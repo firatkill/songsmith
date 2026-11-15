@@ -35,4 +35,4 @@ The rows are generated from templates in `eval/scripts/build-golden.ts`; edit th
 - **Mock** adds each row's `⟦mock:<expected_category>⟧` marker at run time, so the mock classifier returns the expected category. Mock runs therefore test the plumbing and layer 1: a layer-1 hit on an allowed row shows up as a false block, and a layer-1 override of a prohibited row shows up in the category table.
 - **Live** sends the row text unchanged to a live text adapter through the same `runLayers` code as `moderate()`. Live adapters arrive in M6; until then live mode stops with "No live text adapter".
 
-The lyricist suite checks schema validity, section tags, the declared language and gift names. T-18 adds the lyricist prompt, a language detector and runs these rows through the lyricist module.
+The lyricist suite runs every row through the lyricist module (`writeLyrics`, prompts in `backend/src/lyricist/prompts/`), including its validation and single repair attempt, and checks section tags, the declared and detected language (franc-min, Turkish and English) and gift names. A row the lyricist still cannot make valid counts as a miss on every measure.
