@@ -22,7 +22,7 @@ Updated: 2026-11-15.
 
 - T-10 doing: Merged in PR #13: mobile skeleton, `dev:all`, owner-approved redesign of mobile and web auth screens, and Appearance setting; Android and web verified. Remaining: iOS Simulator verification, blocked until Xcode 26.4+ is installed.
 - T-11 done (PR #14): provider types and `ProviderError`; six mock adapters (music A sync, music B async with extend and stems, text as lyricist and classifier, cover, image safety, alignment) with deterministic `⟦mock:…⟧` triggers; `pnpm fixtures:audio` (about 480 KB); registry with the startup capability check, 30 s cache, kill switches and breakers; breaker SQL with single-probe admission; IT-10 contract suite, UT-12 and DB-11. Decisions D-65–D-70.
-- T-12 doing: `/v1/admin` staff + AAL2 guard (Bull Board included), audited catalogue and flag endpoints, web admin console (TOTP MFA, catalogue editor, flags and kill switches), IT-31 and E2E-04. Decisions D-71–D-73.
+- T-12 done (PR #15): `/v1/admin` staff + AAL2 guard (Bull Board included), audited catalogue and flag endpoints, web admin console (TOTP MFA, catalogue editor, flags and kill switches), IT-31 and E2E-04. Decisions D-71–D-73.
 
 ## Tasks
 
@@ -41,7 +41,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-09 | Flags, kill switches, rate limits, cost counters | done   | 2a5cb30          |
 | T-10 | Mobile skeleton and the one-command local stack  | doing  |                  |
 | T-11 | Mock providers, registry and contract tests      | done   | 5571840          |
-| T-12 | Admin skeleton                                   | doing  |                  |
+| T-12 | Admin skeleton                                   | done   | 5e6d9ef          |
 | T-13 | Router and catalogue endpoint                    | todo   |                  |
 | T-14 | Deterministic moderation layer                   | todo   |                  |
 | T-15 | Moderation pipeline                              | todo   |                  |
