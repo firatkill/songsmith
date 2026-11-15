@@ -5,7 +5,7 @@ import { createHmac, randomUUID } from 'node:crypto';
 import { expect, it } from 'vitest';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
-import type { Database } from '@songsmith/schemas';
+import { catalogueSchema, type Database } from '@songsmith/schemas';
 import { createApp } from '../../src/app.js';
 import { loadEnv } from '../../src/lib/env.js';
 import { createLogger } from '../../src/lib/log.js';
@@ -145,6 +145,14 @@ it('IT-31: admin API requires staff and AAL2, and audits every change', async ()
       true,
     );
 
+    const publicIds = async () => {
+      const response = await fetch(`${http.url}/v1/catalogue`);
+      expect(response.status).toBe(200);
+      return catalogueSchema
+        .parse(await response.json())
+        .models.map((model) => model.id);
+    };
+    expect(await publicIds()).toContain('mock-music-b');
     const disabled = await call('/catalogue/mock-music-b', aal2, {
       method: 'PATCH',
       body: { enabled: false },
@@ -155,6 +163,7 @@ it('IT-31: admin API requires staff and AAL2, and audits every change', async ()
       enabled: false,
       usable: false,
     });
+    expect(await publicIds()).not.toContain('mock-music-b');
     expect(
       (
         await call('/catalogue/mock-music-b', aal2, {
@@ -217,6 +226,14 @@ it('IT-31: admin API requires staff and AAL2, and audits every change', async ()
         diff: { before: false, after: true },
       },
     ]);
+
+    // Restore via the API and prove the same server's warmed cache updates.
+    const restored = await call('/catalogue/mock-music-b', aal2, {
+      method: 'PATCH',
+      body: { enabled: true },
+    });
+    expect(restored.status).toBe(200);
+    expect(await publicIds()).toContain('mock-music-b');
 
     // Removing the role revokes access even with AAL2.
     await client
