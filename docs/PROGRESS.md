@@ -20,7 +20,8 @@ Updated: 2026-11-15.
 - T-08 done (PR #11): BullMQ 6 on Redis 7 with the TRD §9.1 queues, worker process, resumable step runner with SQL-persisted steps, sweeper and nightly schedulers, Redis-loss recovery, Bull Board behind staff + MFA, `pnpm dev` for Redis, API, worker and web; A-03 verified.
 - T-09 done (PR #12): flag registry with a shared 30 s cache and kill switches; Postgres fixed-window rate limits on the `/v1/me` writes; daily cost counters (Europe/Istanbul) and cap checks; `GET /v1/flags/public`; placeholder caps and limits until M6; `next-env.d.ts` generated instead of tracked.
 
-- T-10 doing: Redesign polish implemented: equal-width OTP cells, full-width date row with overflow/full-date paste, consistent web wordmark, AA dark selected segments and mobile disclosure chevron. Polish acceptance: format/lint/build/boundaries/exports/typecheck pass; 272 unit tests pass. Reviewer device/Playwright verification of these final details remains pending. Owner-approved mobile/web auth redesign implemented: restrained tokens, shared controls, sticky actions, OTP/date fields, grouped consent, empty states and Profile; System/Light/Dark persists via SecureStore or server-read cookie (D-63/D-64). Redesign acceptance: static gate and 254 unit tests pass; iOS/Android Hermes exports pass. Updated Playwright labels and preserved Maestro IDs; redesigned device screens, M-01, Playwright/CSP and screenshots await reviewer verification. Expo SDK 58 mobile skeleton (OTP sign-in, age gate, consent, tabs, TR/EN, Pop studio light/dark), `pnpm dev:all`, `pnpm dev:check`, development builds, Maestro M-01 and `docs/runbooks/local-dev.md`. Before the redesign, verified on the Android Emulator (M-01 passed 3 of 3 runs) and on web against the same local backend. Remaining: iOS Simulator build and sign-in, which need Xcode 26.4+ (the machine has 26.2); A-13 notes in the runbook.
+- T-10 doing: Merged in PR #13: mobile skeleton, `dev:all`, owner-approved redesign of mobile and web auth screens, and Appearance setting; Android and web verified. Remaining: iOS Simulator verification, blocked until Xcode 26.4+ is installed.
+- T-11 doing: provider types and `ProviderError`; six mock adapters (music A sync, music B async with extend and stems, text as lyricist and classifier, cover, image safety, alignment) with deterministic `⟦mock:…⟧` triggers; `pnpm fixtures:audio` (about 480 KB); registry with the startup capability check, 30 s cache, kill switches and breakers; breaker SQL with single-probe admission; IT-10 contract suite, UT-12 and DB-11. Decisions D-65–D-70.
 
 ## Tasks
 
@@ -38,7 +39,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-08 | Jobs runtime (BullMQ + Redis)                    | done   | d1e2dc0          |
 | T-09 | Flags, kill switches, rate limits, cost counters | done   | 2a5cb30          |
 | T-10 | Mobile skeleton and the one-command local stack  | doing  |                  |
-| T-11 | Mock providers, registry and contract tests      | todo   |                  |
+| T-11 | Mock providers, registry and contract tests      | doing  |                  |
 | T-12 | Admin skeleton                                   | todo   |                  |
 | T-13 | Router and catalogue endpoint                    | todo   |                  |
 | T-14 | Deterministic moderation layer                   | todo   |                  |
