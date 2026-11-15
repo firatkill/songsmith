@@ -184,7 +184,7 @@ describe('EV-01 mock run', () => {
     const metrics = moderationMetrics(results, thresholds);
     expect(metrics.hardBlockRecall).toBe(1);
     expect(metrics.passed).toBe(true);
-  });
+  }, 60_000); // The whole golden set (about 1200 rows) runs through layer 1.
   it('lyricist passes the NFR-13 thresholds', async () => {
     const { mockTextAdapter } = await import('@songsmith/backend/eval');
     const results = await runLyricist({
