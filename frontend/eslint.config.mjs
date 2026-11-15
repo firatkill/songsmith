@@ -22,4 +22,10 @@ export default [
       '@typescript-eslint/no-explicit-any': 'error',
     },
   },
+  {
+    // The MFA QR code is a small SVG data URI from Supabase Auth; next/image adds
+    // nothing for it and fails on it in development.
+    files: ['src/components/admin/mfa-form.tsx'],
+    rules: { '@next/next/no-img-element': 'off' },
+  },
 ];
