@@ -21,7 +21,7 @@ Updated: 2026-11-15.
 - T-09 done (PR #12): flag registry with a shared 30 s cache and kill switches; Postgres fixed-window rate limits on the `/v1/me` writes; daily cost counters (Europe/Istanbul) and cap checks; `GET /v1/flags/public`; placeholder caps and limits until M6; `next-env.d.ts` generated instead of tracked.
 
 - T-10 doing: Merged in PR #13: mobile skeleton, `dev:all`, owner-approved redesign of mobile and web auth screens, and Appearance setting; Android and web verified. Remaining: iOS Simulator verification, blocked until Xcode 26.4+ is installed.
-- T-11 doing: provider types and `ProviderError`; six mock adapters (music A sync, music B async with extend and stems, text as lyricist and classifier, cover, image safety, alignment) with deterministic `⟦mock:…⟧` triggers; `pnpm fixtures:audio` (about 480 KB); registry with the startup capability check, 30 s cache, kill switches and breakers; breaker SQL with single-probe admission; IT-10 contract suite, UT-12 and DB-11. Decisions D-65–D-70.
+- T-11 done (PR #14): provider types and `ProviderError`; six mock adapters (music A sync, music B async with extend and stems, text as lyricist and classifier, cover, image safety, alignment) with deterministic `⟦mock:…⟧` triggers; `pnpm fixtures:audio` (about 480 KB); registry with the startup capability check, 30 s cache, kill switches and breakers; breaker SQL with single-probe admission; IT-10 contract suite, UT-12 and DB-11. Decisions D-65–D-70.
 
 ## Tasks
 
@@ -39,7 +39,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-08 | Jobs runtime (BullMQ + Redis)                    | done   | d1e2dc0          |
 | T-09 | Flags, kill switches, rate limits, cost counters | done   | 2a5cb30          |
 | T-10 | Mobile skeleton and the one-command local stack  | doing  |                  |
-| T-11 | Mock providers, registry and contract tests      | doing  |                  |
+| T-11 | Mock providers, registry and contract tests      | done   | 5571840          |
 | T-12 | Admin skeleton                                   | todo   |                  |
 | T-13 | Router and catalogue endpoint                    | todo   |                  |
 | T-14 | Deterministic moderation layer                   | todo   |                  |
