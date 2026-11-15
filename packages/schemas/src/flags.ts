@@ -23,6 +23,13 @@ function flag<S extends z.ZodType, P extends boolean>(
 // Add new adapters/operations here when their owning task introduces them.
 // Caps and HTTP limits are mock-first placeholders, not live provider limits.
 export const flagRegistry = {
+  signup_grant_credits: flag(
+    positive,
+    30,
+    false,
+    'Placeholder verified email sign-up grant',
+    true,
+  ),
   music_queue_concurrency: flag(
     queueConcurrencySchema,
     4,
