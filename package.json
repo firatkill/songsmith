@@ -28,6 +28,7 @@
     "test:integration": "pnpm --filter @songsmith/backend... build && pnpm --filter @songsmith/backend test:integration",
     "e2e": "node scripts/e2e-web.mjs",
     "e2e:mobile": "node scripts/e2e-mobile.mjs",
+    "moderation:hash": "node --experimental-strip-types scripts/moderation-hash.mjs",
     "eval:moderation": "node scripts/not-implemented.mjs eval:moderation T-16",
     "eval:lyricist": "node scripts/not-implemented.mjs eval:lyricist T-16",
     "eval:language": "node scripts/not-implemented.mjs eval:language T-46",
