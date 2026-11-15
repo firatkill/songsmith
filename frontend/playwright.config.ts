@@ -37,6 +37,13 @@ export default defineConfig({
       env: { APP_ENV: 'ci', PROVIDER_MODE: 'mock' },
     },
     {
+      // T-20: the job screen needs a BullMQ worker to reach "ready".
+      command: 'pnpm --filter @songsmith/backend start:worker',
+      wait: { stdout: /Worker started/ },
+      reuseExistingServer: false,
+      env: { APP_ENV: 'ci', PROVIDER_MODE: 'mock', MOCK_LATENCY_MS: '500' },
+    },
+    {
       command: 'pnpm build && pnpm start',
       url: 'http://localhost:3000/en',
       reuseExistingServer: false,
