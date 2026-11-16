@@ -1615,3 +1615,138 @@ textarea {
 .studio-card > p.job-status {
   color: var(--colors-text);
 }
+
+/* T-21: notifications share the create flow's outlined cards and controls. */
+.notification-bell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
+}
+.notification-bell {
+  color: var(--colors-text);
+  text-decoration: none;
+  border: 2px solid var(--colors-text);
+  border-radius: var(--radii-pill);
+  padding: 0 10px;
+}
+.notification-count:empty {
+  display: none;
+}
+.notification-count {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: var(--radii-pill);
+  background: var(--colors-surfaceAccent);
+  color: var(--colors-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+.notification-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.notification-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.notification-row {
+  width: 100%;
+  text-align: start;
+  display: grid;
+  justify-content: stretch;
+  justify-items: start;
+  gap: 6px;
+  padding: 16px 18px;
+  min-height: 44px;
+  border: 2px solid var(--colors-hairline);
+  border-radius: var(--radii-field);
+  background: var(--colors-surface);
+  color: var(--colors-text);
+  font-family: var(--font-body), sans-serif;
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 400;
+}
+.notification-row:hover:not(:disabled) {
+  text-decoration: none;
+  border-color: var(--colors-text);
+}
+.notification-list li.unread .notification-row {
+  border-color: var(--colors-text);
+  box-shadow: 3px 3px 0 var(--colors-shadow);
+}
+.notification-list li:not(.unread) .notification-row {
+  color: var(--colors-muted);
+}
+.notification-kind {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-weight: 700;
+}
+.notification-row time {
+  font-size: 13px;
+  color: var(--colors-muted);
+}
+.unread-dot {
+  color: var(--colors-accent);
+}
+.unread-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.notification-empty p {
+  margin-inline: auto;
+}
+.notification-empty .status-chip {
+  justify-self: center;
+}
+.notification-empty .primary-button {
+  justify-self: center;
+  width: auto;
+  padding: 12px 24px;
+}
+.notification-empty {
+  text-align: center;
+  padding: 40px 24px;
+}
+.notification-settings {
+  margin-top: 32px;
+}
+.notification-settings fieldset {
+  border: 0;
+  padding: 0;
+  margin: 24px 0;
+  min-width: 0;
+}
+.notification-settings legend {
+  font-weight: 700;
+}
+.notification-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  min-height: 52px;
+  padding: 8px 0;
+}
+.notification-toggle input {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}

@@ -3,7 +3,8 @@ export const jobDataSchema = z.strictObject({
   jobId: z.uuid(),
   correlationId: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/),
 });
-export type JobData = z.infer<typeof jobDataSchema>;
+export const notificationJobDataSchema = z.strictObject({ jobId: z.uuid() });
+export type JobData = { jobId: string; correlationId?: string };
 export const jobStateSchema = z
   .object({
     done: z.record(z.string(), z.json()).default({}),

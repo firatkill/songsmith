@@ -1,4 +1,4 @@
-import { jobDataSchema } from '@songsmith/schemas';
+import { jobDataSchema, notificationJobDataSchema } from '@songsmith/schemas';
 import type { JobQueue } from './queues.js';
 export async function enqueue(
   queue: JobQueue,
@@ -6,7 +6,10 @@ export async function enqueue(
   data: unknown,
   options: { jobId: string },
 ) {
-  const parsed = jobDataSchema.parse(data);
+  const parsed =
+    name === 'deliver'
+      ? notificationJobDataSchema.parse(data)
+      : jobDataSchema.parse(data);
   if (parsed.jobId !== options.jobId) throw new Error('Job ID mismatch');
   return queue.add(name, parsed, { jobId: options.jobId });
 }

@@ -1,6 +1,7 @@
 import pino, { type DestinationStream } from 'pino';
 import { requestContext } from './correlation.js';
 const sensitiveFragments = [
+  'title',
   'birth',
   'dob',
   'lyric',

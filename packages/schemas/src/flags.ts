@@ -23,6 +23,34 @@ function flag<S extends z.ZodType, P extends boolean>(
 // Add new adapters/operations here when their owning task introduces them.
 // Caps and HTTP limits are mock-first placeholders, not live provider limits.
 export const flagRegistry = {
+  'rate_limit:notifications_read': flag(
+    rateLimitValueSchema,
+    { max: 30, windowSeconds: 60 },
+    false,
+    'Placeholder notification write limit',
+    true,
+  ),
+  'rate_limit:me_settings': flag(
+    rateLimitValueSchema,
+    { max: 30, windowSeconds: 60 },
+    false,
+    'Placeholder notification write limit',
+    true,
+  ),
+  'rate_limit:me_devices': flag(
+    rateLimitValueSchema,
+    { max: 30, windowSeconds: 60 },
+    false,
+    'Placeholder notification write limit',
+    true,
+  ),
+  'rate_limit:me_devices_delete': flag(
+    rateLimitValueSchema,
+    { max: 30, windowSeconds: 60 },
+    false,
+    'Placeholder notification write limit',
+    true,
+  ),
   signup_grant_credits: flag(
     positive,
     30,

@@ -11,3 +11,4 @@ export * from './moderation.js';
 export * from './credits.js';
 export * from './lyrics.js';
 export * from './songs.js';
+export * from './notifications.js';

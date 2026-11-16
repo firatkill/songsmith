@@ -870,7 +870,44 @@ export interface paths {
                 id: string;
                 marketing_email_opt_in: boolean;
                 notification_prefs: {
-                  [key: string]: unknown;
+                  /** @default {} */
+                  email: {
+                    /** @default false */
+                    gift_opened: boolean;
+                    /** @default false */
+                    song_failed: boolean;
+                    /** @default false */
+                    song_ready: boolean;
+                    /** @default false */
+                    stems_ready: boolean;
+                    /** @default false */
+                    video_ready: boolean;
+                  };
+                  /** @default {} */
+                  push: {
+                    /** @default false */
+                    account_deleted: boolean;
+                    /** @default false */
+                    export_ready: boolean;
+                    /** @default true */
+                    gift_opened: boolean;
+                    /** @default false */
+                    moderation_notice: boolean;
+                    /** @default false */
+                    report_decision: boolean;
+                    /** @default true */
+                    song_failed: boolean;
+                    /** @default true */
+                    song_ready: boolean;
+                    /** @default true */
+                    stems_ready: boolean;
+                    /** @default false */
+                    topup_prompt: boolean;
+                    /** @default false */
+                    topup_receipt: boolean;
+                    /** @default true */
+                    video_ready: boolean;
+                  };
                 };
                 updated_at: string;
                 /** Format: uuid */
@@ -1129,6 +1166,409 @@ export interface paths {
         };
       };
     };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/me/devices': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            expoPushToken: string;
+            /** @enum {string} */
+            platform: 'ios' | 'android';
+          };
+        };
+      };
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              /** @enum {boolean} */
+              ok: true;
+            };
+          };
+        };
+        /** @description Rate limit exceeded */
+        429: {
+          headers: {
+            /** @description Seconds until the fixed window resets */
+            'Retry-After'?: number;
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/me/devices/{token}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          token: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              /** @enum {boolean} */
+              ok: true;
+            };
+          };
+        };
+        /** @description Rate limit exceeded */
+        429: {
+          headers: {
+            /** @description Seconds until the fixed window resets */
+            'Retry-After'?: number;
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/me/notifications': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: {
+          cursor?: string;
+          limit?: number;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              items: {
+                createdAt: string;
+                /** Format: uuid */
+                id: string;
+                /** @enum {string} */
+                kind:
+                  | 'song_ready'
+                  | 'song_failed'
+                  | 'stems_ready'
+                  | 'video_ready'
+                  | 'gift_opened'
+                  | 'report_decision'
+                  | 'moderation_notice'
+                  | 'topup_receipt'
+                  | 'topup_prompt'
+                  | 'export_ready'
+                  | 'account_deleted';
+                payload: {
+                  /** Format: uuid */
+                  jobId?: string;
+                  /** Format: uuid */
+                  songId?: string | null;
+                  title?: string;
+                };
+                readAt: string | null;
+              }[];
+              nextCursor: string | null;
+              unread: number;
+            };
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/me/notifications/read': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json':
+            | {
+                ids: string[];
+              }
+            | {
+                /** @enum {boolean} */
+                all: true;
+              };
+        };
+      };
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              /** @enum {boolean} */
+              ok: true;
+            };
+          };
+        };
+        /** @description Rate limit exceeded */
+        429: {
+          headers: {
+            /** @description Seconds until the fixed window resets */
+            'Retry-After'?: number;
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/me/settings': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            marketingEmailOptIn?: boolean;
+            notificationPrefs?: {
+              email?: {
+                gift_opened?: boolean;
+                song_failed?: boolean;
+                song_ready?: boolean;
+                stems_ready?: boolean;
+                video_ready?: boolean;
+              };
+              push?: {
+                account_deleted?: boolean;
+                export_ready?: boolean;
+                gift_opened?: boolean;
+                moderation_notice?: boolean;
+                report_decision?: boolean;
+                song_failed?: boolean;
+                song_ready?: boolean;
+                stems_ready?: boolean;
+                topup_prompt?: boolean;
+                topup_receipt?: boolean;
+                video_ready?: boolean;
+              };
+            };
+          };
+        };
+      };
+      responses: {
+        /** @description HTTP 200 */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              analytics_consent: boolean;
+              created_at: string;
+              /** Format: uuid */
+              id: string;
+              marketing_email_opt_in: boolean;
+              notification_prefs: {
+                /** @default {} */
+                email: {
+                  /** @default false */
+                  gift_opened: boolean;
+                  /** @default false */
+                  song_failed: boolean;
+                  /** @default false */
+                  song_ready: boolean;
+                  /** @default false */
+                  stems_ready: boolean;
+                  /** @default false */
+                  video_ready: boolean;
+                };
+                /** @default {} */
+                push: {
+                  /** @default false */
+                  account_deleted: boolean;
+                  /** @default false */
+                  export_ready: boolean;
+                  /** @default true */
+                  gift_opened: boolean;
+                  /** @default false */
+                  moderation_notice: boolean;
+                  /** @default false */
+                  report_decision: boolean;
+                  /** @default true */
+                  song_failed: boolean;
+                  /** @default true */
+                  song_ready: boolean;
+                  /** @default true */
+                  stems_ready: boolean;
+                  /** @default false */
+                  topup_prompt: boolean;
+                  /** @default false */
+                  topup_receipt: boolean;
+                  /** @default true */
+                  video_ready: boolean;
+                };
+              };
+              updated_at: string;
+              /** Format: uuid */
+              user_id: string;
+            };
+          };
+        };
+        /** @description Rate limit exceeded */
+        429: {
+          headers: {
+            /** @description Seconds until the fixed window resets */
+            'Retry-After'?: number;
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+        /** @description API error */
+        default: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['ErrorResponse'];
+          };
+        };
+      };
+    };
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;

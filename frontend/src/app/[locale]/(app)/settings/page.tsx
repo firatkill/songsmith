@@ -1,3 +1,4 @@
+import { NotificationSettings } from '../../../../components/notifications';
 import { cookies } from 'next/headers';
 import { AppearanceSetting } from '../../../../components/appearance-setting';
 import {
@@ -20,6 +21,7 @@ export default async function Page({ params }: PageProps) {
             (await cookies()).get(appearanceCookieName)?.value,
           )}
         />
+        <NotificationSettings locale={locale} />
       </section>
     </main>
   );

@@ -1676,6 +1676,8 @@ export type Database = {
       notifications: {
         Row: {
           created_at: string;
+          dedupe_key: string | null;
+          deliveries: NonNullable<Json>;
           id: string;
           kind: string;
           payload: NonNullable<Json>;
@@ -1686,6 +1688,8 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           created_at?: string;
+          dedupe_key?: string | null;
+          deliveries?: NonNullable<Json>;
           id?: string;
           kind: string;
           payload?: NonNullable<Json>;
@@ -1695,6 +1699,8 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          dedupe_key?: string | null;
+          deliveries?: NonNullable<Json>;
           id?: string;
           kind?: string;
           payload?: NonNullable<Json>;

@@ -1,6 +1,10 @@
 import { Redis } from 'ioredis';
 import { Worker, UnrecoverableError, DelayedError, type Job } from 'bullmq';
-import { jobDataSchema, type JobData } from '@songsmith/schemas';
+import {
+  jobDataSchema,
+  notificationJobDataSchema,
+  type JobData,
+} from '@songsmith/schemas';
 import type { Logger } from '../lib/log.js';
 import {
   createQueues,
@@ -22,7 +26,8 @@ export class ProcessorRegistry {
     const processor = this.processors.get(`${queue}/${job.name}`);
     if (!processor) throw new UnrecoverableError('Processor not registered');
     // Schedulers carry no application payload; all application jobs carry IDs only.
-    if (queue !== 'maintenance') jobDataSchema.parse(job.data);
+    if (queue === 'notify') notificationJobDataSchema.parse(job.data);
+    else if (queue !== 'maintenance') jobDataSchema.parse(job.data);
     try {
       return await processor(job);
     } catch (error) {

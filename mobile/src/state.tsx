@@ -1,3 +1,4 @@
+import { unregisterPush } from './push';
 import {
   createContext,
   useContext,
@@ -136,6 +137,7 @@ export function Provider({ children }: { children: ReactNode }) {
     };
   }, []);
   async function signOut() {
+    await unregisterPush(localeRef.current);
     const result = await auth.signOut({ scope: 'local' });
     if (result.error) throw result.error;
     setEmail('');

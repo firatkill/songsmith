@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { useState } from 'react';
 import { useApp } from '../../src/state';
@@ -11,6 +12,7 @@ import {
   SegmentedControl,
 } from '../../src/ui';
 export default function Profile() {
+  const router = useRouter();
   const {
     t,
     me,
@@ -54,6 +56,14 @@ export default function Profile() {
         </View>
       </Group>
       <Copy variant="overline">{t('ui.settings')}</Copy>
+      <Group>
+        <ListRow
+          label={t('notification.settings')}
+          onPress={() => {
+            router.push('/notification-settings');
+          }}
+        />
+      </Group>
       <Group>
         <ListRow label={t('web.language')}>
           <SegmentedControl

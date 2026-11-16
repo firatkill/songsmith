@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { NotificationBell } from './notifications';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { formatMessage as t, type Locale } from '@songsmith/i18n';
@@ -38,7 +39,12 @@ export function Header({
           </select>
         </span>
       </label>
-      {signedIn && <Account locale={locale} />}
+      {signedIn && (
+        <>
+          <NotificationBell locale={locale} />
+          <Account locale={locale} />
+        </>
+      )}
     </header>
   );
 }

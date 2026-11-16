@@ -1,3 +1,5 @@
+import { createNotify, notifySong } from '../notify/index.js';
+import { createLogger } from '../lib/log.js';
 import { z } from 'zod';
 import { recoveryRowsSchema, musicAdapterSchema } from '@songsmith/schemas';
 import { randomUUID } from 'node:crypto';
@@ -30,6 +32,12 @@ export async function onJobFailedReleaseCredits(
       p_error_code: 'PROVIDER_TIMEOUT',
     });
     if (failed.error) throw new Error('Job failure not recorded');
+    await notifySong(
+      service,
+      createNotify(service, () => Promise.resolve()),
+      createLogger(),
+      jobId,
+    );
     return;
   }
   if (row?.reservation_id)

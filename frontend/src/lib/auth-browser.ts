@@ -17,6 +17,24 @@ export function browserRealtime() {
     env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   );
   return {
+    onNotificationsChange(userId: string, changed: () => void) {
+      const channel = client
+        .channel(`notifications:${userId}:${crypto.randomUUID()}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${userId}`,
+          },
+          changed,
+        )
+        .subscribe();
+      return () => {
+        void client.removeChannel(channel);
+      };
+    },
     onJobChange(jobId: string, changed: () => void) {
       const channel = client
         .channel(`job:${jobId}`)

@@ -1,6 +1,6 @@
 # Progress
 
-Updated: 2026-11-15.
+Updated: 2026-11-16.
 
 ## Status
 
@@ -34,6 +34,7 @@ Updated: 2026-11-15.
 - T-18 done (PR #21): `POST /v1/lyrics/write` and `/v1/lyrics/rewrite-section` with versioned prompts, validation and one repair attempt, input and output moderation, Idempotency-Key replay through lyricist jobs (migration 0014), catalogue lyricist prices; `packages/domain/src/lyrics.ts` (parse, serialise, add missing tags). Codex hit its usage limit, so the reviewer implemented this task. 433 pgTAP assertions, 56 integration tests including IT-14; lyricist and moderation mock evaluations pass. Decisions D-108–D-115.
 - T-19 done (PR #22): `POST /v1/songs` (moderation, routing, reservation, claimed job and pending song), `GET /v1/jobs/:id`, `generateSong` worker steps with run-time fallback, tagged MP3 in the private-media bucket, settle or release (migration 0015). Codex hit its usage limit, so the reviewer implemented this task. 454 pgTAP assertions, 64 integration tests including IT-15..IT-19. Decisions D-116–D-123.
 - T-20 done (PR #23): web create flow (Describe and My lyrics, lyrics editor with rewrite and undo, style controls and Advanced picker from the catalogue, moderation pre-check, priced Generate with the buy sheet stub, job progress screen), `GET /v1/wallet`, style controls on `POST /v1/songs`, E2E-10..E2E-14. Decisions D-124–D-132.
+- T-21 done (PR #24): `notify()` with dedupe and a `notify` queue (in-app row, push through a mock sender until the owner creates Firebase and Expo accounts, e-mail through Mailpit or Resend), notification preferences, web bell and notification centre, settings, mobile push registration and settings, IT-20 and E2E-15. Codex hit its usage limit mid-task, so the reviewer finished it. 469 pgTAP assertions, 78 integration tests, 13 E2E tests. Not yet verified: real push delivery (needs the owner's Firebase and Expo accounts) and the mobile screens on the Android emulator. Decisions D-133–D-141.
 
 ## Tasks
 
@@ -61,7 +62,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-18 | Lyricist                                         | done   | 9eb33b3          |
 | T-19 | Generation job end to end                        | done   | c14fd6d          |
 | T-20 | Web create flow                                  | done   | cb87da3          |
-| T-21 | Notifications                                    | todo   |                  |
+| T-21 | Notifications                                    | done   | 6d4e7a0          |
 | T-22 | Web library, player, search, downloads           | todo   |                  |
 | T-23 | Mobile create flow                               | todo   |                  |
 | T-24 | Mobile library, player and offline downloads     | todo   |                  |

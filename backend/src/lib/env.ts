@@ -5,6 +5,12 @@ const flag = z
   .transform((v) => v === 'true');
 const schema = z
   .object({
+    RESEND_API_KEY: z.string().optional(),
+    EMAIL_FROM: z.string().default('Songsmith <notifications@songsmith.local>'),
+    EXPO_ACCESS_TOKEN: z.string().optional(),
+    SMTP_HOST: z.string().default('127.0.0.1'),
+    SMTP_PORT: z.coerce.number().int().min(1).max(65535).default(54325),
+    PUBLIC_WEB_URL: z.url().default('http://localhost:3000'),
     APP_ENV: z.enum(['local', 'ci', 'production']).default('local'),
     PROVIDER_MODE: z.enum(['mock', 'live']).default('mock'),
     MOCK_LATENCY_MS: z.coerce.number().int().min(0).max(300000).default(3000),
