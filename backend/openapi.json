@@ -1512,7 +1512,87 @@
                           "type": "boolean"
                         },
                         "notification_prefs": {
-                          "additionalProperties": {},
+                          "additionalProperties": false,
+                          "properties": {
+                            "email": {
+                              "additionalProperties": false,
+                              "default": {},
+                              "properties": {
+                                "gift_opened": {
+                                  "default": false,
+                                  "type": "boolean"
+                                },
+                                "song_failed": {
+                                  "default": false,
+                                  "type": "boolean"
+                                },
+                                "song_ready": {
+                                  "default": false,
+                                  "type": "boolean"
+                                },
+                                "stems_ready": {
+                                  "default": false,
+                                  "type": "boolean"
+                                },
+                                "video_ready": {
+                                  "default": false,
+                                  "type": "boolean"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            "push": {
+                              "additionalProperties": false,
+                              "default": {},
+                              "properties": {
+                                "account_deleted": {
+                                  "default": false,
+                                  "type": "boolean"
+                                },
+                                "export_ready": {
+                                  "default": false,
+                                  "type": "boolean"
+                                },
+                                "gift_opened": {
+                                  "default": true,
+                                  "type": "boolean"
+                                },
+                                "moderation_notice": {
+                                  "default": false,
+                                  "type": "boolean"
+                                },
+                                "report_decision": {
+                                  "default": false,
+                                  "type": "boolean"
+                                },
+                                "song_failed": {
+                                  "default": true,
+                                  "type": "boolean"
+                                },
+                                "song_ready": {
+                                  "default": true,
+                                  "type": "boolean"
+                                },
+                                "stems_ready": {
+                                  "default": true,
+                                  "type": "boolean"
+                                },
+                                "topup_prompt": {
+                                  "default": false,
+                                  "type": "boolean"
+                                },
+                                "topup_receipt": {
+                                  "default": false,
+                                  "type": "boolean"
+                                },
+                                "video_ready": {
+                                  "default": true,
+                                  "type": "boolean"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          },
                           "type": "object"
                         },
                         "updated_at": {
@@ -1926,6 +2006,596 @@
                     }
                   },
                   "required": ["consents"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Rate limit exceeded",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the fixed window resets",
+                "schema": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/me/devices": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "expoPushToken": {
+                    "maxLength": 256,
+                    "pattern": "^(Expo|Exponent)PushToken\\[[A-Za-z0-9_-]+\\]$",
+                    "type": "string"
+                  },
+                  "platform": {
+                    "enum": ["ios", "android"],
+                    "type": "string"
+                  }
+                },
+                "required": ["platform", "expoPushToken"],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "ok": {
+                      "enum": [true],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["ok"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Rate limit exceeded",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the fixed window resets",
+                "schema": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/me/devices/{token}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "maxLength": 256,
+              "pattern": "^(Expo|Exponent)PushToken\\[[A-Za-z0-9_-]+\\]$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "ok": {
+                      "enum": [true],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["ok"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Rate limit exceeded",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the fixed window resets",
+                "schema": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/me/notifications": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "maxLength": 100,
+              "pattern": "^[0-9TZ:.+-]+~[0-9a-f-]{36}$",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 50,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "items": {
+                      "items": {
+                        "properties": {
+                          "createdAt": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "format": "uuid",
+                            "type": "string"
+                          },
+                          "kind": {
+                            "enum": [
+                              "song_ready",
+                              "song_failed",
+                              "stems_ready",
+                              "video_ready",
+                              "gift_opened",
+                              "report_decision",
+                              "moderation_notice",
+                              "topup_receipt",
+                              "topup_prompt",
+                              "export_ready",
+                              "account_deleted"
+                            ],
+                            "type": "string"
+                          },
+                          "payload": {
+                            "properties": {
+                              "jobId": {
+                                "format": "uuid",
+                                "type": "string"
+                              },
+                              "songId": {
+                                "format": "uuid",
+                                "type": ["string", "null"]
+                              },
+                              "title": {
+                                "maxLength": 200,
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "readAt": {
+                            "type": ["string", "null"]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "kind",
+                          "payload",
+                          "readAt",
+                          "createdAt"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "nextCursor": {
+                      "type": ["string", "null"]
+                    },
+                    "unread": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  },
+                  "required": ["items", "nextCursor", "unread"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/me/notifications/read": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "ids": {
+                        "items": {
+                          "format": "uuid",
+                          "type": "string"
+                        },
+                        "maxItems": 100,
+                        "minItems": 1,
+                        "type": "array"
+                      }
+                    },
+                    "required": ["ids"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "all": {
+                        "enum": [true],
+                        "type": "boolean"
+                      }
+                    },
+                    "required": ["all"],
+                    "type": "object"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "ok": {
+                      "enum": [true],
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["ok"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "HTTP 200"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Rate limit exceeded",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the fixed window resets",
+                "schema": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "API error"
+          }
+        },
+        "x-auth-mode": "required"
+      }
+    },
+    "/v1/me/settings": {
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "marketingEmailOptIn": {
+                    "type": "boolean"
+                  },
+                  "notificationPrefs": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "email": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "gift_opened": {
+                            "type": "boolean"
+                          },
+                          "song_failed": {
+                            "type": "boolean"
+                          },
+                          "song_ready": {
+                            "type": "boolean"
+                          },
+                          "stems_ready": {
+                            "type": "boolean"
+                          },
+                          "video_ready": {
+                            "type": "boolean"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "push": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "account_deleted": {
+                            "type": "boolean"
+                          },
+                          "export_ready": {
+                            "type": "boolean"
+                          },
+                          "gift_opened": {
+                            "type": "boolean"
+                          },
+                          "moderation_notice": {
+                            "type": "boolean"
+                          },
+                          "report_decision": {
+                            "type": "boolean"
+                          },
+                          "song_failed": {
+                            "type": "boolean"
+                          },
+                          "song_ready": {
+                            "type": "boolean"
+                          },
+                          "stems_ready": {
+                            "type": "boolean"
+                          },
+                          "topup_prompt": {
+                            "type": "boolean"
+                          },
+                          "topup_receipt": {
+                            "type": "boolean"
+                          },
+                          "video_ready": {
+                            "type": "boolean"
+                          }
+                        },
+                        "type": "object"
+                      }
+                    },
+                    "type": "object"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "analytics_consent": {
+                      "type": "boolean"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "marketing_email_opt_in": {
+                      "type": "boolean"
+                    },
+                    "notification_prefs": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "email": {
+                          "additionalProperties": false,
+                          "default": {},
+                          "properties": {
+                            "gift_opened": {
+                              "default": false,
+                              "type": "boolean"
+                            },
+                            "song_failed": {
+                              "default": false,
+                              "type": "boolean"
+                            },
+                            "song_ready": {
+                              "default": false,
+                              "type": "boolean"
+                            },
+                            "stems_ready": {
+                              "default": false,
+                              "type": "boolean"
+                            },
+                            "video_ready": {
+                              "default": false,
+                              "type": "boolean"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "push": {
+                          "additionalProperties": false,
+                          "default": {},
+                          "properties": {
+                            "account_deleted": {
+                              "default": false,
+                              "type": "boolean"
+                            },
+                            "export_ready": {
+                              "default": false,
+                              "type": "boolean"
+                            },
+                            "gift_opened": {
+                              "default": true,
+                              "type": "boolean"
+                            },
+                            "moderation_notice": {
+                              "default": false,
+                              "type": "boolean"
+                            },
+                            "report_decision": {
+                              "default": false,
+                              "type": "boolean"
+                            },
+                            "song_failed": {
+                              "default": true,
+                              "type": "boolean"
+                            },
+                            "song_ready": {
+                              "default": true,
+                              "type": "boolean"
+                            },
+                            "stems_ready": {
+                              "default": true,
+                              "type": "boolean"
+                            },
+                            "topup_prompt": {
+                              "default": false,
+                              "type": "boolean"
+                            },
+                            "topup_receipt": {
+                              "default": false,
+                              "type": "boolean"
+                            },
+                            "video_ready": {
+                              "default": true,
+                              "type": "boolean"
+                            }
+                          },
+                          "type": "object"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "updated_at": {
+                      "type": "string"
+                    },
+                    "user_id": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "user_id",
+                    "notification_prefs",
+                    "marketing_email_opt_in",
+                    "analytics_consent",
+                    "created_at",
+                    "updated_at"
+                  ],
                   "type": "object"
                 }
               }

@@ -1,3 +1,8 @@
+import { createNotify, createDeliverNotification } from './notify/index.js';
+import { recoverNotifications } from './notify/recovery.js';
+import { MockPushSender, ExpoPushSender } from './notify/push.js';
+import { SmtpSender, ResendSender } from './notify/email.js';
+import { enqueue } from './jobs/enqueue.js';
 import { createFlags } from './lib/flags.js';
 import { cleanupRateLimits } from './lib/rate-limit.js';
 import { loadEnv } from './lib/env.js';
@@ -15,13 +20,35 @@ const flags = createFlags(service, logger);
 const definitions = await queueDefinitions(service, flags);
 const queues = createQueues(definitions, env.REDIS_URL, logger);
 const models = createRegistry(service, env, flags, logger);
+const enqueueNotification = async (id: string) => {
+  const queue = queues.queues.get('notify');
+  if (!queue) throw new Error('Notification queue unavailable');
+  await enqueue(queue, 'deliver', { jobId: id }, { jobId: id });
+};
+const notify = createNotify(service, enqueueNotification);
+const deliverNotification = createDeliverNotification({
+  service,
+  logger,
+  webUrl: env.PUBLIC_WEB_URL,
+  push: env.EXPO_ACCESS_TOKEN
+    ? new ExpoPushSender(env.EXPO_ACCESS_TOKEN)
+    : new MockPushSender(),
+  email: env.RESEND_API_KEY
+    ? new ResendSender(env.RESEND_API_KEY, env.EMAIL_FROM)
+    : new SmtpSender(env),
+});
 const generateSong = createGenerateSong({
+  notify,
   service,
   models: () => models,
   logger,
 });
 const registry = new ProcessorRegistry()
-  .register('maintenance', 'sweeper', () => sweepJobs(service, queues.queues))
+  .register('notify', 'deliver', (job) => deliverNotification(job.data.jobId))
+  .register('maintenance', 'sweeper', async () => {
+    await sweepJobs(service, queues.queues);
+    await recoverNotifications(service, queues.queues, logger);
+  })
   .register('maintenance', 'nightly', () => {
     logger.info('Nightly rate-limit cleanup');
     return cleanupRateLimits(service);

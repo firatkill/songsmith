@@ -1,3 +1,4 @@
+import { createNotify, notifySong, type Notify } from '../notify/index.js';
 import { DelayedError, UnrecoverableError } from 'bullmq';
 import { route } from '@songsmith/domain';
 import {
@@ -35,6 +36,7 @@ export interface GenerateDeps {
   models: () => Promise<Registry>;
   logger: Pick<Logger, 'info' | 'warn'>;
   store?: StepStore;
+  notify?: Notify;
 }
 export interface GenerateJob extends StepJob {
   attemptsMade?: number;
@@ -122,11 +124,17 @@ export function pickModel(input: {
 
 export function createGenerateSong(deps: GenerateDeps) {
   const store = deps.store ?? stepStore(deps.service);
+  const notify =
+    deps.notify ?? createNotify(deps.service, () => Promise.resolve());
+  const emit = (id: string) =>
+    notifySong(deps.service, notify, deps.logger, id);
   return async function generateSong(job: GenerateJob) {
     const { jobId, correlationId } = jobDataSchema.parse(job.data);
     const row = await loadJob(deps.service, jobId);
-    if (['ready', 'failed', 'refunded', 'cancelled'].includes(row.status))
-      return; // A final job is never processed again.
+    if (['ready', 'failed', 'refunded', 'cancelled'].includes(row.status)) {
+      await emit(jobId);
+      return;
+    }
     const ctx = (): ProviderContext => ({
       jobId,
       userId: row.user_id,
@@ -173,6 +181,7 @@ export function createGenerateSong(deps: GenerateDeps) {
         .rpc('fail_song_job', { p_job_id: jobId, p_error_code: code });
       if (result.error) throw new Error('Job failure not recorded');
       deps.logger.warn({ jobId, errorCode: code }, 'song.failed');
+      await emit(jobId);
     };
     try {
       if (row.status === 'queued') {
@@ -317,6 +326,14 @@ export function createGenerateSong(deps: GenerateDeps) {
         ],
         store,
       );
+      // A notification or step-persistence failure never retries a song.
+      await emit(jobId);
+      await store.save(jobId, 'notify', true).catch(() => {
+        deps.logger.warn(
+          { jobId, errorCode: 'INTERNAL' },
+          'notification.step_failed',
+        );
+      });
     } catch (error) {
       if (error instanceof DelayedError) throw error;
       const notRetryable =

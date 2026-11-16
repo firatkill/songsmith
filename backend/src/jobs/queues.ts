@@ -48,6 +48,7 @@ export async function queueDefinitions(
         ...(value === null ? {} : { limiter: queueLimiterSchema.parse(value) }),
       };
     }),
+    { name: 'notify', concurrency: 4 },
     { name: 'media', concurrency: 4 },
     { name: 'video', concurrency: 1 },
     { name: 'account', concurrency: 2 },

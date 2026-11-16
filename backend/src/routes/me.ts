@@ -1,3 +1,4 @@
+import { registerNotifications } from './notifications.js';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import {
@@ -15,6 +16,7 @@ import { defineRoute, type RouteContext } from '../lib/route.js';
 import { AppError } from '../lib/errors.js';
 
 export function registerMe(context: RouteContext, service: Service) {
+  registerNotifications(context, service);
   const request = { params: z.object({}), query: z.object({}) };
   defineRoute(context, {
     method: 'get',
