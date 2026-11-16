@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { notificationPrefsSchema } from './notifications.js';
 
 // Provisional until the legal drafts in T-40.
 export const consentVersions = {
@@ -66,7 +67,7 @@ export const profileSchema = z.object({
 export const settingsSchema = z.object({
   id: z.uuid(),
   user_id: z.uuid(),
-  notification_prefs: z.record(z.string(), z.unknown()),
+  notification_prefs: notificationPrefsSchema,
   marketing_email_opt_in: z.boolean(),
   analytics_consent: z.boolean(),
   created_at: z.string(),
