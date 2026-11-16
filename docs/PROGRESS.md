@@ -1,8 +1,10 @@
 # Progress
 
-Updated: 2026-11-15.
+Updated: 2026-11-16.
 
 ## Status
+
+- T-21 doing: `notify()` with dedupe and a `notify` queue (in-app row, push through a mock sender until the owner creates Firebase and Expo accounts, e-mail through Mailpit or Resend), notification preferences, web bell and notification centre, settings, mobile push registration and settings, IT-20 and E2E-15. Decisions D-133–D-141.
 
 - Specs committed: `docs/PRD.md`, `docs/TRD.md`, `docs/IMPLEMENTATION_PLAN.md`, `AGENTS.md`. Committed in the public `firatkill/songsmith` repository.
 - Build order is mock-first (PRD D-12): M0–M5 cost nothing; paid work starts at T-45.
@@ -61,7 +63,7 @@ A finishing commit is recorded only when acceptance checks, including CI, pass.
 | T-18 | Lyricist                                         | done   | 9eb33b3          |
 | T-19 | Generation job end to end                        | done   | c14fd6d          |
 | T-20 | Web create flow                                  | done   | cb87da3          |
-| T-21 | Notifications                                    | todo   |                  |
+| T-21 | Notifications                                    | doing  |                  |
 | T-22 | Web library, player, search, downloads           | todo   |                  |
 | T-23 | Mobile create flow                               | todo   |                  |
 | T-24 | Mobile library, player and offline downloads     | todo   |                  |
