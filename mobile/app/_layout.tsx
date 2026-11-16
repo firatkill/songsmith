@@ -1,3 +1,4 @@
+import { PushRegistration } from '../src/push-registration';
 import '../src/zod-config';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -48,11 +49,13 @@ function Gate() {
     );
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      {stage === 'ready' && <PushRegistration />}
       <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Protected guard={stage === 'ready'}>
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="notification-settings" />
         </Stack.Protected>
         <Stack.Protected guard={stage !== 'ready'}>
           <Stack.Screen name="(auth)" />

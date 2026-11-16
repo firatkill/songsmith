@@ -16,6 +16,7 @@ const config: ExpoConfig = {
   android: { package: 'com.songsmith.app.dev' },
   plugins: [
     'expo-router',
+    'expo-notifications',
     'expo-secure-store',
     'expo-localization',
     'expo-font',
