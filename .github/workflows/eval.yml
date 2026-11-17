@@ -50,7 +50,7 @@ jobs:
           if [ -n "$BUDGET_USD" ]; then args+=(--budget-usd "$BUDGET_USD"); fi
           if [ -n "$ADAPTER" ]; then args+=(--adapter "$ADAPTER"); fi
           pnpm "eval:$SUITE" "${args[@]}"
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: eval-${{ inputs.suite }}-${{ inputs.mode }}

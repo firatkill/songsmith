@@ -49,7 +49,7 @@ jobs:
         run: pnpm eval:golden && git diff --exit-code eval
       - run: pnpm eval:moderation --mode mock
       - run: pnpm eval:lyricist --mode mock
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: eval-mock-reports
@@ -146,13 +146,13 @@ jobs:
           export NEXT_PUBLIC_SUPABASE_ANON_KEY="$ANON_KEY"
           export CHROME_PATH="$(find ~/.cache/ms-playwright -name chrome -type f | head -1)"
           pnpm --filter @songsmith/frontend lighthouse
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: lighthouse-mobile
           path: frontend/.lighthouseci
           include-hidden-files: true
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report-and-traces
