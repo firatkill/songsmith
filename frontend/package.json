@@ -20,7 +20,7 @@
     "@songsmith/schemas": "workspace:*",
     "@songsmith/ui-tokens": "workspace:*",
     "@supabase/ssr": "0.12.7",
-    "@supabase/supabase-js": "2.119.0",
+    "@supabase/supabase-js": "2.119.2",
     "next": "16.4.6",
     "react": "19.3.1",
     "react-dom": "19.3.1",
@@ -29,9 +29,9 @@
   "devDependencies": {
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@playwright/test": "1.65.0",
+    "@playwright/test": "1.65.1",
     "@axe-core/playwright": "4.14.0",
-    "@lhci/cli": "0.16.0",
+    "@lhci/cli": "0.16.1",
     "@next/eslint-plugin-next": "16.4.6"
   }
 }

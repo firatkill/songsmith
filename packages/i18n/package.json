@@ -10,7 +10,7 @@
     "build": "tsc -p tsconfig.build.json && node ../../scripts/inline-messages.mjs"
   },
   "dependencies": {
-    "intl-messageformat": "12.1.5"
+    "intl-messageformat": "12.2.0"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
